@@ -239,12 +239,12 @@ export default function Audit_Log() {
             sx={{
               display: "flex",
               justifyContent: "space-evenly",
-              backgroundColor: "red",
+              backgroundColor: "",
               width: "100%",
               margin: "20px 0px",
             }}
           >
-            <Box sx={{ width: "13%", backgroundColor: "lime" }}>
+            <Box sx={{ width: "13%", backgroundColor: "" }}>
               <Typography
                 sx={{
                   fontSize: "14px",
@@ -275,7 +275,7 @@ export default function Audit_Log() {
                 </MenuItem>
               </Select>
             </Box>
-            <Box sx={{ width: "13%", backgroundColor: "lime" }}>
+            <Box sx={{ width: "13%", backgroundColor: "" }}>
               <Typography
                 sx={{
                   fontSize: "14px",
@@ -306,7 +306,7 @@ export default function Audit_Log() {
                 </MenuItem>
               </Select>
             </Box>
-            <Box sx={{ width: "13%", backgroundColor: "lime" }}>
+            <Box sx={{ width: "13%", backgroundColor: "" }}>
               <Typography
                 sx={{
                   fontSize: "14px",
@@ -337,7 +337,7 @@ export default function Audit_Log() {
                 </MenuItem>
               </Select>
             </Box>
-            <Box sx={{ width: "13%", backgroundColor: "lime" }}>
+            <Box sx={{ width: "13%", backgroundColor: "" }}>
               <Typography
                 sx={{
                   fontSize: "14px",
@@ -358,7 +358,7 @@ export default function Audit_Log() {
                 }}
               />
             </Box>
-            <Box sx={{ width: "13%", backgroundColor: "lime" }}>
+            <Box sx={{ width: "13%", backgroundColor: "" }}>
               <Typography
                 sx={{
                   fontSize: "14px",
