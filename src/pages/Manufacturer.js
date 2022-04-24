@@ -12,13 +12,13 @@ import {
   Pagination,
 } from "@mui/material";
 
-import { supplier_data } from "../utils/supplier_sample_data";
+import { sample_data } from "../utils/sample_data";
 
 import CustomImportButton from "./components/CustomImportButton";
 import CustomExportButton from "./components/CustomExportButton";
 import CustomSideBar from "./components/CustomSideBar";
 import CustomHeaderBar from "./components/CustomHeaderBar";
-import CustomModal from "./components/CustomModal";
+import CustomSupManufactModal from "./components/CustomSupManufactModal";
 
 import { ReactComponent as ArrowDownIcon } from "../assets/svg/arrow_down.svg";
 import { ReactComponent as UserIcon } from "../assets/svg/user1.svg";
@@ -36,10 +36,10 @@ export default function Manufacturer() {
     isImport: true,
     isExport: true,
   });
-  const [supplier_modal, Setsupplier_modal] = useState({
+  const [manufacturer_modal, SetManufacturer_modal] = useState({
     isOpen: false,
   });
-  const [supplier_info, Setsupplier_info] = useState({
+  const [manufacturer_info, SetManufacturer_info] = useState({
     data: {},
   });
 
@@ -59,17 +59,17 @@ export default function Manufacturer() {
   };
 
   const SupplierHandleOpen = () => {
-    Setsupplier_modal({ ...supplier_modal, isOpen: true });
+    SetManufacturer_modal({ ...manufacturer_modal, isOpen: true });
   };
   const SupplierFunc = (data) => {
     SupplierHandleOpen();
     SupplierData(data)
   }
   const SupplierHandleClose = () => {
-    Setsupplier_modal({ ...supplier_modal, isOpen: false });
+    SetManufacturer_modal({ ...manufacturer_modal, isOpen: false });
   };
   const SupplierData = (data) => {
-    Setsupplier_info({...supplier_info, data: data})
+    SetManufacturer_info({...manufacturer_info, data: data})
   };
 
   return (
@@ -347,7 +347,7 @@ export default function Manufacturer() {
                 Address
               </Typography>
             </Box>
-            {supplier_data.map((index, i) => (
+            {sample_data.map((index, i) => (
               <Paper
                 key={i}
                 sx={{
@@ -405,7 +405,7 @@ export default function Manufacturer() {
                       fontSize: "12px",
                     }}
                   >
-                    Manufacturer ID: {index.supplier_id}
+                    Manufacturer ID: {index.id}
                   </Typography>
                 </Box>
                 <Box
@@ -494,10 +494,10 @@ export default function Manufacturer() {
         >
           <Typography>@ 2022 made by UIP Dev Interns</Typography>
         </Box>
-        <CustomModal
-          open={supplier_modal.isOpen}
+        <CustomSupManufactModal
+          open={manufacturer_modal.isOpen}
           onClose={SupplierHandleClose}
-          supplier_info={supplier_info.data}
+          company_info={manufacturer_info.data}
           path_url={pathname}
         />
       </Box>

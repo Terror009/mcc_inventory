@@ -224,10 +224,13 @@ export const classes = {
     textDecoration: "none",
   },
 
-  supplier_edit_input: {
+  edit_input: {
     width: "80%",
     borderRadius: "10px",
     "& .MuiOutlinedInput-root": {
+      borderRadius: "15px",
+      height: "35px",
+      fontSize: "12px",
       "&:hover fieldset": {
         transition: "all 0.4s ease",
         borderColor: (theme) => theme.palette.secondary.main,
