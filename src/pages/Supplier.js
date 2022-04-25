@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Helmet } from "react-helmet";
 import {
   Box,
@@ -18,7 +18,8 @@ import CustomImportButton from "./components/CustomImportButton";
 import CustomExportButton from "./components/CustomExportButton";
 import CustomSideBar from "./components/CustomSideBar";
 import CustomHeaderBar from "./components/CustomHeaderBar";
-import CustomSupManufactModal  from "./components/CustomSupManufactModal";
+import CustomSupManufactModal from "./components/CustomSupManufactModal";
+import CustomAddNew from "./components/CustomAddNew";
 
 import { ReactComponent as ArrowDownIcon } from "../assets/svg/arrow_down.svg";
 import { ReactComponent as UserIcon } from "../assets/svg/user1.svg";
@@ -26,11 +27,41 @@ import { ReactComponent as DeleteIcon } from "../assets/svg/trash.svg";
 import { ReactComponent as UpdateIcon } from "../assets/svg/update.svg";
 import { ReactComponent as SearchIcon } from "../assets/svg/search1.svg";
 
-import { useLocation } from "react-router-dom";
+import { API } from "../api/api";
+import axios from "axios";
+import { deleteSupplier } from "../api/supplierApi";
 
+import { useLocation } from "react-router-dom";
 export default function Supplier() {
   let { pathname } = useLocation();
-
+  const [payload, setPayload] = useState({
+    data: [{}],
+    idChecked: false,
+  });
+  useEffect(() => {
+    const fetchData = () => {
+      axios({
+        method: "GET",
+        url: API.supplier.fecthSupplier,
+      })
+        .then((response) => {
+          setPayload({ ...payload, data: response.data });
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+      /*       const res = axios
+        .get(API.supplier.fecthSupplier.at,)
+        .then((response) => {
+          setPayload({ ...payload.data, data: this.response.data });
+        })
+        .catch((err) => {
+          console.log(err);
+        }); */
+    };
+    fetchData();
+  }, []);
+  console.log(payload.data);
   const [sidebar, Setsidebar] = useState({
     isOpen: false,
   });
@@ -40,11 +71,11 @@ export default function Supplier() {
   });
   const [supplier_modal, Setsupplier_modal] = useState({
     isOpen: false,
+    isAddbtn: false,
   });
   const [supplier_info, Setsupplier_info] = useState({
     data: {},
   });
-
   const SideBarHandle = () => {
     Setsidebar({ ...sidebar, isOpen: true });
   };
@@ -63,6 +94,9 @@ export default function Supplier() {
   const SupplierHandleOpen = () => {
     Setsupplier_modal({ ...supplier_modal, isOpen: true });
   };
+  const SupplierAddHandleOpen = () => {
+    Setsupplier_modal({ ...supplier_modal, isAddbtn: true });
+  };
   const SupplierFunc = (data) => {
     SupplierHandleOpen();
     SupplierData(data);
@@ -70,10 +104,29 @@ export default function Supplier() {
   const SupplierHandleClose = () => {
     Setsupplier_modal({ ...supplier_modal, isOpen: false });
   };
+  const SupplierAddHandleClose = () => {
+    Setsupplier_modal({ ...supplier_modal, isAddbtn: false });
+  };
   const SupplierData = (data) => {
     Setsupplier_info({ ...supplier_info, data: data });
   };
-
+  const isChecked = (data) => {
+    setPayload({ ...payload, idChecked: !payload.idChecked });
+    console.log(data);
+  };
+  const CheckAll = () => {
+    setPayload({ ...payload, idChecked: !payload.idChecked });
+  };
+  const DeleteAll = () => {
+    let supplier_ids = [];
+    payload.data.forEach((index) => {
+      if (payload.idChecked === true) {
+        supplier_ids.push(index.supplier_id);
+        deleteSupplier(supplier_ids);
+      }
+    });
+    console.log(supplier_ids);
+  };
   return (
     <Box
       sx={{
@@ -265,6 +318,7 @@ export default function Supplier() {
                   backgroundColor: (theme) => theme.palette.primary.main,
                   color: (theme) => theme.palette.textColor.col1,
                 }}
+                onClick={SupplierAddHandleOpen}
               >
                 <UserIcon style={{ marginRight: "10px" }} />
                 <Typography sx={{ fontSize: "14px" }}>Add New</Typography>
@@ -287,6 +341,7 @@ export default function Supplier() {
                     backgroundColor: (theme) => theme.palette.primary.main,
                     color: (theme) => theme.palette.textColor.col1,
                   }}
+                  onClick={DeleteAll}
                 >
                   <DeleteIcon style={{ marginRight: "10px" }} />
                   <Typography sx={{ fontSize: "14px" }}>Delete</Typography>
@@ -305,7 +360,7 @@ export default function Supplier() {
                   <UpdateIcon style={{ marginRight: "10px" }} />
                   <Typography sx={{ fontSize: "14px" }}>Update</Typography>
                 </Button>
-                <Checkbox />
+                <Checkbox onClick={CheckAll} />
               </Box>
             </Box>
             <Box
@@ -349,137 +404,166 @@ export default function Supplier() {
                 Address
               </Typography>
             </Box>
-            {sample_data.map((index, i) => (
+            {payload.data == "" ? (
               <Paper
-                key={i}
                 sx={{
                   display: "flex",
-                  height: "80px",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  height: "200px",
                   width: "100%",
+                  borderRadius: "10px",
+                  backgroundColor: (theme) => theme.palette.primary.main,
                   marginTop: "20px",
-                  borderRadius: "20px",
-                  overflow: "hidden",
-                  transition: "all 0.3s ease",
-                  "&:hover": {
-                    backgroundColor: (theme) => theme.palette.secondary.bg2,
-                  },
                 }}
-                onClick={() => SupplierFunc(index)}
               >
-                <Box
+                <Typography
+                  variant="h4"
                   sx={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    backgroundColor: (theme) => theme.palette.secondary.main,
-                    height: "100%",
-                    width: "7%",
+                    color: (theme) => theme.palette.textColor.col4,
+                    opacity: "0.5",
                   }}
                 >
-                  <Typography
-                    variant="h3"
-                    sx={{ color: (theme) => theme.palette.textColor.col2 }}
-                  >
-                    {index.alt}
-                  </Typography>
-                </Box>
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    height: "100%",
-                    width: "20%",
-                  }}
-                >
-                  <Typography
-                    sx={{
-                      color: (theme) => theme.palette.textColor.col1,
-                      fontSize: "14px",
-                    }}
-                  >
-                    {index.name}
-                  </Typography>
-                  <Typography
-                    sx={{
-                      color: (theme) => theme.palette.textColor.col4,
-                      fontSize: "12px",
-                    }}
-                  >
-                    Supplier ID: {index.id}
-                  </Typography>
-                </Box>
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    height: "100%",
-                    width: "22%",
-                  }}
-                >
-                  <Typography
-                    sx={{
-                      color: (theme) => theme.palette.textColor.col4,
-                      fontSize: "12px",
-                    }}
-                  >
-                    {index.email}
-                  </Typography>
-                </Box>
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    height: "100%",
-                    width: "22%",
-                  }}
-                >
-                  <Typography
-                    sx={{
-                      color: (theme) => theme.palette.textColor.col4,
-                      fontSize: "12px",
-                    }}
-                  >
-                    {index.contact}
-                  </Typography>
-                </Box>
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    height: "100%",
-                    width: "22%",
-                  }}
-                >
-                  <Typography
-                    sx={{
-                      color: (theme) => theme.palette.textColor.col4,
-                      fontSize: "12px",
-                    }}
-                  >
-                    {index.address}
-                  </Typography>
-                </Box>
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    height: "100%",
-                    width: "7%",
-                  }}
-                >
-                  <Checkbox />
-                </Box>
+                  No Data
+                </Typography>
               </Paper>
-            ))}
+            ) : (
+              payload.data.map((index, i) => (
+                <Paper
+                  key={i}
+                  sx={{
+                    display: "flex",
+                    height: "80px",
+                    width: "100%",
+                    marginTop: "20px",
+                    borderRadius: "20px",
+                    overflow: "hidden",
+                    transition: "all 0.3s ease",
+                    "&:hover": {
+                      backgroundColor: (theme) => theme.palette.secondary.bg2,
+                    },
+                  }}
+                  onClick={() => SupplierFunc(index)}
+                >
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      backgroundColor: (theme) => theme.palette.secondary.main,
+                      height: "100%",
+                      width: "7%",
+                    }}
+                  >
+                    <Typography
+                      variant="h3"
+                      sx={{ color: (theme) => theme.palette.textColor.col2 }}
+                    >
+                      {index.supplier_name}
+                    </Typography>
+                  </Box>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      height: "100%",
+                      width: "20%",
+                    }}
+                  >
+                    <Typography
+                      sx={{
+                        color: (theme) => theme.palette.textColor.col1,
+                        fontSize: "14px",
+                      }}
+                    >
+                      {index.supplier_name}
+                    </Typography>
+                    <Typography
+                      sx={{
+                        color: (theme) => theme.palette.textColor.col4,
+                        fontSize: "12px",
+                      }}
+                    >
+                      Supplier ID: {index.supplier_id}
+                    </Typography>
+                  </Box>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      height: "100%",
+                      width: "22%",
+                    }}
+                  >
+                    <Typography
+                      sx={{
+                        color: (theme) => theme.palette.textColor.col4,
+                        fontSize: "12px",
+                      }}
+                    >
+                      {index.supplier_email}
+                    </Typography>
+                  </Box>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      height: "100%",
+                      width: "22%",
+                    }}
+                  >
+                    <Typography
+                      sx={{
+                        color: (theme) => theme.palette.textColor.col4,
+                        fontSize: "12px",
+                      }}
+                    >
+                      {index.supplier_contact}
+                    </Typography>
+                  </Box>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      height: "100%",
+                      width: "22%",
+                    }}
+                  >
+                    <Typography
+                      sx={{
+                        color: (theme) => theme.palette.textColor.col4,
+                        fontSize: "12px",
+                      }}
+                    >
+                      {index.supplier_address}
+                    </Typography>
+                  </Box>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      height: "100%",
+                      width: "7%",
+                    }}
+                  >
+                    <Checkbox
+                      checked={payload.idChecked}
+                      onClick={() => isChecked(index.supplier_id)}
+                    />
+                  </Box>
+                </Paper>
+              ))
+            )}
+
             <Stack spacing={2} sx={{ marginTop: "60px" }}>
               <Pagination count={10} shape="rounded" color="primary" />
             </Stack>
@@ -501,6 +585,10 @@ export default function Supplier() {
           onClose={SupplierHandleClose}
           company_info={supplier_info.data}
           path_url={pathname}
+        />
+        <CustomAddNew
+          open={supplier_modal.isAddbtn}
+          onClose={SupplierAddHandleClose}
         />
       </Box>
     </Box>

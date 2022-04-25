@@ -88,7 +88,7 @@ export default function CustomSupManufactModal ({
           >
             Name
           </Typography>
-          <Typography sx={{ fontSize: "14px" }}>{company_info.name}</Typography>
+          <Typography sx={{ fontSize: "14px" }}>{company_info.supplier_name}</Typography>
         </Box>
         <Box
           sx={{ display: "flex", alignItems: "center", padding: "20px 40px" }}
@@ -114,7 +114,7 @@ export default function CustomSupManufactModal ({
               Manufacturer ID
             </Typography>
           )}
-          <Typography sx={{ fontSize: "14px" }}>{company_info.id}</Typography>
+          <Typography sx={{ fontSize: "14px" }}>{company_info.supplier_id}</Typography>
         </Box>
         <Box
           sx={{ display: "flex", alignItems: "center", padding: "20px 40px" }}
@@ -129,7 +129,7 @@ export default function CustomSupManufactModal ({
             Email
           </Typography>
           <Typography sx={{ fontSize: "14px" }}>
-            {company_info.email}
+            {company_info.supplier_email}
           </Typography>
         </Box>
         <Box
@@ -145,7 +145,7 @@ export default function CustomSupManufactModal ({
             Contact No.
           </Typography>
           <Typography sx={{ fontSize: "14px" }}>
-            {company_info.contact}
+            {company_info.supplier_contact}
           </Typography>
         </Box>
         <Box
@@ -161,7 +161,7 @@ export default function CustomSupManufactModal ({
             Address
           </Typography>
           <Typography sx={{ fontSize: "14px" }}>
-            {company_info.address}
+            {company_info.supplier_address}
           </Typography>
         </Box>
         <CustomSupManufactEditModal
