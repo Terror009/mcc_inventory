@@ -16,7 +16,6 @@ export const addmanufacturer = (dataObj) => {
 };
 
 export const deletemanufacturer = (dataObj) => {
-  console.log(dataObj)
   axios({
     method: "POST",
     url: API.manufacturer.deleteManufacturer,
