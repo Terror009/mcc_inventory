@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ThemeProvider, createTheme } from "@mui/material";
 import { theme } from "../utils/theme";
@@ -16,60 +16,78 @@ import Report from "../pages/Report";
 import Project from "../pages/Project";
 import User from "../pages/User";
 import Setting from "../pages/Setting";
+import NoConnection from "../pages/NoConnection";
 
 import PrivateRouter from "./PrivateRouter";
 import PublicRouter from "./PublicRouter";
-export default function Routers() {
+export default function Routers({ ...rest }) {
+/*   const [connection, SetConnection] = useState({
+    isOnline: "",
+  });
+
+  const checkOnlineStatus = async () => {
+    try {
+      const online = await fetch("/1pixel.png");
+      return online.status >= 200 && online.status < 300; // either true or false
+    } catch (err) {
+      return false; // definitely offline
+    }
+  };
+  useEffect(() => {
+      const result = checkOnlineStatus();
+      SetConnection({ ...connection, isOnline: result });
+  }, []); */
+
   const THEME = createTheme(theme(true));
-  return (
-    <ThemeProvider theme={THEME}>
-      <Router>
-        <Routes>
-          <Route
-            path="/signin"
-            element={<PublicRouter Component={UserSignin} />}
-          />
-          <Route
-            path="/signup"
-            element={<PublicRouter Component={UserSignup} />}
-          />
-          <Route path="/" element={<PrivateRouter Component={DashBoard} />} />
-          <Route
-            path="/suppliers"
-            element={<PrivateRouter Component={Supplier} />}
-          />
-          <Route
-            path="/manufacturers"
-            element={<PrivateRouter Component={Manufacturer} />}
-          />
-          <Route
-            path="/materials"
-            element={<PrivateRouter Component={Material} />}
-          />
-          <Route
-            path="/construction_sites"
-            element={<PrivateRouter Component={Construction_Site} />}
-          />
-          <Route
-            path="/audit_logs"
-            element={<PrivateRouter Component={Audit_Log} />}
-          />
-          <Route
-            path="/reports"
-            element={<PrivateRouter Component={Report} />}
-          />
-          <Route
-            path="/projects"
-            element={<PrivateRouter Component={Project} />}
-          />
-          <Route path="/users" element={<PrivateRouter Component={User} />} />
-          <Route
-            path="/setting"
-            element={<PrivateRouter Component={Setting} />}
-          />
-          <Route path="*" element={<PageNotFound />} />
-        </Routes>
-      </Router>
-    </ThemeProvider>
-  );
+    return (
+      <ThemeProvider theme={THEME}>
+        <Router>
+          <Routes>
+            <Route
+              path="/signin"
+              element={<PublicRouter Component={UserSignin} />}
+            />
+            <Route
+              path="/signup"
+              element={<PublicRouter Component={UserSignup} />}
+            />
+            <Route path="/" element={<PrivateRouter Component={DashBoard} />} />
+            <Route
+              path="/suppliers"
+              element={<PrivateRouter Component={Supplier} />}
+            />
+            <Route
+              path="/manufacturers"
+              element={<PrivateRouter Component={Manufacturer} />}
+            />
+            <Route
+              path="/materials"
+              element={<PrivateRouter Component={Material} />}
+            />
+            <Route
+              path="/construction_sites"
+              element={<PrivateRouter Component={Construction_Site} />}
+            />
+            <Route
+              path="/audit_logs"
+              element={<PrivateRouter Component={Audit_Log} />}
+            />
+            <Route
+              path="/reports"
+              element={<PrivateRouter Component={Report} />}
+            />
+            <Route
+              path="/projects"
+              element={<PrivateRouter Component={Project} />}
+            />
+            <Route path="/users" element={<PrivateRouter Component={User} />} />
+            <Route
+              path="/setting"
+              element={<PrivateRouter Component={Setting} />}
+            />
+            <Route path="*" element={<PageNotFound />} />
+          </Routes>
+        </Router>
+      </ThemeProvider>
+    );
 }

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   AppBar,
@@ -13,6 +13,19 @@ import { ReactComponent as NotificationIcon } from "../../assets/svg/notificatio
 import { ReactComponent as SearchIcon } from "../../assets/svg/search.svg";
 
 export default function CustomHeaderBar() {
+  const [payload, Setpayload] = useState({
+    data: {},
+  });
+  useEffect(() => {
+    const arr = JSON.parse(localStorage.getItem("user"));
+    const fetchData = () => {
+      Setpayload({
+        ...payload,
+        data: arr,
+      });
+    };
+    fetchData();
+  }, []);
   return (
     <Box
       sx={{
@@ -48,7 +61,9 @@ export default function CustomHeaderBar() {
           <NotificationIcon />
           <Avatar />
           <Box>
-            <Typography variant="body1">Englibert Sanchez</Typography>
+            <Typography variant="body1">
+              {payload.data.firstname + " " + payload.data.lastname}
+            </Typography>
             <Typography
               variant="caption"
               sx={{ color: (theme) => theme.palette.textColor.col4 }}

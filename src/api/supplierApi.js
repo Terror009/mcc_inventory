@@ -18,7 +18,7 @@ export const addsupplier = (dataObj) => {
 export const fetchsupplier = () => {
   axios({
     method: "GET",
-    url: API.supplier.fecthSupplier,
+    url: API.supplier.fetchSupplier,
   })
     .then((response) => {
       console.log(response);
@@ -30,14 +30,29 @@ export const fetchsupplier = () => {
 
 export const deleteSupplier = (dataObj) => {
   axios({
-    method: "DELETE",
+    method: "POST",
     url: API.supplier.deleteSupplier,
+    data: JSON.stringify(dataObj),
+  })
+    .then((response) => {
+      console.log(response.data.message);
+    })
+    .catch(({ response }) => {
+      console.log(response.data.message);
+      console.log(response);
+    });
+};
+
+export const updateSupplier = (dataObj) => {
+  axios({
+    method: "POST",
+    url: API.supplier.updateSupplier,
     data: JSON.stringify(dataObj),
   })
     .then((response) => {
       console.log(response.data);
     })
-    .catch((err) => {
-      console.log(err);
+    .catch(({ response }) => {
+      console.log(response);
     });
 };

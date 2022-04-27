@@ -12,7 +12,7 @@ import {
 import { addsupplier } from "../../api/supplierApi";
 import { classes } from "../../design/uiDesign";
 
-export default function CustomAddNew({ open, onClose }) {
+export default function CustomAddNew({ open, onClose, AddUpdate }) {
   const [payload, setPayload] = useState({
     supplier_name: "",
     supplier_email: "",
@@ -21,21 +21,27 @@ export default function CustomAddNew({ open, onClose }) {
   });
   const AddNewHandleChange = (prop) => (e) => {
     setPayload({ ...payload, [prop]: e.target.value });
-    isClose();
   };
   const isClose = () => {
-    onClose = false;
-    console.log(onClose);
+    onClose();
+    setPayload({
+      ...payload,
+      supplier_name: "",
+      supplier_email: "",
+      supplier_contact: "",
+      supplier_address: "",
+    });
   };
   const AddNewSupplier = () => {
     const obj = {
       supplier_name: payload.supplier_name,
       supplier_email: payload.supplier_email,
-      supplier_contact: payload.supplier_contact,
+      supplier_contact: "0"+payload.supplier_contact,
       supplier_address: payload.supplier_address,
     };
     addsupplier(obj);
-    console.log(obj);
+    isClose();
+    window.location.reload();
   };
   return (
     <Modal
@@ -93,8 +99,8 @@ export default function CustomAddNew({ open, onClose }) {
           <TextField
             size="small"
             sx={classes.edit_input}
-            onChange={AddNewHandleChange("supplier_name")}
             value={payload.supplier_name}
+            onChange={AddNewHandleChange("supplier_name")}
           />
         </Box>
         <Box
@@ -112,8 +118,8 @@ export default function CustomAddNew({ open, onClose }) {
           <TextField
             size="small"
             sx={classes.edit_input}
-            onChange={AddNewHandleChange("supplier_email")}
             value={payload.supplier_email}
+            onChange={AddNewHandleChange("supplier_email")}
           />
         </Box>
         <Box
@@ -129,10 +135,11 @@ export default function CustomAddNew({ open, onClose }) {
             Contact No.
           </Typography>
           <TextField
+          type="number"
             size="small"
             sx={classes.edit_input}
-            onChange={AddNewHandleChange("supplier_contact")}
             value={payload.supplier_contact}
+            onChange={AddNewHandleChange("supplier_contact")}
           />
         </Box>
         <Box
@@ -150,8 +157,8 @@ export default function CustomAddNew({ open, onClose }) {
           <TextField
             size="small"
             sx={classes.edit_input}
-            onChange={AddNewHandleChange("supplier_address")}
             value={payload.supplier_address}
+            onChange={AddNewHandleChange("supplier_address")}
           />
         </Box>
         <Box

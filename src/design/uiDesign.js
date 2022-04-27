@@ -227,6 +227,17 @@ export const classes = {
   edit_input: {
     width: "80%",
     borderRadius: "10px",
+    "& input[type=number]": {
+      " MozAppearance": "textfield",
+    },
+    "& input[type=number]::-webkit-outer-spin-button": {
+      WebkitAppearance: "none",
+      margin: 0,
+    },
+    "& input[type=number]::-webkit-inner-spin-button": {
+      WebkitAppearance: "none",
+      margin: 0,
+    },
     "& .MuiOutlinedInput-root": {
       borderRadius: "15px",
       height: "35px",
@@ -244,6 +255,17 @@ export const classes = {
   },
   material_edit_input: {
     width: "77%",
+    "& input[type=number]": {
+      " MozAppearance": "textfield",
+    },
+    "& input[type=number]::-webkit-outer-spin-button": {
+      WebkitAppearance: "none",
+      margin: 0,
+    },
+    "& input[type=number]::-webkit-inner-spin-button": {
+      WebkitAppearance: "none",
+      margin: 0,
+    },
     "& .MuiOutlinedInput-root": {
       borderRadius: "15px",
       height: "35px",
@@ -261,6 +283,17 @@ export const classes = {
   },
   construction_edit_input: {
     width: "85%",
+    "& input[type=number]": {
+      " MozAppearance": "textfield",
+    },
+    "& input[type=number]::-webkit-outer-spin-button": {
+      WebkitAppearance: "none",
+      margin: 0,
+    },
+    "& input[type=number]::-webkit-inner-spin-button": {
+      WebkitAppearance: "none",
+      margin: 0,
+    },
     "& .MuiOutlinedInput-root": {
       borderRadius: "15px",
       height: "35px",

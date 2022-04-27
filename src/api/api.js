@@ -8,7 +8,14 @@ export const API = {
   },
   supplier: {
     createSupplier: baseUrl + "api/suppliers/create.supplier.php",
-    fecthSupplier: baseUrl + "api/suppliers/fetch.supplier.php",
+    fetchSupplier: baseUrl + "api/suppliers/fetch.supplier.php",
     deleteSupplier: baseUrl + "api/suppliers/delete.supplier.php",
+    updateSupplier: baseUrl + "api/suppliers/update.supplier.php",
   },
+  manufacturer: {
+    createManufacturer: baseUrl + "api/manufacturer/create.manufacturer.php",
+    fetchManufacturer: baseUrl + "api/manufacturer/fetch.manufacturer.php",
+    deleteManufacturer: baseUrl + "api/manufacturer/delete.manufacturer.php",
+    updateManufacturer: baseUrl + "api/manufacturer/update.manufacturer.php",
+  }
 };

@@ -2,7 +2,7 @@ import React from "react";
 
 import { Box, Typography, Divider, Link } from "@mui/material";
 
-import { Link as NLink, useLocation } from "react-router-dom";
+import { Link as NLink, Navigate, useLocation } from "react-router-dom";
 
 import mccLogoImg from "../../assets/img/mcc.jpg";
 import { ReactComponent as DashBoardIcon } from "../../assets/svg/dashboard.svg";
@@ -19,6 +19,12 @@ import { ReactComponent as SettingIcon } from "../../assets/svg/setting.svg";
 
 export default function CustomSideBar({ open, onOpen, onClose }) {
   const { pathname } = useLocation();
+
+  const logOut = () => {
+    localStorage.removeItem("user");
+    window.location.replace("/signin")
+  }
+  
   return (
     <Box
       sx={{
@@ -494,6 +500,7 @@ export default function CustomSideBar({ open, onOpen, onClose }) {
           },
           marginTop: "10px",
         }}
+        onClick={logOut}
       >
         <LogOutIcon
           style={{

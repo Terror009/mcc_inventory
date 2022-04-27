@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useReducer } from "react";
 import { Helmet } from "react-helmet";
 import {
   Box,
@@ -7,6 +7,7 @@ import {
   Button,
   TextField,
   Select,
+  Avatar,
   Checkbox,
   Stack,
   Pagination,
@@ -32,17 +33,44 @@ import axios from "axios";
 import { deleteSupplier } from "../api/supplierApi";
 
 import { useLocation } from "react-router-dom";
+
 export default function Supplier() {
   let { pathname } = useLocation();
+
+  const [Deleteignored, DeleteUpdate] = useReducer((x) => (x = 1), 0);
+  const [Addignored, AddUpdate] = useReducer((x) => (x = 1), 0);
+  const [Updateignored, UpdateForce] = useReducer((x) => (x = 1), 0);
+
   const [payload, setPayload] = useState({
     data: [{}],
     idChecked: false,
+    id: "",
+  });
+  const [sidebar, Setsidebar] = useState({
+    isOpen: false,
+  });
+
+  const [dropdownbtn, Setdropdownbtn] = useState({
+    isImport: true,
+    isExport: true,
+  });
+
+  const [supplier_modal, Setsupplier_modal] = useState({
+    isOpen: false,
+    isAddbtn: false,
+  });
+
+  const [supplier_info, Setsupplier_info] = useState({
+    data: {},
+  });
+  const [shorttext, SetShortText] = useState({
+    text: "",
   });
   useEffect(() => {
-    const fetchData = () => {
-      axios({
+    const fetchData = async () => {
+      await axios({
         method: "GET",
-        url: API.supplier.fecthSupplier,
+        url: API.supplier.fetchSupplier,
       })
         .then((response) => {
           setPayload({ ...payload, data: response.data });
@@ -50,32 +78,11 @@ export default function Supplier() {
         .catch((err) => {
           console.log(err);
         });
-      /*       const res = axios
-        .get(API.supplier.fecthSupplier.at,)
-        .then((response) => {
-          setPayload({ ...payload.data, data: this.response.data });
-        })
-        .catch((err) => {
-          console.log(err);
-        }); */
     };
+
     fetchData();
-  }, []);
-  console.log(payload.data);
-  const [sidebar, Setsidebar] = useState({
-    isOpen: false,
-  });
-  const [dropdownbtn, Setdropdownbtn] = useState({
-    isImport: true,
-    isExport: true,
-  });
-  const [supplier_modal, Setsupplier_modal] = useState({
-    isOpen: false,
-    isAddbtn: false,
-  });
-  const [supplier_info, Setsupplier_info] = useState({
-    data: {},
-  });
+  }, [Addignored, Deleteignored, Updateignored]);
+
   const SideBarHandle = () => {
     Setsidebar({ ...sidebar, isOpen: true });
   };
@@ -87,6 +94,7 @@ export default function Supplier() {
   const ImportHandle = () => {
     Setdropdownbtn({ ...dropdownbtn, isImport: !dropdownbtn.isImport });
   };
+
   const ExportHandle = () => {
     Setdropdownbtn({ ...dropdownbtn, isExport: !dropdownbtn.isExport });
   };
@@ -94,38 +102,54 @@ export default function Supplier() {
   const SupplierHandleOpen = () => {
     Setsupplier_modal({ ...supplier_modal, isOpen: true });
   };
+
   const SupplierAddHandleOpen = () => {
     Setsupplier_modal({ ...supplier_modal, isAddbtn: true });
   };
-  const SupplierFunc = (data) => {
-    SupplierHandleOpen();
-    SupplierData(data);
+
+  const SupplierFunc = (data, e) => {
+    if (e.target.id === "paper") {
+      SupplierHandleOpen();
+      SupplierData(data);
+      return;
+    }
   };
+
   const SupplierHandleClose = () => {
     Setsupplier_modal({ ...supplier_modal, isOpen: false });
   };
+
   const SupplierAddHandleClose = () => {
     Setsupplier_modal({ ...supplier_modal, isAddbtn: false });
   };
+
   const SupplierData = (data) => {
     Setsupplier_info({ ...supplier_info, data: data });
   };
   const isChecked = (data) => {
-    setPayload({ ...payload, idChecked: !payload.idChecked });
-    console.log(data);
+    /*     setPayload({ ...payload, idChecked: !payload.idChecked }); */
+    setPayload({ ...payload, id: data });
   };
-  const CheckAll = () => {
+  console.log(payload.id);
+  const CheckAll = (e) => {
     setPayload({ ...payload, idChecked: !payload.idChecked });
   };
+
   const DeleteAll = () => {
-    let supplier_ids = [];
     payload.data.forEach((index) => {
       if (payload.idChecked === true) {
-        supplier_ids.push(index.supplier_id);
-        deleteSupplier(supplier_ids);
+        const obj = {
+          supplier_id: index.supplier_id,
+        };
+        console.log(JSON.stringify(obj));
+        deleteSupplier(obj);
       }
     });
-    console.log(supplier_ids);
+    const obj = {
+      supplier_id: payload.id,
+    };
+    deleteSupplier(obj);
+    window.location.reload();
   };
   return (
     <Box
@@ -431,6 +455,7 @@ export default function Supplier() {
               payload.data.map((index, i) => (
                 <Paper
                   key={i}
+                  id="paper"
                   sx={{
                     display: "flex",
                     height: "80px",
@@ -443,7 +468,7 @@ export default function Supplier() {
                       backgroundColor: (theme) => theme.palette.secondary.bg2,
                     },
                   }}
-                  onClick={() => SupplierFunc(index)}
+                  onClick={(e) => SupplierFunc(index, e)}
                 >
                   <Box
                     sx={{
@@ -453,14 +478,20 @@ export default function Supplier() {
                       backgroundColor: (theme) => theme.palette.secondary.main,
                       height: "100%",
                       width: "7%",
+                      pointerEvents: "none",
                     }}
                   >
-                    <Typography
-                      variant="h3"
-                      sx={{ color: (theme) => theme.palette.textColor.col2 }}
-                    >
-                      {index.supplier_name}
-                    </Typography>
+                    <Avatar
+                      src={index.supplier_name}
+                      alt={index.supplier_name}
+                      sx={{
+                        height: "60px",
+                        width: "60px",
+                        backgroundColor: (theme) =>
+                          theme.palette.secondary.main,
+                        fontSize: "40px",
+                      }}
+                    />
                   </Box>
                   <Box
                     sx={{
@@ -470,6 +501,7 @@ export default function Supplier() {
                       alignItems: "center",
                       height: "100%",
                       width: "20%",
+                      pointerEvents: "none",
                     }}
                   >
                     <Typography
@@ -497,6 +529,7 @@ export default function Supplier() {
                       alignItems: "center",
                       height: "100%",
                       width: "22%",
+                      pointerEvents: "none",
                     }}
                   >
                     <Typography
@@ -516,6 +549,7 @@ export default function Supplier() {
                       alignItems: "center",
                       height: "100%",
                       width: "22%",
+                      pointerEvents: "none",
                     }}
                   >
                     <Typography
@@ -535,6 +569,7 @@ export default function Supplier() {
                       alignItems: "center",
                       height: "100%",
                       width: "22%",
+                      pointerEvents: "none",
                     }}
                   >
                     <Typography
@@ -565,7 +600,7 @@ export default function Supplier() {
             )}
 
             <Stack spacing={2} sx={{ marginTop: "60px" }}>
-              <Pagination count={10} shape="rounded" color="primary" />
+              <Pagination count={3} shape="rounded" color="primary" />
             </Stack>
           </Box>
         </Box>
@@ -585,10 +620,12 @@ export default function Supplier() {
           onClose={SupplierHandleClose}
           company_info={supplier_info.data}
           path_url={pathname}
+          updateForce={UpdateForce}
         />
         <CustomAddNew
           open={supplier_modal.isAddbtn}
           onClose={SupplierAddHandleClose}
+          AddUpdate={AddUpdate}
         />
       </Box>
     </Box>

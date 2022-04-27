@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Modal,
   Box,
@@ -12,11 +12,14 @@ import {
 import { ReactComponent as EditIcon } from "../../assets/svg/edit.svg";
 import { classes } from "../../design/uiDesign";
 
-export default function CustomSupManufactModal ({
+import { updateSupplier } from "../../api/supplierApi";
+
+export default function CustomSupManufactModal({
   open,
   onClose,
   company_info,
   path_url,
+  updateForce,
 }) {
   const [edit_modal, setEdit_modal] = useState({
     isOpen: false,
@@ -88,7 +91,9 @@ export default function CustomSupManufactModal ({
           >
             Name
           </Typography>
-          <Typography sx={{ fontSize: "14px" }}>{company_info.supplier_name}</Typography>
+          <Typography sx={{ fontSize: "14px" }}>
+            {company_info.supplier_name}
+          </Typography>
         </Box>
         <Box
           sx={{ display: "flex", alignItems: "center", padding: "20px 40px" }}
@@ -114,7 +119,9 @@ export default function CustomSupManufactModal ({
               Manufacturer ID
             </Typography>
           )}
-          <Typography sx={{ fontSize: "14px" }}>{company_info.supplier_id}</Typography>
+          <Typography sx={{ fontSize: "14px" }}>
+            {company_info.supplier_id}
+          </Typography>
         </Box>
         <Box
           sx={{ display: "flex", alignItems: "center", padding: "20px 40px" }}
@@ -169,28 +176,45 @@ export default function CustomSupManufactModal ({
           onClose={ModalHandleClose}
           company_info={company_info}
           path_url={path_url}
+          updateForce={updateForce}
         />
       </Paper>
     </Modal>
   );
-};
+}
 
-function CustomSupManufactEditModal ({
+function CustomSupManufactEditModal({
   open,
   onClose,
   company_info,
   path_url,
+  updateForce,
 }) {
   const [edit, SetEdit] = useState({
-    name: company_info.name,
-    id: company_info.id,
-    email: company_info.email,
-    contact: company_info.contact,
-    address: company_info.address,
+    name: company_info.supplier_name,
+    id: company_info.supplier_id,
+    email: company_info.supplier_email,
+    contact: company_info.supplier_contact,
+    address: company_info.supplier_address,
   });
-
   const HandleChange = (prop) => (e) => {
     SetEdit({ ...edit, [prop]: e.target.value });
+  };
+  const UpdateSupplier = () => {
+      const obj = {
+        supplier_id: edit.id,
+        supplier_name: edit.name,
+        supplier_email: edit.email,
+        supplier_contact: "0"+edit.contact,
+        supplier_address: edit.address,
+      };
+      updateSupplier(obj);
+    isClose();
+    window.location.reload();
+  };
+
+  const isClose = () => {
+    onClose();
   };
   return (
     <Modal
@@ -286,6 +310,7 @@ function CustomSupManufactEditModal ({
             </Typography>
           )}
           <TextField
+            type="number"
             onChange={HandleChange("id")}
             value={edit.id}
             size="small"
@@ -324,6 +349,7 @@ function CustomSupManufactEditModal ({
             Contact No.
           </Typography>
           <TextField
+            type="number"
             onChange={HandleChange("contact")}
             value={edit.contact}
             size="small"
@@ -366,6 +392,7 @@ function CustomSupManufactEditModal ({
               color: (theme) => theme.palette.textColor.col1,
               marginRight: "40px",
             }}
+            onClick={UpdateSupplier}
           >
             <Typography>Save</Typography>
           </Button>
@@ -377,6 +404,7 @@ function CustomSupManufactEditModal ({
               borderRadius: "10px",
               color: (theme) => theme.palette.textColor.col6,
             }}
+            onClick={isClose}
           >
             <Typography>Cancel</Typography>
           </Button>
@@ -384,4 +412,4 @@ function CustomSupManufactEditModal ({
       </Paper>
     </Modal>
   );
-};
+}

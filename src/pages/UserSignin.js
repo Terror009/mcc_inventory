@@ -37,6 +37,7 @@ export default function UserSignin() {
       password: payload.password,
     };
     signin(obj);
+    localStorage.setItem("user", JSON.stringify(obj));
   };
 
   return (

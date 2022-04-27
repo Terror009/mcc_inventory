@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { API } from "../api/api";
+import axios from "axios";
 import {
   Box,
   Card,
@@ -24,36 +25,40 @@ import { DashBoard_Helmet } from "./components/CustomMetaTag";
 
 export default function DashBoard() {
   const [payload, Setpayload] = useState({
-    user_name: "",
+    data: {},
   });
 
   const [user_data, Setuser_data] = useState({
     projects: "",
     materials: "",
   });
-  /*   useEffect(() => {
+/*   useEffect(() => {
     const fetchData = () => {
-      var xhttp = new XMLHttpRequest();
-      xhttp.open("GET", API.user.findUser);
-      xhttp.send();
-      xhttp.onreadystatechange = function () {
-        if (this.readyState === 4 && this.status === 200) {
-          console.log(this.response);
-          Setpayload({ ...payload, user_name: this.response });
-        } else if (this.readyState === 4 && this.status === 400) {
-          console.log(this.response);
-        }
-      };
+      axios({
+        method: "GET",
+        url: API.user.findUser,
+      })
+        .then((response) => {
+          console.log(response.data);
+        })
+        .catch((response) => {
+          console.log(response.data);
+        });
     };
     fetchData();
   }, []); */
 
   useEffect(() => {
-    const refreshPage = () => {
-      return <DashBoard_Helmet />;
+    const arr = JSON.parse(localStorage.getItem("user"));
+    const fetchData = () => {
+      Setpayload({
+        ...payload,
+        data: arr,
+      });
     };
-    refreshPage();
+    fetchData();
   }, []);
+
   const [sidebar, Setsidebar] = useState({
     isOpen: false,
   });
@@ -113,7 +118,7 @@ export default function DashBoard() {
                 fontSize: "2vw",
               }}
             >
-              Welcome, Englibert!
+              Welcome {payload.data.firstname +" "+ payload.data.lastname}!
             </Typography>
             <Box
               component="img"
