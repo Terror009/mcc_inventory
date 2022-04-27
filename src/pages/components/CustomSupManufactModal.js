@@ -13,6 +13,7 @@ import { ReactComponent as EditIcon } from "../../assets/svg/edit.svg";
 import { classes } from "../../design/uiDesign";
 
 import { updateSupplier } from "../../api/supplierApi";
+import { updatemanufacturer } from "../../api/manufacturerApi";
 
 export default function CustomSupManufactModal({
   open,
@@ -92,7 +93,9 @@ export default function CustomSupManufactModal({
             Name
           </Typography>
           <Typography sx={{ fontSize: "14px" }}>
-            {company_info.supplier_name}
+            {path_url === "/suppliers"
+              ? company_info.supplier_name
+              : company_info.manufacturer_name}
           </Typography>
         </Box>
         <Box
@@ -120,7 +123,9 @@ export default function CustomSupManufactModal({
             </Typography>
           )}
           <Typography sx={{ fontSize: "14px" }}>
-            {company_info.supplier_id}
+            {path_url === "/suppliers"
+              ? company_info.supplier_id
+              : company_info.manufacturer_id}
           </Typography>
         </Box>
         <Box
@@ -136,7 +141,9 @@ export default function CustomSupManufactModal({
             Email
           </Typography>
           <Typography sx={{ fontSize: "14px" }}>
-            {company_info.supplier_email}
+            {path_url === "/suppliers"
+              ? company_info.supplier_email
+              : company_info.manufacturer_email}
           </Typography>
         </Box>
         <Box
@@ -152,7 +159,9 @@ export default function CustomSupManufactModal({
             Contact No.
           </Typography>
           <Typography sx={{ fontSize: "14px" }}>
-            {company_info.supplier_contact}
+            {path_url === "/suppliers"
+              ? company_info.supplier_contact
+              : company_info.manufacturer_contact}
           </Typography>
         </Box>
         <Box
@@ -168,7 +177,9 @@ export default function CustomSupManufactModal({
             Address
           </Typography>
           <Typography sx={{ fontSize: "14px" }}>
-            {company_info.supplier_address}
+            {path_url === "/suppliers"
+              ? company_info.supplier_address
+              : company_info.manufacturer_address}
           </Typography>
         </Box>
         <CustomSupManufactEditModal
@@ -191,28 +202,55 @@ function CustomSupManufactEditModal({
   updateForce,
 }) {
   const [edit, SetEdit] = useState({
-    name: company_info.supplier_name,
-    id: company_info.supplier_id,
-    email: company_info.supplier_email,
-    contact: company_info.supplier_contact,
-    address: company_info.supplier_address,
+    name:
+      path_url === "/suppliers"
+        ? company_info.supplier_name
+        : company_info.manufacturer_name,
+    id:
+      path_url === "/suppliers"
+        ? company_info.supplier_id
+        : company_info.manufacturer_id,
+    email:
+      path_url === "/suppliers"
+        ? company_info.supplier_email
+        : company_info.manufacturer_email,
+    contact:
+      path_url === "/suppliers"
+        ? company_info.supplier_contact
+        : company_info.manufacturer_contact,
+    address:
+      path_url === "/suppliers"
+        ? company_info.supplier_address
+        : company_info.manufacturer_address,
   });
   const HandleChange = (prop) => (e) => {
     SetEdit({ ...edit, [prop]: e.target.value });
   };
   const UpdateSupplier = () => {
-      const obj = {
-        supplier_id: edit.id,
-        supplier_name: edit.name,
-        supplier_email: edit.email,
-        supplier_contact: "0"+edit.contact,
-        supplier_address: edit.address,
-      };
-      updateSupplier(obj);
+    const obj = {
+      supplier_id: edit.id,
+      supplier_name: edit.name,
+      supplier_email: edit.email,
+      supplier_contact: "0" + edit.contact,
+      supplier_address: edit.address,
+    };
+    updateSupplier(obj);
     isClose();
     window.location.reload();
   };
 
+  const UpdateManufacturer = () => {
+    const obj = {
+      manufacturer_id: edit.id,
+      manufacturer_name: edit.name,
+      manufacturer_email: edit.email,
+      manufacturer_contact: "0" + edit.contact,
+      manufacturer_address: edit.address,
+    };
+    updatemanufacturer(obj);
+    isClose();
+    window.location.reload();
+  };
   const isClose = () => {
     onClose();
   };
@@ -392,7 +430,9 @@ function CustomSupManufactEditModal({
               color: (theme) => theme.palette.textColor.col1,
               marginRight: "40px",
             }}
-            onClick={UpdateSupplier}
+            onClick={
+              path_url === "/suppliers" ? UpdateSupplier : UpdateManufacturer
+            }
           >
             <Typography>Save</Typography>
           </Button>

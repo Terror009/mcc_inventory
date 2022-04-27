@@ -9,15 +9,15 @@ import {
   Button,
 } from "@mui/material";
 
-import { addsupplier } from "../../api/supplierApi";
+import { addmanufacturer } from "../../api/manufacturerApi";
 import { classes } from "../../design/uiDesign";
 
-export default function CustomAddNew({ open, onClose, AddUpdate }) {
+export default function CustomAddNewManufacturer({ open, onClose }) {
   const [payload, setPayload] = useState({
-    supplier_name: "",
-    supplier_email: "",
-    supplier_contact: "",
-    supplier_address: "",
+    manufacturer_name: "",
+    manufacturer_email: "",
+    manufacturer_contact: "",
+    manufacturer_address: "",
   });
   const AddNewHandleChange = (prop) => (e) => {
     setPayload({ ...payload, [prop]: e.target.value });
@@ -26,20 +26,20 @@ export default function CustomAddNew({ open, onClose, AddUpdate }) {
     onClose();
     setPayload({
       ...payload,
-      supplier_name: "",
-      supplier_email: "",
-      supplier_contact: "",
-      supplier_address: "",
+      manufacturer_name: "",
+      manufacturer_email: "",
+      manufacturer_contact: "",
+      manufacturer_address: "",
     });
   };
-  const AddNewSupplier = () => {
+  const AddNewManufacturer = () => {
     const obj = {
-      supplier_name: payload.supplier_name,
-      supplier_email: payload.supplier_email,
-      supplier_contact: "0"+payload.supplier_contact,
-      supplier_address: payload.supplier_address,
+      manufacturer_name: payload.manufacturer_name,
+      manufacturer_email: payload.manufacturer_email,
+      manufacturer_contact: "0" + payload.manufacturer_contact,
+      manufacturer_address: payload.manufacturer_address,
     };
-    addsupplier(obj);
+    addmanufacturer(obj);
     isClose();
     window.location.reload();
   };
@@ -76,7 +76,7 @@ export default function CustomAddNew({ open, onClose, AddUpdate }) {
             variant="h5"
             sx={{ color: (theme) => theme.palette.textColor.col3 }}
           >
-            Add New Supplier
+            Add New Manufacturer
           </Typography>
         </Box>
         <Box
@@ -99,8 +99,8 @@ export default function CustomAddNew({ open, onClose, AddUpdate }) {
           <TextField
             size="small"
             sx={classes.edit_input}
-            value={payload.supplier_name}
-            onChange={AddNewHandleChange("supplier_name")}
+            value={payload.manufacturer_name}
+            onChange={AddNewHandleChange("manufacturer_name")}
           />
         </Box>
         <Box
@@ -118,8 +118,8 @@ export default function CustomAddNew({ open, onClose, AddUpdate }) {
           <TextField
             size="small"
             sx={classes.edit_input}
-            value={payload.supplier_email}
-            onChange={AddNewHandleChange("supplier_email")}
+            value={payload.manufacturer_email}
+            onChange={AddNewHandleChange("manufacturer_email")}
           />
         </Box>
         <Box
@@ -135,11 +135,11 @@ export default function CustomAddNew({ open, onClose, AddUpdate }) {
             Contact No.
           </Typography>
           <TextField
-          type="number"
+            type="number"
             size="small"
             sx={classes.edit_input}
-            value={payload.supplier_contact}
-            onChange={AddNewHandleChange("supplier_contact")}
+            value={payload.manufacturer_contact}
+            onChange={AddNewHandleChange("manufacturer_contact")}
           />
         </Box>
         <Box
@@ -157,8 +157,8 @@ export default function CustomAddNew({ open, onClose, AddUpdate }) {
           <TextField
             size="small"
             sx={classes.edit_input}
-            value={payload.supplier_address}
-            onChange={AddNewHandleChange("supplier_address")}
+            value={payload.manufacturer_address}
+            onChange={AddNewHandleChange("manufacturer_address")}
           />
         </Box>
         <Box
@@ -178,7 +178,7 @@ export default function CustomAddNew({ open, onClose, AddUpdate }) {
               color: (theme) => theme.palette.textColor.col1,
               marginRight: "40px",
             }}
-            onClick={AddNewSupplier}
+            onClick={AddNewManufacturer}
           >
             <Typography>Save</Typography>
           </Button>

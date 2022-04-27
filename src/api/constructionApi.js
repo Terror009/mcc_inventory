@@ -1,25 +1,10 @@
-import { API } from "./api";
 import axios from "axios";
+import { API } from "./api";
 
-export const addmanufacturer = (dataObj) => {
+export const createConstruction = (dataObj) => {
   axios({
     method: "POST",
-    url: API.manufacturer.createManufacturer,
-    data: JSON.stringify(dataObj),
-  })
-    .then((response) => {
-      console.log(response.data);
-    })
-    .catch(({ response }) => {
-      console.log(response.data.message);
-    });
-};
-
-export const deletemanufacturer = (dataObj) => {
-  console.log(dataObj)
-  axios({
-    method: "POST",
-    url: API.manufacturer.deleteManufacturer,
+    url: API.construction_site.createConstruction,
     data: JSON.stringify(dataObj),
   })
     .then((response) => {
@@ -30,16 +15,30 @@ export const deletemanufacturer = (dataObj) => {
     });
 };
 
-export const updatemanufacturer = (dataObj) => {
+export const deleteConstruction = (dataObj) => {
   axios({
     method: "POST",
-    url: API.manufacturer.updateManufacturer,
+    url: API.construction_site.deleteConstruction,
     data: JSON.stringify(dataObj),
   })
     .then((response) => {
       console.log(response.data);
     })
     .catch(({ response }) => {
-      console.log(response.data.message);
+      console.log(response.data);
+    });
+};
+
+export const updateConstruction = (dataObj) => {
+  axios({
+    method: "POST",
+    url: API.construction_site.updateConstruction,
+    data: JSON.stringify(dataObj),
+  })
+    .then((response) => {
+      console.log(response.data);
+    })
+    .catch(({ response }) => {
+      console.log(response.data);
     });
 };

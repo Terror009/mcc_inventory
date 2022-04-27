@@ -20,7 +20,7 @@ import CustomExportButton from "./components/CustomExportButton";
 import CustomSideBar from "./components/CustomSideBar";
 import CustomHeaderBar from "./components/CustomHeaderBar";
 import CustomSupManufactModal from "./components/CustomSupManufactModal";
-import CustomAddNew from "./components/CustomAddNew";
+import CustomAddNewSupplier from "./components/CustomAddNewSupplier";
 
 import { ReactComponent as ArrowDownIcon } from "../assets/svg/arrow_down.svg";
 import { ReactComponent as UserIcon } from "../assets/svg/user1.svg";
@@ -98,7 +98,7 @@ export default function Supplier() {
   const ExportHandle = () => {
     Setdropdownbtn({ ...dropdownbtn, isExport: !dropdownbtn.isExport });
   };
-
+  
   const SupplierHandleOpen = () => {
     Setsupplier_modal({ ...supplier_modal, isOpen: true });
   };
@@ -622,7 +622,7 @@ export default function Supplier() {
           path_url={pathname}
           updateForce={UpdateForce}
         />
-        <CustomAddNew
+        <CustomAddNewSupplier
           open={supplier_modal.isAddbtn}
           onClose={SupplierAddHandleClose}
           AddUpdate={AddUpdate}

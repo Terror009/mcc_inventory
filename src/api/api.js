@@ -17,5 +17,15 @@ export const API = {
     fetchManufacturer: baseUrl + "api/manufacturer/fetch.manufacturer.php",
     deleteManufacturer: baseUrl + "api/manufacturer/delete.manufacturer.php",
     updateManufacturer: baseUrl + "api/manufacturer/update.manufacturer.php",
-  }
+  },
+  construction_site: {
+    createConstruction:
+      baseUrl + "api/construction_site/create.construction_site.php",
+    fetchConstruction:
+      baseUrl + "api/construction_site/fetch.construction_site.php",
+    deleteConstruction:
+      baseUrl + "api/construction_site/delete.construction_site.php",
+    updateConstruction:
+      baseUrl + "api/construction_site/update.construction_site.php",
+  },
 };
