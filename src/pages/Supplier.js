@@ -187,24 +187,31 @@ export default function Supplier() {
         supplier_id: index.supplier_id,
       };
       console.log(obj);
-      /*   deleteSupplier(obj); */
+      deleteSupplier(obj);
     });
     deleteData.forEach((index) => {
       const obj = {
         supplier_id: index.supplier_id,
       };
       console.log(obj);
-      /*       deleteSupplier(obj); */
+      deleteSupplier(obj);
     });
   };
 
   const DownloadSupplier = () => {
-    let obj = [];
+    let data_arr = [];
     payload.data.forEach((index) => {
-      obj.push(index);
+     const obj = {
+        supplier_id: index.supplier_id,
+        supplier_name: index.supplier_name,
+        supplier_email: index.supplier_email,
+        supplier_contact: index.supplier_contact,
+        supplier_address: index.supplier_address,
+      };
+      data_arr.push(obj)
     });
     var wb = XLSX.utils.book_new();
-    var ws = XLSX.utils.json_to_sheet(obj);
+    var ws = XLSX.utils.json_to_sheet(data_arr);
 
     XLSX.utils.book_append_sheet(wb, ws, "MySheet1");
     XLSX.writeFile(wb, "Supplier.xlsx");
@@ -464,6 +471,7 @@ export default function Supplier() {
                   checked={
                     !payload.data.some((index) => index?.ischecked !== true)
                   }
+                  color="secondary"
                 />
               </Box>
             </Box>
@@ -674,6 +682,7 @@ export default function Supplier() {
                       id={index.supplier_id}
                       onClick={isChecked}
                       checked={index?.ischecked || false}
+                      color="secondary"
                     />
                   </Box>
                 </Paper>
