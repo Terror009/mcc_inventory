@@ -294,7 +294,7 @@ function CustomSupManufactEditModal({
               variant="h5"
               sx={{ color: (theme) => theme.palette.textColor.col3 }}
             >
-              Manufacturer Information
+              Edit Manufacturer Information
             </Typography>
           )}
           <Box component="span" sx={{ flexGrow: "1" }} />

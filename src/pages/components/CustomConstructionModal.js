@@ -11,6 +11,7 @@ import {
 
 import { ReactComponent as EditIcon } from "../../assets/svg/edit.svg";
 import { classes } from "../../design/uiDesign";
+import { updateConstruction } from "../../api/constructionApi";
 
 export const CustomConstructionInfo = ({
   open,
@@ -27,7 +28,6 @@ export const CustomConstructionInfo = ({
   const ConstructModalHandleClose = () => {
     setconstruct_edit_modal({ ...setconstruct_edit_modal, isOpen: false });
   };
-
   return (
     <Modal
       open={open}
@@ -57,7 +57,9 @@ export const CustomConstructionInfo = ({
             backgroundColor: (theme) => theme.palette.secondary.bg3,
           }}
         >
-          <Typography>{construction_info.client_name} Information</Typography>
+          <Typography>
+            {construction_info.construction_client_name} Information
+          </Typography>
           <Box component="span" sx={{ flexGrow: "1" }} />
           <IconButton onClick={ConstructModalHandleOpen}>
             <EditIcon />
@@ -81,7 +83,7 @@ export const CustomConstructionInfo = ({
             Site Name:
           </Typography>
           <Typography sx={{ fontSize: "14px" }}>
-            {construction_info.site_name}
+            {construction_info.construction_site_name}
           </Typography>
         </Box>
         <Box
@@ -97,7 +99,7 @@ export const CustomConstructionInfo = ({
             Client Name:
           </Typography>
           <Typography sx={{ fontSize: "14px" }}>
-            {construction_info.client_name}
+            {construction_info.construction_client_name}
           </Typography>
         </Box>
         <ConstructionEditModal
@@ -112,12 +114,26 @@ export const CustomConstructionInfo = ({
 
 const ConstructionEditModal = ({ open, onClose, construction_info }) => {
   const [payload, setpayload] = useState({
-    site_name: construction_info.site_name,
-    client_name: construction_info.client_name,
+    site_name: construction_info.construction_site_name,
+    client_name: construction_info.construction_client_name,
   });
 
   const ConstructHandleChange = (prop) => (e) => {
     setpayload({ ...payload, [prop]: e.target.value });
+  };
+
+  const UpdateConstruction = () => {
+    const obj = {
+      construction_site_name: payload.site_name,
+      construction_client_name: payload.client_name,
+      construction_id: construction_info.construction_id,
+    };
+    updateConstruction(obj);
+    isClose();
+    window.location.reload();
+  };
+  const isClose = () => {
+    onClose();
   };
   return (
     <Modal
@@ -148,7 +164,9 @@ const ConstructionEditModal = ({ open, onClose, construction_info }) => {
             backgroundColor: (theme) => theme.palette.secondary.bg3,
           }}
         >
-          <Typography>{construction_info.client_name} Information</Typography>
+          <Typography>
+            {construction_info.construction_client_name} Edit Information
+          </Typography>
         </Box>
         <Box
           sx={{
@@ -168,8 +186,8 @@ const ConstructionEditModal = ({ open, onClose, construction_info }) => {
             Site Name:
           </Typography>
           <TextField
-            onChange={ConstructHandleChange("site_name")}
             value={payload.site_name}
+            onChange={ConstructHandleChange("site_name")}
             sx={classes.construction_edit_input}
           />
         </Box>
@@ -186,8 +204,8 @@ const ConstructionEditModal = ({ open, onClose, construction_info }) => {
             Client Name:
           </Typography>
           <TextField
-            onChange={ConstructHandleChange("client_name")}
             value={payload.client_name}
+            onChange={ConstructHandleChange("client_name")}
             sx={classes.construction_edit_input}
           />
         </Box>
@@ -208,6 +226,7 @@ const ConstructionEditModal = ({ open, onClose, construction_info }) => {
               color: (theme) => theme.palette.textColor.col1,
               marginRight: "40px",
             }}
+            onClick={UpdateConstruction}
           >
             <Typography>Save</Typography>
           </Button>
@@ -219,6 +238,7 @@ const ConstructionEditModal = ({ open, onClose, construction_info }) => {
               borderRadius: "10px",
               color: (theme) => theme.palette.textColor.col6,
             }}
+            onClick={isClose}
           >
             <Typography>Cancel</Typography>
           </Button>

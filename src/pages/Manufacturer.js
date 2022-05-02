@@ -58,12 +58,21 @@ export default function Manufacturer() {
 
   useEffect(() => {
     const fetchData = async () => {
+
+      const user_id = JSON.parse(localStorage.getItem("user"));
+
+      const obj = {
+        user_id: user_id.user_id,
+      };
+
       await axios({
-        method: "GET",
+        method: "POST",
         url: API.manufacturer.fetchManufacturer,
+        data: JSON.stringify(obj),
       })
         .then((response) => {
-          setPayload({ ...payload, data: response.data });
+          console.log(response.data);
+       setPayload({ ...payload, data: response.data }); 
         })
         .catch((err) => {
           console.log(err);
@@ -103,7 +112,7 @@ export default function Manufacturer() {
   const ManufacturerData = (data) => {
     SetManufacturer_info({ ...manufacturer_info, data: data });
   };
-  console.log(manufacturer_info.data)
+  console.log(manufacturer_info.data);
   const ManufacturerAddHandleOpen = () => {
     SetManufacturer_modal({ ...manufacturer_modal, isAddbtn: true });
   };
@@ -463,7 +472,7 @@ export default function Manufacturer() {
                       backgroundColor: (theme) => theme.palette.secondary.main,
                       height: "100%",
                       width: "7%",
-                      pointerEvents: "none"
+                      pointerEvents: "none",
                     }}
                   >
                     <Avatar
@@ -486,7 +495,7 @@ export default function Manufacturer() {
                       alignItems: "center",
                       height: "100%",
                       width: "20%",
-                      pointerEvents: "none"
+                      pointerEvents: "none",
                     }}
                   >
                     <Typography
@@ -514,7 +523,7 @@ export default function Manufacturer() {
                       alignItems: "center",
                       height: "100%",
                       width: "22%",
-                      pointerEvents: "none"
+                      pointerEvents: "none",
                     }}
                   >
                     <Typography
@@ -534,7 +543,7 @@ export default function Manufacturer() {
                       alignItems: "center",
                       height: "100%",
                       width: "22%",
-                      pointerEvents: "none"
+                      pointerEvents: "none",
                     }}
                   >
                     <Typography
@@ -554,7 +563,7 @@ export default function Manufacturer() {
                       alignItems: "center",
                       height: "100%",
                       width: "22%",
-                      pointerEvents: "none"
+                      pointerEvents: "none",
                     }}
                   >
                     <Typography

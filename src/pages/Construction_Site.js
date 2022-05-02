@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import {
   Box,
@@ -13,6 +13,9 @@ import {
   Checkbox,
 } from "@mui/material";
 
+import { API } from "../api/api";
+import axios from "axios";
+
 import CustomSideBar from "./components/CustomSideBar";
 import CustomHeaderBar from "./components/CustomHeaderBar";
 import CustomImportButton from "./components/CustomImportButton";
@@ -26,7 +29,14 @@ import { ReactComponent as SearchIcon } from "../assets/svg/search1.svg";
 
 import { construction_data } from "../utils/construction_site_data";
 import { CustomConstructionInfo } from "./components/CustomConstructionModal";
+import CustomAddNewConstruction from "./components/CustomAddNewConstruction";
+import { deleteConstruction } from "../api/constructionApi";
 export default function Construction_Site() {
+  const [payload, setPayload] = useState({
+    data: [{}],
+    idChecked: false,
+    id: "",
+  });
   const [sidebar, Setsidebar] = useState({
     isOpen: false,
   });
@@ -38,10 +48,35 @@ export default function Construction_Site() {
 
   const [construction_modal, Setconstruction_modal] = useState({
     isOpen: false,
+    isAddbtn: false,
   });
   const [construction_info, Setconstruction_info] = useState({
     data: {},
   });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const user_id = JSON.parse(localStorage.getItem("user"));
+
+      const obj = {
+        user_id: user_id.user_id,
+      };
+      await axios({
+        method: "POST",
+        url: API.construction_site.fetchConstruction,
+        data: JSON.stringify(obj),
+      })
+        .then((response) => {
+          console.log(response.data);
+          setPayload({ ...payload, data: response.data });
+        })
+        .catch(({ response }) => {
+          console.log(response.data);
+        });
+    };
+
+    fetchData();
+  }, []);
   const SideBarHandle = () => {
     Setsidebar({ ...sidebar, isOpen: true });
   };
@@ -60,15 +95,50 @@ export default function Construction_Site() {
   const ConstructionHandleOpen = () => {
     Setconstruction_modal({ ...construction_modal, isOpen: true });
   };
-  const ConstructionFunc = (data) => {
-    ConstructionHandleOpen();
-    ConstructionData(data);
+  const ConstructionFunc = (data, e) => {
+    if (e.target.id === "paper") {
+      ConstructionHandleOpen();
+      ConstructionData(data);
+    }
   };
   const ConstructionHandleClose = () => {
     Setconstruction_modal({ ...construction_modal, isOpen: false });
   };
   const ConstructionData = (data) => {
     Setconstruction_info({ ...construction_info, data: data });
+  };
+
+  const ConstructionAddHandleOpen = () => {
+    Setconstruction_modal({ ...construction_modal, isAddbtn: true });
+  };
+  const ConstructionAddHandleClose = () => {
+    Setconstruction_modal({ ...construction_modal, isAddbtn: false });
+  };
+
+  const isChecked = (data) => {
+    /*     setPayload({ ...payload, idChecked: !payload.idChecked }); */
+    setPayload({ ...payload, id: data });
+  };
+  console.log(payload.id);
+  const CheckAll = (e) => {
+    setPayload({ ...payload, idChecked: !payload.idChecked });
+  };
+
+  const DeleteAll = () => {
+    payload.data.forEach((index) => {
+      if (payload.idChecked === true) {
+        const obj = {
+          construction_id: index.construction_id,
+        };
+        console.log(JSON.stringify(obj));
+        deleteConstruction(obj);
+      }
+    });
+    const obj = {
+      construction_id: payload.id,
+    };
+    deleteConstruction(obj);
+    window.location.reload();
   };
   return (
     <Box
@@ -255,6 +325,7 @@ export default function Construction_Site() {
                   backgroundColor: (theme) => theme.palette.primary.main,
                   color: (theme) => theme.palette.textColor.col1,
                 }}
+                onClick={ConstructionAddHandleOpen}
               >
                 <UserIcon style={{ marginRight: "10px" }} />
                 <Typography sx={{ fontSize: "14px" }}>Add New</Typography>
@@ -277,6 +348,7 @@ export default function Construction_Site() {
                     backgroundColor: (theme) => theme.palette.primary.main,
                     color: (theme) => theme.palette.textColor.col1,
                   }}
+                  onClick={DeleteAll}
                 >
                   <DeleteIcon style={{ marginRight: "10px" }} />
                   <Typography sx={{ fontSize: "14px" }}>Delete</Typography>
@@ -295,7 +367,7 @@ export default function Construction_Site() {
                   <UpdateIcon style={{ marginRight: "10px" }} />
                   <Typography sx={{ fontSize: "14px" }}>Update</Typography>
                 </Button>
-                <Checkbox />
+                <Checkbox checked={payload.idChecked} onClick={CheckAll} />
               </Box>
             </Box>
             <Box
@@ -361,78 +433,110 @@ export default function Construction_Site() {
                 </Typography>
               </Box>
             </Box>
-            {construction_data.map((index, i) => (
+            {payload.data == "" ? (
               <Paper
-                key={i}
                 sx={{
                   display: "flex",
+                  justifyContent: "center",
                   alignItems: "center",
-                  height: "80px",
+                  height: "200px",
                   width: "100%",
+                  borderRadius: "10px",
+                  backgroundColor: (theme) => theme.palette.primary.main,
                   marginTop: "20px",
-                  borderRadius: "20px",
-                  overflow: "hidden",
-                  transition: "all 0.3s ease",
-                  "&:hover": {
-                    backgroundColor: (theme) => theme.palette.secondary.bg2,
-                  },
                 }}
-                onClick={() => ConstructionFunc(index)}
               >
-                <Box
+                <Typography
+                  variant="h4"
                   sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    height: "100%",
-                    width: "30%",
-                    backgroundColor: "",
+                    color: (theme) => theme.palette.textColor.col4,
+                    opacity: "0.5",
                   }}
                 >
-                  <Typography sx={{ fontSize: "15px", marginLeft: "50px" }}>
-                    {index.id_no}
-                  </Typography>
-                </Box>
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    height: "100%",
-                    width: "30%",
-                    backgroundColor: "",
-                  }}
-                >
-                  <Typography sx={{ fontSize: "15px", marginLeft: "50px" }}>
-                    {index.site_name}
-                  </Typography>
-                </Box>
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    height: "100%",
-                    width: "30%",
-                    backgroundColor: "",
-                  }}
-                >
-                  <Typography sx={{ fontSize: "15px", marginLeft: "50px" }}>
-                    {index.client_name}
-                  </Typography>
-                </Box>
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "flex-end",
-                    alignItems: "center",
-                    height: "100%",
-                    width: "10%",
-                    backgroundColor: "",
-                    paddingRight: "20px",
-                  }}
-                >
-                  <Checkbox />
-                </Box>
+                  No Data
+                </Typography>
               </Paper>
-            ))}
+            ) : (
+              payload.data.map((index, i) => (
+                <Paper
+                  key={i}
+                  id="paper"
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    height: "80px",
+                    width: "100%",
+                    marginTop: "20px",
+                    borderRadius: "20px",
+                    overflow: "hidden",
+                    transition: "all 0.3s ease",
+                    "&:hover": {
+                      backgroundColor: (theme) => theme.palette.secondary.bg2,
+                    },
+                  }}
+                  onClick={(e) => ConstructionFunc(index, e)}
+                >
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      height: "100%",
+                      width: "30%",
+                      backgroundColor: "",
+                      pointerEvents: "none",
+                    }}
+                  >
+                    <Typography sx={{ fontSize: "15px", marginLeft: "50px" }}>
+                      {index.construction_id}
+                    </Typography>
+                  </Box>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      height: "100%",
+                      width: "30%",
+                      backgroundColor: "",
+                      pointerEvents: "none",
+                    }}
+                  >
+                    <Typography sx={{ fontSize: "15px", marginLeft: "50px" }}>
+                      {index.construction_site_name}
+                    </Typography>
+                  </Box>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      height: "100%",
+                      width: "30%",
+                      backgroundColor: "",
+                      pointerEvents: "none",
+                    }}
+                  >
+                    <Typography sx={{ fontSize: "15px", marginLeft: "50px" }}>
+                      {index.construction_client_name}
+                    </Typography>
+                  </Box>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "flex-end",
+                      alignItems: "center",
+                      height: "100%",
+                      width: "10%",
+                      backgroundColor: "",
+                      paddingRight: "20px",
+                    }}
+                  >
+                    <Checkbox
+                      checked={payload.idChecked}
+                      onClick={() => isChecked(index.construction_id)}
+                    />
+                  </Box>
+                </Paper>
+              ))
+            )}
             <Stack spacing={2} sx={{ marginTop: "60px" }}>
               <Pagination count={10} shape="rounded" color="primary" />
             </Stack>
@@ -441,6 +545,10 @@ export default function Construction_Site() {
             open={construction_modal.isOpen}
             onClose={ConstructionHandleClose}
             construction_info={construction_info.data}
+          />
+          <CustomAddNewConstruction
+            open={construction_modal.isAddbtn}
+            onClose={ConstructionAddHandleClose}
           />
         </Box>
         <Box

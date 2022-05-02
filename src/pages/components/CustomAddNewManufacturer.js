@@ -18,6 +18,7 @@ export default function CustomAddNewManufacturer({ open, onClose }) {
     manufacturer_email: "",
     manufacturer_contact: "",
     manufacturer_address: "",
+    user_id: "",
   });
   const AddNewHandleChange = (prop) => (e) => {
     setPayload({ ...payload, [prop]: e.target.value });
@@ -33,11 +34,13 @@ export default function CustomAddNewManufacturer({ open, onClose }) {
     });
   };
   const AddNewManufacturer = () => {
+    const user_id = JSON.parse(localStorage.getItem("user"));
     const obj = {
       manufacturer_name: payload.manufacturer_name,
       manufacturer_email: payload.manufacturer_email,
       manufacturer_contact: "0" + payload.manufacturer_contact,
       manufacturer_address: payload.manufacturer_address,
+      user_id: user_id.user_id,
     };
     addmanufacturer(obj);
     isClose();

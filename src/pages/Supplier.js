@@ -13,8 +13,6 @@ import {
   Pagination,
 } from "@mui/material";
 
-import { sample_data } from "../utils/sample_data";
-
 import CustomImportButton from "./components/CustomImportButton";
 import CustomExportButton from "./components/CustomExportButton";
 import CustomSideBar from "./components/CustomSideBar";
@@ -30,6 +28,8 @@ import { ReactComponent as SearchIcon } from "../assets/svg/search1.svg";
 
 import { API } from "../api/api";
 import axios from "axios";
+import * as XLSX from "xlsx";
+
 import { deleteSupplier } from "../api/supplierApi";
 
 import { useLocation } from "react-router-dom";
@@ -43,9 +43,11 @@ export default function Supplier() {
 
   const [payload, setPayload] = useState({
     data: [{}],
-    idChecked: false,
-    id: "",
   });
+  const [deleteData, SetDeleteData] = useState([]);
+
+  const [deleteAllData, SetDeleteAllData] = useState([]);
+
   const [sidebar, Setsidebar] = useState({
     isOpen: false,
   });
@@ -63,16 +65,21 @@ export default function Supplier() {
   const [supplier_info, Setsupplier_info] = useState({
     data: {},
   });
-  const [shorttext, SetShortText] = useState({
-    text: "",
-  });
+
   useEffect(() => {
+    const user_id = JSON.parse(localStorage.getItem("user"));
+
+    const obj = {
+      user_id: user_id.user_id,
+    };
     const fetchData = async () => {
       await axios({
-        method: "GET",
+        method: "POST",
         url: API.supplier.fetchSupplier,
+        data: JSON.stringify(obj),
       })
         .then((response) => {
+          console.log(response.data);
           setPayload({ ...payload, data: response.data });
         })
         .catch((err) => {
@@ -82,7 +89,6 @@ export default function Supplier() {
 
     fetchData();
   }, [Addignored, Deleteignored, Updateignored]);
-
   const SideBarHandle = () => {
     Setsidebar({ ...sidebar, isOpen: true });
   };
@@ -90,7 +96,6 @@ export default function Supplier() {
   const SideBarHandleClose = () => {
     Setsidebar({ ...sidebar, isOpen: false });
   };
-
   const ImportHandle = () => {
     Setdropdownbtn({ ...dropdownbtn, isImport: !dropdownbtn.isImport });
   };
@@ -98,7 +103,7 @@ export default function Supplier() {
   const ExportHandle = () => {
     Setdropdownbtn({ ...dropdownbtn, isExport: !dropdownbtn.isExport });
   };
-  
+
   const SupplierHandleOpen = () => {
     Setsupplier_modal({ ...supplier_modal, isOpen: true });
   };
@@ -126,31 +131,85 @@ export default function Supplier() {
   const SupplierData = (data) => {
     Setsupplier_info({ ...supplier_info, data: data });
   };
-  const isChecked = (data) => {
-    /*     setPayload({ ...payload, idChecked: !payload.idChecked }); */
-    setPayload({ ...payload, id: data });
-  };
-  console.log(payload.id);
-  const CheckAll = (e) => {
-    setPayload({ ...payload, idChecked: !payload.idChecked });
-  };
 
-  const DeleteAll = () => {
-    payload.data.forEach((index) => {
-      if (payload.idChecked === true) {
+  const isChecked = (e) => {
+    const { id, checked } = e.target;
+    if (id === "checkAll") {
+      let tempUser = payload.data.map((index) => {
+        return { ...index, ischecked: checked };
+      });
+      setPayload({ ...payload, data: tempUser });
+      let data_arr = [];
+
+      tempUser.forEach((index) => {
         const obj = {
           supplier_id: index.supplier_id,
         };
-        console.log(JSON.stringify(obj));
-        deleteSupplier(obj);
+        data_arr.push(obj);
+      });
+      if (!checked) {
+        SetDeleteAllData(deleteAllData.filter((index) => index === data_arr));
+        SetDeleteData(
+          deleteData.filter((index) => index.supplier_id === data_arr)
+        );
+      } else {
+        SetDeleteAllData(data_arr);
+        SetDeleteData(
+          deleteData.filter((index) => index.supplier_id === data_arr)
+        );
       }
-    });
-    const obj = {
-      supplier_id: payload.id,
-    };
-    deleteSupplier(obj);
-    window.location.reload();
+      console.log(data_arr);
+    } else {
+      let tempUser = payload.data.map((index) =>
+        index.supplier_id === id ? { ...index, ischecked: checked } : index
+      );
+      setPayload({ ...payload, data: tempUser });
+      let removeItem = id;
+      if (!checked) {
+        SetDeleteData(
+          deleteData.filter((index) => index.supplier_id !== removeItem)
+        );
+        SetDeleteAllData(
+          deleteAllData.filter((index) => index.supplier_id !== removeItem)
+        );
+      } else {
+        SetDeleteData([...deleteData, { supplier_id: id }]);
+        SetDeleteAllData(
+          deleteAllData.filter((index) => index.supplier_id !== removeItem)
+        );
+      }
+    }
   };
+
+  const DeleteData = () => {
+    deleteAllData.forEach((index) => {
+      const obj = {
+        supplier_id: index.supplier_id,
+      };
+      console.log(obj);
+      /*   deleteSupplier(obj); */
+    });
+    deleteData.forEach((index) => {
+      const obj = {
+        supplier_id: index.supplier_id,
+      };
+      console.log(obj);
+      /*       deleteSupplier(obj); */
+    });
+  };
+
+  const DownloadSupplier = () => {
+    let obj = [];
+    payload.data.forEach((index) => {
+      obj.push(index);
+    });
+    var wb = XLSX.utils.book_new();
+    var ws = XLSX.utils.json_to_sheet(obj);
+
+    XLSX.utils.book_append_sheet(wb, ws, "MySheet1");
+    XLSX.writeFile(wb, "Supplier.xlsx");
+  };
+
   return (
     <Box
       sx={{
@@ -341,11 +400,26 @@ export default function Supplier() {
                   textTransform: "capitalize",
                   backgroundColor: (theme) => theme.palette.primary.main,
                   color: (theme) => theme.palette.textColor.col1,
+                  marginRight: "20px",
                 }}
                 onClick={SupplierAddHandleOpen}
               >
                 <UserIcon style={{ marginRight: "10px" }} />
                 <Typography sx={{ fontSize: "14px" }}>Add New</Typography>
+              </Button>
+              <Button
+                sx={{
+                  height: "35px",
+                  width: "130px",
+                  border: "1px solid #3A57E8",
+                  borderRadius: "10px",
+                  textTransform: "capitalize",
+                  backgroundColor: (theme) => theme.palette.primary.main,
+                  color: (theme) => theme.palette.textColor.col1,
+                }}
+                onClick={DownloadSupplier}
+              >
+                <Typography sx={{ fontSize: "14px" }}>Download</Typography>
               </Button>
               <Box component="span" sx={{ flexGrow: "1" }} />
               <Box
@@ -365,7 +439,7 @@ export default function Supplier() {
                     backgroundColor: (theme) => theme.palette.primary.main,
                     color: (theme) => theme.palette.textColor.col1,
                   }}
-                  onClick={DeleteAll}
+                  onClick={DeleteData}
                 >
                   <DeleteIcon style={{ marginRight: "10px" }} />
                   <Typography sx={{ fontSize: "14px" }}>Delete</Typography>
@@ -384,7 +458,13 @@ export default function Supplier() {
                   <UpdateIcon style={{ marginRight: "10px" }} />
                   <Typography sx={{ fontSize: "14px" }}>Update</Typography>
                 </Button>
-                <Checkbox onClick={CheckAll} />
+                <Checkbox
+                  id="checkAll"
+                  onClick={isChecked}
+                  checked={
+                    !payload.data.some((index) => index?.ischecked !== true)
+                  }
+                />
               </Box>
             </Box>
             <Box
@@ -591,8 +671,9 @@ export default function Supplier() {
                     }}
                   >
                     <Checkbox
-                      checked={payload.idChecked}
-                      onClick={() => isChecked(index.supplier_id)}
+                      id={index.supplier_id}
+                      onClick={isChecked}
+                      checked={index?.ischecked || false}
                     />
                   </Box>
                 </Paper>

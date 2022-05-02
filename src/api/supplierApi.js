@@ -2,6 +2,7 @@ import { API } from "./api";
 import axios from "axios";
 
 export const addsupplier = (dataObj) => {
+  console.log(dataObj);
   axios({
     method: "POST",
     url: API.supplier.createSupplier,
@@ -35,7 +36,7 @@ export const deleteSupplier = (dataObj) => {
     data: JSON.stringify(dataObj),
   })
     .then((response) => {
-      console.log(response.data.message);
+      console.log(response.data);
     })
     .catch(({ response }) => {
       console.log(response.data.message);

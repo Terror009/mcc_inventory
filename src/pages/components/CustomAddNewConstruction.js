@@ -9,43 +9,38 @@ import {
   Button,
 } from "@mui/material";
 
-import { addsupplier } from "../../api/supplierApi";
+import { createConstruction } from "../../api/constructionApi";
 import { classes } from "../../design/uiDesign";
 
-export default function CustomAddNewSupplier({ open, onClose, AddUpdate }) {
+export default function CustomAddNewConstruction({ open, onClose }) {
   const [payload, setPayload] = useState({
-    supplier_name: "",
-    supplier_email: "",
-    supplier_contact: "",
-    supplier_address: "",
+    construction_site_name: "",
+    construction_client_name: "",
     user_id: "",
   });
+
   const AddNewHandleChange = (prop) => (e) => {
     setPayload({ ...payload, [prop]: e.target.value });
   };
+
   const isClose = () => {
     onClose();
     setPayload({
       ...payload,
-      supplier_name: "",
-      supplier_email: "",
-      supplier_contact: "",
-      supplier_address: "",
+      construction_client_name: "",
+      construction_client_name: "",
     });
   };
-  const AddNewSupplier = () => {
+  const AddNewConstruction = () => {
     const user_id = JSON.parse(localStorage.getItem("user"));
 
     const obj = {
-      supplier_name: payload.supplier_name,
-      supplier_email: payload.supplier_email,
-      supplier_contact: "0" + payload.supplier_contact,
-      supplier_address: payload.supplier_address,
+      construction_site_name: payload.construction_site_name,
+      construction_client_name: payload.construction_client_name,
       user_id: user_id.user_id,
     };
-
-    addsupplier(obj);
-    isClose();
+    createConstruction(obj);
+    console.log(obj);
     window.location.reload();
   };
   return (
@@ -62,7 +57,7 @@ export default function CustomAddNewSupplier({ open, onClose, AddUpdate }) {
     >
       <Paper
         sx={{
-          height: "400px",
+          height: "300px",
           width: "1000px",
           outline: "none",
           overflow: "hidden",
@@ -81,7 +76,7 @@ export default function CustomAddNewSupplier({ open, onClose, AddUpdate }) {
             variant="h5"
             sx={{ color: (theme) => theme.palette.textColor.col3 }}
           >
-            Add New Supplier
+            Add New Construction Site
           </Typography>
         </Box>
         <Box
@@ -94,76 +89,42 @@ export default function CustomAddNewSupplier({ open, onClose, AddUpdate }) {
         >
           <Typography
             sx={{
-              marginRight: "120px",
+              marginRight: "90px",
               color: (theme) => theme.palette.textColor.col3,
               fontSize: "14px",
             }}
           >
-            Name
+            Site Name
           </Typography>
           <TextField
             size="small"
             sx={classes.edit_input}
-            value={payload.supplier_name}
-            onChange={AddNewHandleChange("supplier_name")}
+            value={payload.construction_site_name}
+            onChange={AddNewHandleChange("construction_site_name")}
           />
         </Box>
         <Box
-          sx={{ display: "flex", alignItems: "center", padding: "10px 20px" }}
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            padding: "10px 20px",
+            marginTop: "20px",
+          }}
         >
           <Typography
             sx={{
-              marginRight: "122px",
+              marginRight: "80px",
               color: (theme) => theme.palette.textColor.col3,
               fontSize: "14px",
             }}
           >
-            Email
+            Client Name
           </Typography>
           <TextField
             size="small"
             sx={classes.edit_input}
-            value={payload.supplier_email}
-            onChange={AddNewHandleChange("supplier_email")}
-          />
-        </Box>
-        <Box
-          sx={{ display: "flex", alignItems: "center", padding: "10px 20px" }}
-        >
-          <Typography
-            sx={{
-              marginRight: "84px",
-              color: (theme) => theme.palette.textColor.col3,
-              fontSize: "14px",
-            }}
-          >
-            Contact No.
-          </Typography>
-          <TextField
-            type="number"
-            size="small"
-            sx={classes.edit_input}
-            value={payload.supplier_contact}
-            onChange={AddNewHandleChange("supplier_contact")}
-          />
-        </Box>
-        <Box
-          sx={{ display: "flex", alignItems: "center", padding: "10px 20px" }}
-        >
-          <Typography
-            sx={{
-              marginRight: "108px",
-              color: (theme) => theme.palette.textColor.col3,
-              fontSize: "14px",
-            }}
-          >
-            Address
-          </Typography>
-          <TextField
-            size="small"
-            sx={classes.edit_input}
-            value={payload.supplier_address}
-            onChange={AddNewHandleChange("supplier_address")}
+            value={payload.construction_client_name}
+            onChange={AddNewHandleChange("construction_client_name")}
           />
         </Box>
         <Box
@@ -183,7 +144,7 @@ export default function CustomAddNewSupplier({ open, onClose, AddUpdate }) {
               color: (theme) => theme.palette.textColor.col1,
               marginRight: "40px",
             }}
-            onClick={AddNewSupplier}
+            onClick={AddNewConstruction}
           >
             <Typography>Save</Typography>
           </Button>
