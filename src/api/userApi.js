@@ -9,7 +9,6 @@ export const signup = (dataObj) => {
   })
     .then((response) => {
       console.log(response.data);
-      window.localStorage.setItem("user", JSON.stringify(response.data));
       window.location.replace("/");
     })
     .catch((err) => {
@@ -25,7 +24,10 @@ export const signin = (dataObj) => {
   })
     .then((response) => {
       console.log(response.data);
-      window.localStorage.setItem("user", JSON.stringify(response.data));
+      const key = {
+        session_key: response.data.session_key,
+      };
+      localStorage.setItem("user", JSON.stringify(key));
       window.location.replace("/");
     })
     .catch(({ response }) => {
@@ -33,16 +35,30 @@ export const signin = (dataObj) => {
     });
 };
 
-export const userStatus = () => {
-  var xhttp = new XMLHttpRequest();
-  xhttp.open("GET", API.user.findUser);
-  xhttp.send();
-  xhttp.onreadystatechange = function () {
-    if (this.readyState === 4 && this.status === 200) {
-      console.log(this.response);
-      /*       window.location.replace("/"); */
-    } else if (this.readyState === 4 && this.status === 400) {
-      console.log(this.response);
-    }
-  };
+export const updateUserData = (dataObj) => {
+  axios({
+    method: "POST",
+    url: API.user.updateUser,
+    data: JSON.stringify(dataObj),
+  })
+    .then((response) => {
+      console.log(response.data);
+    })
+    .catch(({ response }) => {
+      console.log(response);
+    });
+};
+
+export const updateUserPasswordData = (dataObj) => {
+  axios({
+    method: "POST",
+    url: API.user.updateUserPassword,
+    data: JSON.stringify(dataObj),
+  })
+    .then((response) => {
+      console.log(response.data);
+    })
+    .catch(({ response }) => {
+      console.log(response);
+    });
 };

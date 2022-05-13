@@ -13,24 +13,27 @@ import {
   Pagination,
 } from "@mui/material";
 
-import { sample_data } from "../utils/sample_data";
 import axios from "axios";
 import { API } from "../api/api";
+import * as XLSX from "xlsx";
+
 import { deletemanufacturer } from "../api/manufacturerApi";
+import { useLocation } from "react-router-dom";
 
 import CustomImportButton from "./components/CustomImportButton";
 import CustomExportButton from "./components/CustomExportButton";
 import CustomSideBar from "./components/CustomSideBar";
 import CustomHeaderBar from "./components/CustomHeaderBar";
 import CustomSupManufactModal from "./components/CustomSupManufactModal";
+import CustomAddNewManufacturer from "./components/CustomAddNewManufacturer";
 
 import { ReactComponent as ArrowDownIcon } from "../assets/svg/arrow_down.svg";
 import { ReactComponent as UserIcon } from "../assets/svg/user1.svg";
 import { ReactComponent as DeleteIcon } from "../assets/svg/trash.svg";
 import { ReactComponent as UpdateIcon } from "../assets/svg/update.svg";
 import { ReactComponent as SearchIcon } from "../assets/svg/search1.svg";
-import { useLocation } from "react-router-dom";
-import CustomAddNewManufacturer from "./components/CustomAddNewManufacturer";
+import { ReactComponent as ImportIcon } from "../assets/svg/import.svg";
+import { ReactComponent as ExportIcon } from "../assets/svg/export.svg";
 
 export default function Manufacturer() {
   const { pathname } = useLocation();
@@ -52,13 +55,14 @@ export default function Manufacturer() {
 
   const [payload, setPayload] = useState({
     data: [{}],
-    idChecked: false,
-    id: "",
   });
+
+  const [deleteData, SetDeleteData] = useState([]);
+
+  const [deleteAllData, SetDeleteAllData] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
-
       const user_id = JSON.parse(localStorage.getItem("user"));
 
       const obj = {
@@ -72,7 +76,7 @@ export default function Manufacturer() {
       })
         .then((response) => {
           console.log(response.data);
-       setPayload({ ...payload, data: response.data }); 
+          setPayload({ ...payload, data: response.data });
         })
         .catch((err) => {
           console.log(err);
@@ -87,13 +91,6 @@ export default function Manufacturer() {
 
   const SideBarHandleClose = () => {
     Setsidebar({ ...sidebar, isOpen: false });
-  };
-
-  const ImportHandle = () => {
-    Setdropdownbtn({ ...dropdownbtn, isImport: !dropdownbtn.isImport });
-  };
-  const ExportHandle = () => {
-    Setdropdownbtn({ ...dropdownbtn, isExport: !dropdownbtn.isExport });
   };
 
   const ManufacturerHandleOpen = () => {
@@ -120,30 +117,90 @@ export default function Manufacturer() {
     SetManufacturer_modal({ ...manufacturer_modal, isAddbtn: false });
   };
 
-  const isChecked = (data) => {
-    /*     setPayload({ ...payload, idChecked: !payload.idChecked }); */
-    setPayload({ ...payload, id: data });
-  };
-  console.log(payload.id);
-  const CheckAll = (e) => {
-    setPayload({ ...payload, idChecked: !payload.idChecked });
-  };
+  const isChecked = (e) => {
+    const { id, checked } = e.target;
+    if (id === "checkAll") {
+      let tempUser = payload.data.map((index) => {
+        return { ...index, ischecked: checked };
+      });
+      setPayload({ ...payload, data: tempUser });
+      let data_arr = [];
 
-  const DeleteAll = () => {
-    payload.data.forEach((index) => {
-      if (payload.idChecked === true) {
+      tempUser.forEach((index) => {
         const obj = {
           manufacturer_id: index.manufacturer_id,
         };
-        console.log(JSON.stringify(obj));
-        deletemanufacturer(obj);
+        data_arr.push(obj);
+      });
+      if (!checked) {
+        SetDeleteAllData(deleteAllData.filter((index) => index === data_arr));
+        SetDeleteData(
+          deleteData.filter((index) => index.manufacturer_id === data_arr)
+        );
+      } else {
+        SetDeleteAllData(data_arr);
+        SetDeleteData(
+          deleteData.filter((index) => index.manufacturer_id === data_arr)
+        );
       }
+      console.log(data_arr);
+    } else {
+      let tempUser = payload.data.map((index) =>
+        index.manufacturer_id === id ? { ...index, ischecked: checked } : index
+      );
+      setPayload({ ...payload, data: tempUser });
+      let removeItem = id;
+      if (!checked) {
+        SetDeleteData(
+          deleteData.filter((index) => index.manufacturer_id !== removeItem)
+        );
+        SetDeleteAllData(
+          deleteAllData.filter((index) => index.manufacturer_id !== removeItem)
+        );
+      } else {
+        SetDeleteData([...deleteData, { manufacturer_id: id }]);
+        SetDeleteAllData(
+          deleteAllData.filter((index) => index.manufacturer_id !== removeItem)
+        );
+      }
+    }
+  };
+
+  const DeleteData = () => {
+    deleteAllData.forEach((index) => {
+      const obj = {
+        manufacturer_id: index.manufacturer_id,
+      };
+      console.log(obj);
+      deletemanufacturer(obj);
     });
-    const obj = {
-      manufacturer_id: payload.id,
-    };
-    deletemanufacturer(obj);
+    deleteData.forEach((index) => {
+      const obj = {
+        manufacturer_id: index.manufacturer_id,
+      };
+      console.log(obj);
+      deletemanufacturer(obj);
+    });
     window.location.reload();
+  };
+
+  const DownloadManufacturer = () => {
+    let data_arr = [];
+    payload.data.forEach((index) => {
+      const obj = {
+        manufacturer_id: index.manufacturer_id,
+        manufacturer_name: index.manufacturer_name,
+        manufacturer_email: index.manufacturer_email,
+        manufacturer_contact: index.manufacturer_contact,
+        manufacturer_address: index.manufacturer_address,
+      };
+      data_arr.push(obj);
+    });
+    var wb = XLSX.utils.book_new();
+    var ws = XLSX.utils.json_to_sheet(data_arr);
+
+    XLSX.utils.book_append_sheet(wb, ws, "MySheet1");
+    XLSX.writeFile(wb, "Manufacturer.xlsx");
   };
   return (
     <Box
@@ -200,20 +257,19 @@ export default function Manufacturer() {
                 sx={{
                   textTransform: "capitalize",
                 }}
-                onClick={ImportHandle}
               >
+                <ImportIcon
+                  style={{ height: "20px", width: "20px", marginRight: "10px" }}
+                />
                 <Typography
                   sx={{
-                    marginRight: "20px",
                     fontWeight: "bolder",
                     fontSize: "14px",
                   }}
                 >
                   import
                 </Typography>
-                <ArrowDownIcon />
               </Button>
-              <CustomImportButton open={dropdownbtn.isImport} />
             </Box>
             <Box
               sx={{
@@ -228,20 +284,20 @@ export default function Manufacturer() {
                 sx={{
                   textTransform: "capitalize",
                 }}
-                onClick={ExportHandle}
+                onClick={DownloadManufacturer}
               >
+                <ExportIcon
+                  style={{ height: "20px", width: "20px", marginRight: "10px" }}
+                />
                 <Typography
                   sx={{
-                    marginRight: "20px",
                     fontWeight: "bolder",
                     fontSize: "14px",
                   }}
                 >
                   export
                 </Typography>
-                <ArrowDownIcon />
               </Button>
-              <CustomExportButton open={dropdownbtn.isExport} />
             </Box>
           </Box>
         </Box>
@@ -359,7 +415,7 @@ export default function Manufacturer() {
                     backgroundColor: (theme) => theme.palette.primary.main,
                     color: (theme) => theme.palette.textColor.col1,
                   }}
-                  onClick={DeleteAll}
+                  onClick={DeleteData}
                 >
                   <DeleteIcon style={{ marginRight: "10px" }} />
                   <Typography sx={{ fontSize: "14px" }}>Delete</Typography>
@@ -378,7 +434,14 @@ export default function Manufacturer() {
                   <UpdateIcon style={{ marginRight: "10px" }} />
                   <Typography sx={{ fontSize: "14px" }}>Update</Typography>
                 </Button>
-                <Checkbox checked={payload.idChecked} onClick={CheckAll} />
+                <Checkbox
+                  id="checkAll"
+                  onClick={isChecked}
+                  checked={
+                    !payload.data.some((index) => index?.ischecked !== true)
+                  }
+                  color="secondary"
+                />
               </Box>
             </Box>
             <Box
@@ -585,8 +648,10 @@ export default function Manufacturer() {
                     }}
                   >
                     <Checkbox
-                      checked={payload.idChecked}
-                      onClick={() => isChecked(index.manufacturer_id)}
+                      id={index.manufacturer_id}
+                      onClick={isChecked}
+                      checked={index?.ischecked || false}
+                      color="secondary"
                     />
                   </Box>
                 </Paper>

@@ -48,6 +48,7 @@ export default function Report() {
         <Box sx={{ position: "relative", zIndex: "2" }}>
           <CustomHeaderBar />
         </Box>
+        <Box></Box>
       </Box>
     </Box>
   );

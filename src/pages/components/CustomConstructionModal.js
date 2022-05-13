@@ -23,10 +23,10 @@ export const CustomConstructionInfo = ({
   });
 
   const ConstructModalHandleOpen = () => {
-    setconstruct_edit_modal({ ...setconstruct_edit_modal, isOpen: true });
+    setconstruct_edit_modal({ ...construct_edit_modal, isOpen: true });
   };
   const ConstructModalHandleClose = () => {
-    setconstruct_edit_modal({ ...setconstruct_edit_modal, isOpen: false });
+    setconstruct_edit_modal({ ...construct_edit_modal, isOpen: false });
   };
   return (
     <Modal

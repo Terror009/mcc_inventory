@@ -30,6 +30,7 @@ import { ReactComponent as SolidStarIcon } from "../assets/svg/solid_star.svg";
 import { material_data } from "../utils/materials_sample_data";
 import CustomMaterialDropDown from "./components/CustomMaterialDropDown";
 import CustomMaterialModal from "./components/CustomMaterialModal";
+import CustomAddNewMaterial from "./components/CustomAddNewMaterial";
 
 export default function Material() {
   const [dropdownbtn, Setdropdownbtn] = useState({
@@ -39,12 +40,13 @@ export default function Material() {
   const [sidebar, Setsidebar] = useState({
     isOpen: false,
   });
-  const [materialmodal, Setmaterialmodal] = useState({
+  const [material_modal, Setmaterial_modal] = useState({
     isOpen: false,
+    isAddbtn: false,
   });
   const [payload, Setpayload] = useState({
     data: {},
-  })
+  });
 
   const ImportHandle = () => {
     Setdropdownbtn({ ...dropdownbtn, isImport: !dropdownbtn.isImport });
@@ -61,19 +63,26 @@ export default function Material() {
     Setsidebar({ ...sidebar, isOpen: false });
   };
 
+  const MaterialAddHandleOpen = () => {
+    Setmaterial_modal({ ...material_modal, isAddbtn: true });
+  };
+  const MaterialAddHandleClose = () => {
+    Setmaterial_modal({ ...material_modal, isAddbtn: false });
+  };
+
   const MaterialFunc = (data) => {
     MaterialModalHandleOpen();
     MaterialData(data);
-  }
+  };
   const MaterialModalHandleOpen = () => {
-    Setmaterialmodal({ ...materialmodal, isOpen: true });
+    Setmaterial_modal({ ...material_modal, isOpen: true });
   };
   const MaterialModalHandleClose = () => {
-    Setmaterialmodal({ ...materialmodal, isOpen: false });
+    Setmaterial_modal({ ...material_modal, isOpen: false });
   };
   const MaterialData = (data) => {
-    Setpayload({ ...payload, data: data})
-  }
+    Setpayload({ ...payload, data: data });
+  };
   return (
     <Box
       sx={{
@@ -285,6 +294,7 @@ export default function Material() {
                       backgroundColor: (theme) => theme.palette.primary.main,
                       color: (theme) => theme.palette.textColor.col1,
                     }}
+                    onClick={MaterialAddHandleOpen}
                   >
                     <UserIcon style={{ marginRight: "10px" }} />
                     <Typography sx={{ fontSize: "14px" }}>Add New</Typography>
@@ -395,7 +405,7 @@ export default function Material() {
                         backgroundColor: (theme) => theme.palette.secondary.bg2,
                       },
                     }}
-                    onClick={()=>MaterialFunc(index)}
+                    onClick={() => MaterialFunc(index)}
                   >
                     <Box
                       sx={{
@@ -669,9 +679,13 @@ export default function Material() {
             </Box>
           </Box>
           <CustomMaterialModal
-            open={materialmodal.isOpen}
+            open={material_modal.isOpen}
             onClose={MaterialModalHandleClose}
             material_info={payload.data}
+          />
+          <CustomAddNewMaterial
+            open={material_modal.isAddbtn}
+            onClose={MaterialAddHandleClose}
           />
         </Box>
         <Box

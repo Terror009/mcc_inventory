@@ -41,11 +41,14 @@ export default function UserSignup() {
       lastname: payload.lname,
       email: payload.email,
       password: payload.password,
-      user_status: "active",
+      session_key: (Math.random() + 2).toString(36).substring(7),
     };
-    console.log(obj);
+
+    const session_key = {
+      session_key: obj.session_key,
+    }
     signup(obj);
-    localStorage.setItem("user", JSON.stringify(obj));
+    localStorage.setItem("user", JSON.stringify(session_key));
   };
   return (
     <Box sx={classes.root}>

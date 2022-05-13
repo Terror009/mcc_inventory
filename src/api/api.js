@@ -5,6 +5,8 @@ export const API = {
     findUser: baseUrl + "api/users/find.user.php",
     createUser: baseUrl + "api/users/create.user.php",
     validateUser: baseUrl + "api/users/login.user.php",
+    updateUser: baseUrl + "api/users/update.user.php",
+    updateUserPassword: baseUrl + "api/users/update.user.password.php",
   },
   supplier: {
     createSupplier: baseUrl + "api/suppliers/create.supplier.php",
@@ -18,6 +20,12 @@ export const API = {
     deleteManufacturer: baseUrl + "api/manufacturer/delete.manufacturer.php",
     updateManufacturer: baseUrl + "api/manufacturer/update.manufacturer.php",
   },
+  material: {
+    createMaterial: baseUrl + "api/material/create.material.php",
+    fetchMaterial: baseUrl + "api/material/fetch.material.php",
+    deleteMaterial: baseUrl + "api/material/delete.material.php",
+    updateMaterial: baseUrl + "api/material/update.material.php",
+  },
   construction_site: {
     createConstruction:
       baseUrl + "api/construction_site/create.construction_site.php",
@@ -27,5 +35,20 @@ export const API = {
       baseUrl + "api/construction_site/delete.construction_site.php",
     updateConstruction:
       baseUrl + "api/construction_site/update.construction_site.php",
+  },
+  project: {
+    createProject: baseUrl + "api/project/create.project.php",
+    fetchProject: baseUrl + "api/project/fetch.project.php",
+    deleteProject: baseUrl + "api/project/delete.project.php",
+    updateProject: baseUrl + "api/project/update.project.php",
+    pendingProject: baseUrl + "api/project/pending.project.php",
+    activeProject: baseUrl + "api/project/active.project.php",
+    canceledProject: baseUrl + "api/project/canceled.project.php",
+  },
+  user_list: {
+    createUserList: baseUrl + "api/user_list/create.user.list.php",
+    fetchUserList: baseUrl + "api/user_list/fetch.user.list.php",
+    deleteUserList: baseUrl + "api/user_list/delete.user.list.php",
+    updateUserList: baseUrl + "api/user_list/update.user.list.php",
   },
 };

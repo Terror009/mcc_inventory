@@ -15,28 +15,35 @@ import {
 
 import { API } from "../api/api";
 import axios from "axios";
+import * as XLSX from "xlsx";
 
 import CustomSideBar from "./components/CustomSideBar";
 import CustomHeaderBar from "./components/CustomHeaderBar";
 import CustomImportButton from "./components/CustomImportButton";
 import CustomExportButton from "./components/CustomExportButton";
+import CustomAddNewConstruction from "./components/CustomAddNewConstruction";
 
 import { ReactComponent as ArrowDownIcon } from "../assets/svg/arrow_down.svg";
 import { ReactComponent as UserIcon } from "../assets/svg/user1.svg";
 import { ReactComponent as DeleteIcon } from "../assets/svg/trash.svg";
 import { ReactComponent as UpdateIcon } from "../assets/svg/update.svg";
 import { ReactComponent as SearchIcon } from "../assets/svg/search1.svg";
+import { ReactComponent as ImportIcon } from "../assets/svg/import.svg";
+import { ReactComponent as ExportIcon } from "../assets/svg/export.svg";
 
 import { construction_data } from "../utils/construction_site_data";
 import { CustomConstructionInfo } from "./components/CustomConstructionModal";
-import CustomAddNewConstruction from "./components/CustomAddNewConstruction";
 import { deleteConstruction } from "../api/constructionApi";
+
 export default function Construction_Site() {
   const [payload, setPayload] = useState({
     data: [{}],
-    idChecked: false,
-    id: "",
   });
+
+  const [deleteData, SetDeleteData] = useState([]);
+
+  const [deleteAllData, SetDeleteAllData] = useState([]);
+
   const [sidebar, Setsidebar] = useState({
     isOpen: false,
   });
@@ -85,13 +92,6 @@ export default function Construction_Site() {
     Setsidebar({ ...sidebar, isOpen: false });
   };
 
-  const ImportHandle = () => {
-    Setdropdownbtn({ ...dropdownbtn, isImport: !dropdownbtn.isImport });
-  };
-  const ExportHandle = () => {
-    Setdropdownbtn({ ...dropdownbtn, isExport: !dropdownbtn.isExport });
-  };
-
   const ConstructionHandleOpen = () => {
     Setconstruction_modal({ ...construction_modal, isOpen: true });
   };
@@ -114,31 +114,88 @@ export default function Construction_Site() {
   const ConstructionAddHandleClose = () => {
     Setconstruction_modal({ ...construction_modal, isAddbtn: false });
   };
+  const isChecked = (e) => {
+    const { id, checked } = e.target;
+    if (id === "checkAll") {
+      let tempUser = payload.data.map((index) => {
+        return { ...index, ischecked: checked };
+      });
+      setPayload({ ...payload, data: tempUser });
+      let data_arr = [];
 
-  const isChecked = (data) => {
-    /*     setPayload({ ...payload, idChecked: !payload.idChecked }); */
-    setPayload({ ...payload, id: data });
-  };
-  console.log(payload.id);
-  const CheckAll = (e) => {
-    setPayload({ ...payload, idChecked: !payload.idChecked });
-  };
-
-  const DeleteAll = () => {
-    payload.data.forEach((index) => {
-      if (payload.idChecked === true) {
+      tempUser.forEach((index) => {
         const obj = {
           construction_id: index.construction_id,
         };
-        console.log(JSON.stringify(obj));
-        deleteConstruction(obj);
+        data_arr.push(obj);
+      });
+      if (!checked) {
+        SetDeleteAllData(deleteAllData.filter((index) => index === data_arr));
+        SetDeleteData(
+          deleteData.filter((index) => index.construction_id === data_arr)
+        );
+      } else {
+        SetDeleteAllData(data_arr);
+        SetDeleteData(
+          deleteData.filter((index) => index.construction_id === data_arr)
+        );
       }
+      console.log(data_arr);
+    } else {
+      let tempUser = payload.data.map((index) =>
+        index.construction_id === id ? { ...index, ischecked: checked } : index
+      );
+      setPayload({ ...payload, data: tempUser });
+      let removeItem = id;
+      if (!checked) {
+        SetDeleteData(
+          deleteData.filter((index) => index.construction_id !== removeItem)
+        );
+        SetDeleteAllData(
+          deleteAllData.filter((index) => index.construction_id !== removeItem)
+        );
+      } else {
+        SetDeleteData([...deleteData, { construction_id: id }]);
+        SetDeleteAllData(
+          deleteAllData.filter((index) => index.construction_id !== removeItem)
+        );
+      }
+    }
+  };
+
+  const DeleteData = () => {
+    deleteAllData.forEach((index) => {
+      const obj = {
+        construction_id: index.construction_id,
+      };
+      console.log(obj);
+      deleteConstruction(obj);
     });
-    const obj = {
-      construction_id: payload.id,
-    };
-    deleteConstruction(obj);
+    deleteData.forEach((index) => {
+      const obj = {
+        construction_id: index.construction_id,
+      };
+      console.log(obj);
+      deleteConstruction(obj);
+    });
     window.location.reload();
+  };
+
+  const DownloadConstruction = () => {
+    let data_arr = [];
+    payload.data.forEach((index) => {
+      const obj = {
+        construction_id: index.construction_id,
+        construction_site_name: index.construction_site_name,
+        construction_client_name: index.construction_client_name,
+      };
+      data_arr.push(obj);
+    });
+    var wb = XLSX.utils.book_new();
+    var ws = XLSX.utils.json_to_sheet(data_arr);
+
+    XLSX.utils.book_append_sheet(wb, ws, "MySheet1");
+    XLSX.writeFile(wb, "Construction_Site.xlsx");
   };
   return (
     <Box
@@ -189,20 +246,19 @@ export default function Construction_Site() {
                 sx={{
                   textTransform: "capitalize",
                 }}
-                onClick={ImportHandle}
               >
+                <ImportIcon
+                  style={{ height: "20px", width: "20px", marginRight: "10px" }}
+                />
                 <Typography
                   sx={{
-                    marginRight: "20px",
                     fontWeight: "bolder",
                     fontSize: "14px",
                   }}
                 >
                   import
                 </Typography>
-                <ArrowDownIcon />
               </Button>
-              <CustomImportButton open={dropdownbtn.isImport} />
             </Box>
             <Box
               sx={{
@@ -217,20 +273,20 @@ export default function Construction_Site() {
                 sx={{
                   textTransform: "capitalize",
                 }}
-                onClick={ExportHandle}
+                onClick={DownloadConstruction}
               >
+                <ExportIcon
+                  style={{ height: "20px", width: "20px", marginRight: "10px" }}
+                />
                 <Typography
                   sx={{
-                    marginRight: "20px",
                     fontWeight: "bolder",
                     fontSize: "14px",
                   }}
                 >
                   export
                 </Typography>
-                <ArrowDownIcon />
               </Button>
-              <CustomExportButton open={dropdownbtn.isExport} />
             </Box>
           </Box>
         </Box>
@@ -348,7 +404,7 @@ export default function Construction_Site() {
                     backgroundColor: (theme) => theme.palette.primary.main,
                     color: (theme) => theme.palette.textColor.col1,
                   }}
-                  onClick={DeleteAll}
+                  onClick={DeleteData}
                 >
                   <DeleteIcon style={{ marginRight: "10px" }} />
                   <Typography sx={{ fontSize: "14px" }}>Delete</Typography>
@@ -367,7 +423,14 @@ export default function Construction_Site() {
                   <UpdateIcon style={{ marginRight: "10px" }} />
                   <Typography sx={{ fontSize: "14px" }}>Update</Typography>
                 </Button>
-                <Checkbox checked={payload.idChecked} onClick={CheckAll} />
+                <Checkbox
+                  id="checkAll"
+                  onClick={isChecked}
+                  checked={
+                    !payload.data.some((index) => index?.ischecked !== true)
+                  }
+                  color="secondary"
+                />
               </Box>
             </Box>
             <Box
@@ -530,8 +593,10 @@ export default function Construction_Site() {
                     }}
                   >
                     <Checkbox
-                      checked={payload.idChecked}
-                      onClick={() => isChecked(index.construction_id)}
+                      id={index.construction_id}
+                      onClick={isChecked}
+                      checked={index?.ischecked || false}
+                      color="secondary"
                     />
                   </Box>
                 </Paper>

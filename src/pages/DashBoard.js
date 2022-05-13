@@ -14,7 +14,10 @@ import {
 import CustomSideBar from "./components/CustomSideBar";
 import CustomHeaderBar from "./components/CustomHeaderBar";
 
+import { OngoingProjectChart } from "./components/CustomChartData";
+
 import backgroundImg from "../assets/img/background.png";
+
 import { ReactComponent as PendingIcon } from "../assets/svg/pending.svg";
 import { ReactComponent as ActiveIcon } from "../assets/svg/active.svg";
 import { ReactComponent as ReturnIcon } from "../assets/svg/returned.svg";
@@ -22,43 +25,15 @@ import { ReactComponent as DeliverIcon } from "../assets/svg/delivered.svg";
 import { ReactComponent as CancelIcon } from "../assets/svg/cancel.svg";
 
 import { DashBoard_Helmet } from "./components/CustomMetaTag";
-
+import {
+  FetchUserData,
+  FetchPendingProjectData,
+  FetchActiveProjectData,
+  FetchCanceledProjectData,
+  FetchDeliveredMaterialData,
+  FetchReturnedMaterialData,
+} from "./components/CustomFetchDashBoardData";
 export default function DashBoard() {
-  const [payload, Setpayload] = useState({
-    data: {},
-  });
-
-  const [user_data, Setuser_data] = useState({
-    projects: "",
-    materials: "",
-  });
-/*   useEffect(() => {
-    const fetchData = () => {
-      axios({
-        method: "GET",
-        url: API.user.findUser,
-      })
-        .then((response) => {
-          console.log(response.data);
-        })
-        .catch((response) => {
-          console.log(response.data);
-        });
-    };
-    fetchData();
-  }, []); */
-
-  useEffect(() => {
-    const arr = JSON.parse(localStorage.getItem("user"));
-    const fetchData = () => {
-      Setpayload({
-        ...payload,
-        data: arr,
-      });
-    };
-    fetchData();
-  }, []);
-
   const [sidebar, Setsidebar] = useState({
     isOpen: false,
   });
@@ -70,6 +45,7 @@ export default function DashBoard() {
   const SideBarHandleClose = () => {
     Setsidebar({ ...sidebar, isOpen: false });
   };
+
   return (
     <Box
       sx={{
@@ -108,18 +84,7 @@ export default function DashBoard() {
               borderBottomRightRadius: "10px",
             }}
           >
-            <Typography
-              variant="h5"
-              sx={{
-                zIndex: "1",
-                color: (theme) => theme.palette.textColor.col2,
-                fontWeight: "bolder",
-                marginLeft: "30px",
-                fontSize: "2vw",
-              }}
-            >
-              Welcome {payload.data.firstname +" "+ payload.data.lastname}!
-            </Typography>
+            <FetchUserData />
             <Box
               component="img"
               src={backgroundImg}
@@ -136,7 +101,7 @@ export default function DashBoard() {
         <Box
           sx={{
             display: "flex",
-            height: "190vh",
+            height: "200vh",
             width: "100%",
             backgroundColor: (theme) => theme.palette.secondary.bg3,
           }}
@@ -155,23 +120,57 @@ export default function DashBoard() {
                 width: "100%",
               }}
             >
-              <Typography>Ongoing Projects</Typography>
+              <Typography>Projects</Typography>
               <Paper
                 sx={{
-                  height: "160px",
-                  width: "100%",
+                  display: "flex",
+                  height: "140px",
+                  width: "95%",
                   marginTop: "10px",
                   borderRadius: "10px",
+                  padding: "20px 20px",
                 }}
-              ></Paper>
+              >
+                <Box
+                  sx={{ height: "100%", width: "20%", backgroundColor: "" }}
+                >
+                  <Typography
+                    sx={{
+                      fontSize: "14px",
+                      color: (theme) => theme.palette.textColor.col4,
+                    }}
+                  >
+                    Ongoing Projects
+                  </Typography>
+                </Box>
+                <Box
+                  sx={{
+                    height: "100%",
+                    width: "80%",
+                    backgroundColor: "",
+                  }}
+                >
+       {/*            <OngoingProjectChart /> */}
+                </Box>
+              </Paper>
               <Paper
                 sx={{
-                  height: "160px",
-                  width: "100%",
+                  height: "140px",
+                  width: "95%",
                   marginTop: "10px",
                   borderRadius: "10px",
+                  padding: "20px 20px",
                 }}
-              ></Paper>
+              >
+                <Typography
+                  sx={{
+                    fontSize: "14px",
+                    color: (theme) => theme.palette.textColor.col4,
+                  }}
+                >
+                  Complete Projects
+                </Typography>
+              </Paper>
             </Box>
             <Box
               sx={{
@@ -189,20 +188,95 @@ export default function DashBoard() {
                 }}
               >
                 <Paper
-                  sx={{ height: "160px", width: "19%", borderRadius: "10px" }}
-                ></Paper>
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "180px",
+                    width: "19%",
+                    borderRadius: "10px",
+                  }}
+                >
+                  <PendingIcon style={{ height: "40px", width: "40px" }} />
+                  <Typography sx={{ fontSize: "14px", marginTop: "10px" }}>
+                    Pending
+                  </Typography>
+                  <Typography sx={{ fontSize: "14px" }}>Projects</Typography>
+                  <FetchPendingProjectData />
+                </Paper>
                 <Paper
-                  sx={{ height: "160px", width: "19%", borderRadius: "10px" }}
-                ></Paper>
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "180px",
+                    width: "19%",
+                    borderRadius: "10px",
+                  }}
+                >
+                  <ActiveIcon style={{ height: "40px", width: "40px" }} />
+                  <Typography sx={{ fontSize: "14px", marginTop: "10px" }}>
+                    Active
+                  </Typography>
+                  <Typography sx={{ fontSize: "14px" }}>Projects</Typography>
+                  <FetchActiveProjectData />
+                </Paper>
                 <Paper
-                  sx={{ height: "160px", width: "19%", borderRadius: "10px" }}
-                ></Paper>
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "180px",
+                    width: "19%",
+                    borderRadius: "10px",
+                  }}
+                >
+                  <DeliverIcon style={{ height: "40px", width: "40px" }} />
+                  <Typography sx={{ fontSize: "14px", marginTop: "10px" }}>
+                    Delivered
+                  </Typography>
+                  <Typography sx={{ fontSize: "14px" }}>Materials</Typography>
+                  <FetchDeliveredMaterialData />
+                </Paper>
                 <Paper
-                  sx={{ height: "160px", width: "19%", borderRadius: "10px" }}
-                ></Paper>
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "180px",
+                    width: "19%",
+                    borderRadius: "10px",
+                  }}
+                >
+                  <ReturnIcon style={{ height: "40px", width: "40px" }} />
+                  <Typography sx={{ fontSize: "14px", marginTop: "10px" }}>
+                    Returned
+                  </Typography>
+                  <Typography sx={{ fontSize: "14px" }}>Materials</Typography>
+                  <FetchReturnedMaterialData />
+                </Paper>
                 <Paper
-                  sx={{ height: "160px", width: "19%", borderRadius: "10px" }}
-                ></Paper>
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "180px",
+                    width: "19%",
+                    borderRadius: "10px",
+                  }}
+                >
+                  <CancelIcon style={{ height: "40px", width: "40px" }} />
+                  <Typography sx={{ fontSize: "14px", marginTop: "10px" }}>
+                    Canceled
+                  </Typography>
+                  <Typography sx={{ fontSize: "14px" }}>Projects</Typography>
+                  <FetchCanceledProjectData />
+                </Paper>
               </Box>
             </Box>
             <Paper

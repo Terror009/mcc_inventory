@@ -4,12 +4,15 @@ export const theme = () => ({
     primary: {
       main: "#FFFFFF",
       bg1: "rgba(255,255,255,0.7)",
+      bg2: "rgba(255,255,255,0.2)",
     },
     secondary: {
       main: "#3A57E8",
       bg1: "#26399c",
       bg2: "#D0D3DB",
       bg3: "#D8E8FF",
+      bg4: "#FF0000",
+      bg5: "#8B0000", 
     },
     background: {
       default: "#FFFFFF",

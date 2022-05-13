@@ -9,20 +9,34 @@ import {
   Paper,
 } from "@mui/material";
 
+import { API } from "../../api/api";
+import axios from "axios";
+
 import { ReactComponent as NotificationIcon } from "../../assets/svg/notification.svg";
 import { ReactComponent as SearchIcon } from "../../assets/svg/search.svg";
 
 export default function CustomHeaderBar() {
   const [payload, Setpayload] = useState({
-    data: {},
+    data: [{}],
   });
   useEffect(() => {
-    const arr = JSON.parse(localStorage.getItem("user"));
+    const key = JSON.parse(localStorage.getItem("user"));
+    const session_key = {
+      session_key: key.session_key,
+    };
     const fetchData = () => {
-      Setpayload({
-        ...payload,
-        data: arr,
-      });
+      axios({
+        method: "POST",
+        url: API.user.findUser,
+        data: JSON.stringify(session_key),
+      })
+        .then((response) => {
+          console.log(response.data);
+          Setpayload({ ...payload, data: response.data });
+        })
+        .catch((response) => {
+          console.log(response.data);
+        });
     };
     fetchData();
   }, []);
@@ -61,9 +75,11 @@ export default function CustomHeaderBar() {
           <NotificationIcon />
           <Avatar />
           <Box>
-            <Typography variant="body1">
-              {payload.data.firstname + " " + payload.data.lastname}
-            </Typography>
+            {payload.data.map((index, i) => (
+              <Typography variant="body1" key={i}>
+                {index.firstname + " " + index.lastname}
+              </Typography>
+            ))}
             <Typography
               variant="caption"
               sx={{ color: (theme) => theme.palette.textColor.col4 }}

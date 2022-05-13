@@ -309,4 +309,77 @@ export const classes = {
       },
     },
   },
+  project_edit_input: {
+    width: "80%",
+    "& input[type=number]": {
+      " MozAppearance": "textfield",
+    },
+    "& input[type=number]::-webkit-outer-spin-button": {
+      WebkitAppearance: "none",
+      margin: 0,
+    },
+    "& input[type=number]::-webkit-inner-spin-button": {
+      WebkitAppearance: "none",
+      margin: 0,
+    },
+    "& .MuiOutlinedInput-root": {
+      borderRadius: "15px",
+      height: "35px",
+      fontSize: "12px",
+      "&:hover fieldset": {
+        transition: "all 0.4s ease",
+        borderColor: (theme) => theme.palette.secondary.main,
+        outline: "none",
+      },
+      "&.Mui-focused fieldset": {
+        transition: "all 0.4s ease",
+        borderColor: (theme) => theme.palette.secondary.bg2,
+      },
+    },
+  },
+  user_list_edit_input: {
+    width: "85%",
+    "& input[type=number]": {
+      " MozAppearance": "textfield",
+    },
+    "& input[type=number]::-webkit-outer-spin-button": {
+      WebkitAppearance: "none",
+      margin: 0,
+    },
+    "& input[type=number]::-webkit-inner-spin-button": {
+      WebkitAppearance: "none",
+      margin: 0,
+    },
+    "& .MuiOutlinedInput-root": {
+      borderRadius: "15px",
+      height: "35px",
+      fontSize: "12px",
+      "&:hover fieldset": {
+        transition: "all 0.4s ease",
+        borderColor: (theme) => theme.palette.secondary.main,
+        outline: "none",
+      },
+      "&.Mui-focused fieldset": {
+        transition: "all 0.4s ease",
+        borderColor: (theme) => theme.palette.secondary.bg2,
+      },
+    },
+  },
+
+  settings_input: {
+    width: "100%",
+    "& .MuiOutlinedInput-root": {
+      height: "35px",
+      fontSize: "12px",
+      "&:hover fieldset": {
+        transition: "all 0.4s ease",
+        borderColor: (theme) => theme.palette.secondary.main,
+        outline: "none",
+      },
+      "&.Mui-focused fieldset": {
+        transition: "all 0.4s ease",
+        borderColor: (theme) => theme.palette.secondary.bg2,
+      },
+    },
+  },
 };

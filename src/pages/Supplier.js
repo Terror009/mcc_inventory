@@ -25,6 +25,8 @@ import { ReactComponent as UserIcon } from "../assets/svg/user1.svg";
 import { ReactComponent as DeleteIcon } from "../assets/svg/trash.svg";
 import { ReactComponent as UpdateIcon } from "../assets/svg/update.svg";
 import { ReactComponent as SearchIcon } from "../assets/svg/search1.svg";
+import { ReactComponent as ImportIcon } from "../assets/svg/import.svg";
+import { ReactComponent as ExportIcon } from "../assets/svg/export.svg";
 
 import { API } from "../api/api";
 import axios from "axios";
@@ -72,6 +74,7 @@ export default function Supplier() {
     const obj = {
       user_id: user_id.user_id,
     };
+
     const fetchData = async () => {
       await axios({
         method: "POST",
@@ -95,13 +98,6 @@ export default function Supplier() {
 
   const SideBarHandleClose = () => {
     Setsidebar({ ...sidebar, isOpen: false });
-  };
-  const ImportHandle = () => {
-    Setdropdownbtn({ ...dropdownbtn, isImport: !dropdownbtn.isImport });
-  };
-
-  const ExportHandle = () => {
-    Setdropdownbtn({ ...dropdownbtn, isExport: !dropdownbtn.isExport });
   };
 
   const SupplierHandleOpen = () => {
@@ -196,19 +192,20 @@ export default function Supplier() {
       console.log(obj);
       deleteSupplier(obj);
     });
+    window.location.reload();
   };
 
   const DownloadSupplier = () => {
     let data_arr = [];
     payload.data.forEach((index) => {
-     const obj = {
+      const obj = {
         supplier_id: index.supplier_id,
         supplier_name: index.supplier_name,
         supplier_email: index.supplier_email,
         supplier_contact: index.supplier_contact,
         supplier_address: index.supplier_address,
       };
-      data_arr.push(obj)
+      data_arr.push(obj);
     });
     var wb = XLSX.utils.book_new();
     var ws = XLSX.utils.json_to_sheet(data_arr);
@@ -272,20 +269,19 @@ export default function Supplier() {
                 sx={{
                   textTransform: "capitalize",
                 }}
-                onClick={ImportHandle}
               >
+                <ImportIcon
+                  style={{ height: "20px", width: "20px", marginRight: "10px" }}
+                />
                 <Typography
                   sx={{
-                    marginRight: "20px",
                     fontWeight: "bolder",
                     fontSize: "14px",
                   }}
                 >
                   import
                 </Typography>
-                <ArrowDownIcon />
               </Button>
-              <CustomImportButton open={dropdownbtn.isImport} />
             </Box>
             <Box
               sx={{
@@ -300,20 +296,16 @@ export default function Supplier() {
                 sx={{
                   textTransform: "capitalize",
                 }}
-                onClick={ExportHandle}
+                onClick={DownloadSupplier}
               >
-                <Typography
-                  sx={{
-                    marginRight: "20px",
-                    fontWeight: "bolder",
-                    fontSize: "14px",
-                  }}
-                >
+                <ExportIcon
+                  style={{ height: "20px", width: "20px", marginRight: "10px" }}
+                />
+
+                <Typography sx={{ fontWeight: "bolder", fontSize: "14px" }}>
                   export
                 </Typography>
-                <ArrowDownIcon />
               </Button>
-              <CustomExportButton open={dropdownbtn.isExport} />
             </Box>
           </Box>
         </Box>
@@ -324,6 +316,15 @@ export default function Supplier() {
             padding: "20px 20px",
           }}
         >
+          <Typography
+            sx={{
+              fontSize: "24px",
+              fontWeight: "lighter",
+              color: (theme) => theme.palette.textColor.col4,
+            }}
+          >
+            Supplier
+          </Typography>
           <Paper
             sx={{
               display: "flex",
@@ -332,6 +333,7 @@ export default function Supplier() {
               width: "97%",
               padding: "0px 20px",
               borderRadius: "10px",
+              marginTop: "20px",
             }}
           >
             <TextField
@@ -407,26 +409,11 @@ export default function Supplier() {
                   textTransform: "capitalize",
                   backgroundColor: (theme) => theme.palette.primary.main,
                   color: (theme) => theme.palette.textColor.col1,
-                  marginRight: "20px",
                 }}
                 onClick={SupplierAddHandleOpen}
               >
                 <UserIcon style={{ marginRight: "10px" }} />
                 <Typography sx={{ fontSize: "14px" }}>Add New</Typography>
-              </Button>
-              <Button
-                sx={{
-                  height: "35px",
-                  width: "130px",
-                  border: "1px solid #3A57E8",
-                  borderRadius: "10px",
-                  textTransform: "capitalize",
-                  backgroundColor: (theme) => theme.palette.primary.main,
-                  color: (theme) => theme.palette.textColor.col1,
-                }}
-                onClick={DownloadSupplier}
-              >
-                <Typography sx={{ fontSize: "14px" }}>Download</Typography>
               </Button>
               <Box component="span" sx={{ flexGrow: "1" }} />
               <Box
