@@ -5,9 +5,10 @@ import axios from "axios";
 function PrivateRouter({ Component, ...rest }) {
   const [payload, setPayload] = useState({
     data: [{}],
+  });
+  const [keys, SetKey] = useState({
     session_key: "",
   });
-
   useEffect(() => {
     const fetchData = async () => {
       let key = "";
@@ -15,15 +16,12 @@ function PrivateRouter({ Component, ...rest }) {
         return false;
       } else {
         key = JSON.parse(localStorage.getItem("user"));
-        setPayload({
-          ...payload,
-          session_key: key.session_key,
-        });
+        SetKey({ ...keys, session_key: key.session_key });
       }
       await axios({
         method: "POST",
         url: API.user.findUser,
-        data: JSON.stringify(payload.session_key),
+        data: JSON.stringify(keys.session_key),
       })
         .then((response) => {
           console.log(response.data);
@@ -41,7 +39,7 @@ function PrivateRouter({ Component, ...rest }) {
     };
     fetchData();
   }, []);
-  console.log(payload.session_key)
+  console.log(keys.session_key);
   const isAuth = localStorage.length;
   return { ...rest }, isAuth === 1 ? <Component /> : <Navigate to="/signin" />;
 }
