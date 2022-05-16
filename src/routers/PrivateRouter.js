@@ -20,7 +20,7 @@ function PrivateRouter({ Component, ...rest }) {
           session_key: key.session_key,
         });
       }
-      console.log(payload.session_key);
+      console.log(payload.session_key)
       await axios({
         method: "POST",
         url: API.user.findUser,
