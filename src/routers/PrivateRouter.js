@@ -7,17 +7,11 @@ function PrivateRouter({ Component, ...rest }) {
     data: [{}],
   });
   useEffect(() => {
-    let key = "";
-    let session_key = {};
+    const key = JSON.parse(localStorage.getItem("user"));
+    const session_key = {
+      session_key: key.session_key,
+    };
     const fetchData = async () => {
-      if (key === "") {
-        return false;
-      } else {
-        key = JSON.parse(localStorage.getItem("user"))
-        session_key = {
-          session_key: key.session_key
-        };
-      }
       await axios({
         method: "POST",
         url: API.user.findUser,
@@ -36,7 +30,6 @@ function PrivateRouter({ Component, ...rest }) {
         .catch(({ response }) => {
           console.log(response);
         });
-          
     };
     fetchData();
   }, []);
