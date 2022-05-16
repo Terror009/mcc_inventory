@@ -6,8 +6,6 @@ import {
   Typography,
   Button,
   TextField,
-  IconButton,
-  Avatar,
   Checkbox,
 } from "@mui/material";
 
@@ -21,7 +19,6 @@ import { ReactComponent as ExportIcon } from "../assets/svg/export.svg";
 import { ReactComponent as SearchIcon } from "../assets/svg/search1.svg";
 import { ReactComponent as UserIcon } from "../assets/svg/user1.svg";
 import { ReactComponent as DeleteIcon } from "../assets/svg/trash.svg";
-import { ReactComponent as UpdateIcon } from "../assets/svg/update.svg";
 
 import { API } from "../api/api";
 import axios from "axios";
@@ -171,6 +168,27 @@ export default function Project() {
     });
     window.location.reload();
   };
+
+  const DownloadProject = () => {
+    if (payload.data.length === 0) {
+    return false;
+    } else {
+      let data_arr = [];
+      payload.data.forEach((index) => {
+        const obj = {
+          construction_id: index.construction_id,
+          construction_site_name: index.construction_site_name,
+          construction_client_name: index.construction_client_name,
+        };
+        data_arr.push(obj);
+      });
+      var wb = XLSX.utils.book_new();
+      var ws = XLSX.utils.json_to_sheet(data_arr);
+
+      XLSX.utils.book_append_sheet(wb, ws, "MySheet1");
+      XLSX.writeFile(wb, "Project.xlsx");
+    }
+  };
   return (
     <Box
       sx={{
@@ -243,6 +261,7 @@ export default function Project() {
                 sx={{
                   textTransform: "capitalize",
                 }}
+                onClick={DownloadProject}
               >
                 <ExportIcon
                   style={{ height: "20px", width: "20px", marginRight: "10px" }}
@@ -449,7 +468,7 @@ export default function Project() {
                 STATUS
               </Typography>
             </Box>
-            {payload.data == "" ? (
+            {payload.data.length === 0 ? (
               <Paper
                 sx={{
                   display: "flex",

@@ -48,7 +48,9 @@ export default function Setting() {
     password: "",
   });
 
-  const [selectedTimezone, setSelectedTimezone] = useState({})
+  const [selectedTimezone, setSelectedTimezone] = useState(
+    Intl.DateTimeFormat().resolvedOptions().timeZone
+  );
 
   useEffect(() => {
     const key = JSON.parse(localStorage.getItem("user"));
@@ -427,7 +429,7 @@ export default function Setting() {
                     </Box>
                   </AccordionSummary>
                   <AccordionDetails>
-                    <Typography>Save</Typography>
+                    <Typography></Typography>
                   </AccordionDetails>
                 </Accordion>
 
@@ -467,6 +469,7 @@ export default function Setting() {
                       <TimezoneSelect
                         value={selectedTimezone}
                         onChange={setSelectedTimezone}
+                        
                       />
                       <Button
                         sx={{

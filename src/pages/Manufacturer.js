@@ -6,7 +6,6 @@ import {
   Typography,
   Button,
   TextField,
-  Select,
   Checkbox,
   Avatar,
   Stack,
@@ -20,14 +19,11 @@ import * as XLSX from "xlsx";
 import { deletemanufacturer } from "../api/manufacturerApi";
 import { useLocation } from "react-router-dom";
 
-import CustomImportButton from "./components/CustomImportButton";
-import CustomExportButton from "./components/CustomExportButton";
 import CustomSideBar from "./components/CustomSideBar";
 import CustomHeaderBar from "./components/CustomHeaderBar";
 import CustomSupManufactModal from "./components/CustomSupManufactModal";
 import CustomAddNewManufacturer from "./components/CustomAddNewManufacturer";
 
-import { ReactComponent as ArrowDownIcon } from "../assets/svg/arrow_down.svg";
 import { ReactComponent as UserIcon } from "../assets/svg/user1.svg";
 import { ReactComponent as DeleteIcon } from "../assets/svg/trash.svg";
 import { ReactComponent as UpdateIcon } from "../assets/svg/update.svg";
@@ -39,10 +35,6 @@ export default function Manufacturer() {
   const { pathname } = useLocation();
   const [sidebar, Setsidebar] = useState({
     isOpen: false,
-  });
-  const [dropdownbtn, Setdropdownbtn] = useState({
-    isImport: true,
-    isExport: true,
   });
 
   const [manufacturer_modal, SetManufacturer_modal] = useState({
@@ -485,7 +477,7 @@ export default function Manufacturer() {
                 Address
               </Typography>
             </Box>
-            {payload.data == "" ? (
+            {payload.data.length === 0 ? (
               <Paper
                 sx={{
                   display: "flex",

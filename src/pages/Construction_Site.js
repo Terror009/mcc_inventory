@@ -6,8 +6,6 @@ import {
   Typography,
   Button,
   TextField,
-  IconButton,
-  Avatar,
   Stack,
   Pagination,
   Checkbox,
@@ -19,11 +17,8 @@ import * as XLSX from "xlsx";
 
 import CustomSideBar from "./components/CustomSideBar";
 import CustomHeaderBar from "./components/CustomHeaderBar";
-import CustomImportButton from "./components/CustomImportButton";
-import CustomExportButton from "./components/CustomExportButton";
 import CustomAddNewConstruction from "./components/CustomAddNewConstruction";
 
-import { ReactComponent as ArrowDownIcon } from "../assets/svg/arrow_down.svg";
 import { ReactComponent as UserIcon } from "../assets/svg/user1.svg";
 import { ReactComponent as DeleteIcon } from "../assets/svg/trash.svg";
 import { ReactComponent as UpdateIcon } from "../assets/svg/update.svg";
@@ -31,7 +26,6 @@ import { ReactComponent as SearchIcon } from "../assets/svg/search1.svg";
 import { ReactComponent as ImportIcon } from "../assets/svg/import.svg";
 import { ReactComponent as ExportIcon } from "../assets/svg/export.svg";
 
-import { construction_data } from "../utils/construction_site_data";
 import { CustomConstructionInfo } from "./components/CustomConstructionModal";
 import { deleteConstruction } from "../api/constructionApi";
 
@@ -46,11 +40,6 @@ export default function Construction_Site() {
 
   const [sidebar, Setsidebar] = useState({
     isOpen: false,
-  });
-
-  const [dropdownbtn, Setdropdownbtn] = useState({
-    isImport: true,
-    isExport: true,
   });
 
   const [construction_modal, Setconstruction_modal] = useState({
@@ -496,7 +485,7 @@ export default function Construction_Site() {
                 </Typography>
               </Box>
             </Box>
-            {payload.data == "" ? (
+            {payload.data.length === 0 ? (
               <Paper
                 sx={{
                   display: "flex",

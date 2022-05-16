@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Modal,
   Box,
@@ -20,7 +20,6 @@ export default function CustomSupManufactModal({
   onClose,
   company_info,
   path_url,
-  updateForce,
 }) {
   const [edit_modal, setEdit_modal] = useState({
     isOpen: false,
@@ -187,7 +186,6 @@ export default function CustomSupManufactModal({
           onClose={ModalHandleClose}
           company_info={company_info}
           path_url={path_url}
-          updateForce={updateForce}
         />
       </Paper>
     </Modal>
@@ -199,7 +197,6 @@ function CustomSupManufactEditModal({
   onClose,
   company_info,
   path_url,
-  updateForce,
 }) {
   const [edit, SetEdit] = useState({
     name:

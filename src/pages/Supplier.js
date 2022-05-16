@@ -1,26 +1,22 @@
-import React, { useState, useEffect, useReducer } from "react";
-import { Helmet } from "react-helmet";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Paper,
   Typography,
   Button,
   TextField,
-  Select,
   Avatar,
   Checkbox,
   Stack,
   Pagination,
 } from "@mui/material";
 
-import CustomImportButton from "./components/CustomImportButton";
-import CustomExportButton from "./components/CustomExportButton";
+
 import CustomSideBar from "./components/CustomSideBar";
 import CustomHeaderBar from "./components/CustomHeaderBar";
 import CustomSupManufactModal from "./components/CustomSupManufactModal";
 import CustomAddNewSupplier from "./components/CustomAddNewSupplier";
 
-import { ReactComponent as ArrowDownIcon } from "../assets/svg/arrow_down.svg";
 import { ReactComponent as UserIcon } from "../assets/svg/user1.svg";
 import { ReactComponent as DeleteIcon } from "../assets/svg/trash.svg";
 import { ReactComponent as UpdateIcon } from "../assets/svg/update.svg";
@@ -39,10 +35,6 @@ import { useLocation } from "react-router-dom";
 export default function Supplier() {
   let { pathname } = useLocation();
 
-  const [Deleteignored, DeleteUpdate] = useReducer((x) => (x = 1), 0);
-  const [Addignored, AddUpdate] = useReducer((x) => (x = 1), 0);
-  const [Updateignored, UpdateForce] = useReducer((x) => (x = 1), 0);
-
   const [payload, setPayload] = useState({
     data: [{}],
   });
@@ -52,11 +44,6 @@ export default function Supplier() {
 
   const [sidebar, Setsidebar] = useState({
     isOpen: false,
-  });
-
-  const [dropdownbtn, Setdropdownbtn] = useState({
-    isImport: true,
-    isExport: true,
   });
 
   const [supplier_modal, Setsupplier_modal] = useState({
@@ -91,7 +78,7 @@ export default function Supplier() {
     };
 
     fetchData();
-  }, [Addignored, Deleteignored, Updateignored]);
+  }, []);
   const SideBarHandle = () => {
     Setsidebar({ ...sidebar, isOpen: true });
   };
@@ -503,7 +490,7 @@ export default function Supplier() {
                 Address
               </Typography>
             </Box>
-            {payload.data == "" ? (
+            {payload.data.length === 0 ? (
               <Paper
                 sx={{
                   display: "flex",
@@ -697,12 +684,10 @@ export default function Supplier() {
           onClose={SupplierHandleClose}
           company_info={supplier_info.data}
           path_url={pathname}
-          updateForce={UpdateForce}
         />
         <CustomAddNewSupplier
           open={supplier_modal.isAddbtn}
           onClose={SupplierAddHandleClose}
-          AddUpdate={AddUpdate}
         />
       </Box>
     </Box>

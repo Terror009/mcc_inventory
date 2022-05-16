@@ -5,8 +5,6 @@ import {
   Typography,
   Button,
   TextField,
-  IconButton,
-  Avatar,
   Checkbox,
   Stack,
   Pagination,
@@ -22,7 +20,6 @@ import { ReactComponent as ExportIcon } from "../assets/svg/export.svg";
 import { ReactComponent as SearchIcon } from "../assets/svg/search1.svg";
 import { ReactComponent as UserIcon } from "../assets/svg/user1.svg";
 import { ReactComponent as DeleteIcon } from "../assets/svg/trash.svg";
-import { ReactComponent as UpdateIcon } from "../assets/svg/update.svg";
 
 import { deleteUserList } from "../api/userlistApi";
 import { API } from "../api/api";
@@ -453,7 +450,7 @@ export default function User() {
                 User Type
               </Typography>
             </Box>
-            {payload.data == "" ? (
+            {payload.data.length === 0 ? (
               <Paper
                 sx={{
                   display: "flex",
