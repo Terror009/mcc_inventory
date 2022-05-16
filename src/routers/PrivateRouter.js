@@ -17,7 +17,7 @@ function PrivateRouter({ Component, ...rest }) {
         key = JSON.parse(localStorage.getItem("user"));
         setPayload({
           ...payload,
-          session_key: key !== null ? key.session_key : "",
+          session_key: key.session_key,
         });
       }
       await axios({
