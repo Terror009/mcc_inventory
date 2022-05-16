@@ -6,36 +6,37 @@ function PrivateRouter({ Component, ...rest }) {
   const [payload, setPayload] = useState({
     data: [{}],
   });
-  const [keys, SetKey] = useState({
-    session_key: {},
-  });
   useEffect(() => {
+    let key = "";
+
     const fetchData = async () => {
-      let key = "";
-      if (key === null) {
+      if (key === "") {
         return false;
       } else {
         key = JSON.parse(localStorage.getItem("user"));
-        SetKey({ ...keys, session_key: key.session_key });
-      }
-      await axios({
-        method: "POST",
-        url: API.user.findUser,
-        data: JSON.stringify(keys.session_key),
-      })
-        .then((response) => {
-          console.log(response.data);
-          response.data.map((index) => {
-            const obj = {
-              user_id: index.user_id,
-              session_key: index.session_key,
-            };
-            localStorage.setItem("user", JSON.stringify(obj));
-          });
+        const session_key = {
+          session_key: key.session_key,
+        };
+
+        await axios({
+          method: "POST",
+          url: API.user.findUser,
+          data: JSON.stringify(session_key),
         })
-        .catch(({ response }) => {
-          console.log(response);
-        });
+          .then((response) => {
+            console.log(response.data);
+            response.data.map((index) => {
+              const obj = {
+                user_id: index.user_id,
+                session_key: index.session_key,
+              };
+              localStorage.setItem("user", JSON.stringify(obj));
+            });
+          })
+          .catch(({ response }) => {
+            console.log(response);
+          });
+      }
     };
     fetchData();
   }, []);
