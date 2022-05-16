@@ -7,7 +7,7 @@ function PrivateRouter({ Component, ...rest }) {
     data: [{}],
   });
   const [keys, SetKey] = useState({
-    session_key: "",
+    session_key: {},
   });
   useEffect(() => {
     const fetchData = async () => {
@@ -39,7 +39,6 @@ function PrivateRouter({ Component, ...rest }) {
     };
     fetchData();
   }, []);
-  console.log(keys.session_key);
   const isAuth = localStorage.length;
   return { ...rest }, isAuth === 1 ? <Component /> : <Navigate to="/signin" />;
 }
