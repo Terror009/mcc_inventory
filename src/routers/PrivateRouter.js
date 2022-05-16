@@ -5,17 +5,22 @@ import axios from "axios";
 function PrivateRouter({ Component, ...rest }) {
   const [payload, setPayload] = useState({
     data: [{}],
+    session_key: {},
   });
+
   useEffect(() => {
-    const key = JSON.parse(localStorage.getItem("user"));
-    const session_key = {
-      session_key: key.session_key,
-    };
+    const key = "";
+    if (key === null) {
+      return;
+    } else {
+      key = JSON.parse(localStorage.getItem("user"));
+      setPayload({ ...payload, session_key: key.session_key });
+    }
     const fetchData = async () => {
       await axios({
         method: "POST",
         url: API.user.findUser,
-        data: JSON.stringify(session_key),
+        data: JSON.stringify(payload.session_key),
       })
         .then((response) => {
           console.log(response.data);
