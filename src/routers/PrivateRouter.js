@@ -20,7 +20,6 @@ function PrivateRouter({ Component, ...rest }) {
           session_key: key.session_key,
         });
       }
-      console.log(payload.session_key)
       await axios({
         method: "POST",
         url: API.user.findUser,
@@ -42,6 +41,7 @@ function PrivateRouter({ Component, ...rest }) {
     };
     fetchData();
   }, []);
+  console.log(payload.session_key)
   const isAuth = localStorage.length;
   return { ...rest }, isAuth === 1 ? <Component /> : <Navigate to="/signin" />;
 }
