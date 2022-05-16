@@ -11,7 +11,7 @@ function PrivateRouter({ Component, ...rest }) {
   useEffect(() => {
     let key = "";
     if (key === null) {
-      return;
+      return false;
     } else {
       key = JSON.parse(localStorage.getItem("user"));
       setPayload({ ...payload, session_key: key.session_key });
