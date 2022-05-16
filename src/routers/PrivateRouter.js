@@ -9,14 +9,14 @@ function PrivateRouter({ Component, ...rest }) {
   });
 
   useEffect(() => {
-    let key = "";
-    if (key === null) {
-      return false;
-    } else {
-      key = JSON.parse(localStorage.getItem("user"));
-      setPayload({ ...payload, session_key: key.session_key });
-    }
     const fetchData = async () => {
+      let key = "";
+      if (key === null) {
+        return false;
+      } else {
+        key = JSON.parse(localStorage.getItem("user"));
+        setPayload({ ...payload, session_key: key.session_key });
+      }
       await axios({
         method: "POST",
         url: API.user.findUser,
