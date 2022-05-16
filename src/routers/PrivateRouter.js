@@ -5,7 +5,7 @@ import axios from "axios";
 function PrivateRouter({ Component, ...rest }) {
   const [payload, setPayload] = useState({
     data: [{}],
-    session_key: {},
+    session_key: "",
   });
 
   useEffect(() => {
