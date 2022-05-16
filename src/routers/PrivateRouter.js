@@ -9,7 +9,7 @@ function PrivateRouter({ Component, ...rest }) {
   });
 
   useEffect(() => {
-    const key = "";
+    let key = null;
     if (key === null) {
       return;
     } else {
