@@ -12,6 +12,7 @@ import {
 import { Link as NLink } from "react-router-dom";
 import CustomSideBar from "./components/CustomSideBar";
 import CustomHeaderBar from "./components/CustomHeaderBar";
+import CustomNewInventoryDetails from "./components/CustomNewInventoryDetails";
 
 import { ReactComponent as BackIcon } from "../assets/svg/back.svg";
 import { ReactComponent as ImportIcon } from "../assets/svg/import.svg";
@@ -24,6 +25,11 @@ export default function Inventory_Movement_Detail() {
   const [sidebar, Setsidebar] = useState({
     isOpen: false,
   });
+
+  const [inventorydetail_modal, Setinventorydetail_modal] = useState({
+    isOpen: false,
+    isAddbtn: false,
+  });
   const [payload, setPayload] = useState({
     data: [{}],
   });
@@ -34,6 +40,14 @@ export default function Inventory_Movement_Detail() {
   const SideBarHandleClose = () => {
     Setsidebar({ ...sidebar, isOpen: false });
   };
+
+  const InventoryMovementAddHandleOpen = () => {
+    Setinventorydetail_modal({ ...inventorydetail_modal, isAddbtn: true });
+  };
+  const InventoryMovementAddHandleClose = () => {
+    Setinventorydetail_modal({ ...inventorydetail_modal, isAddbtn: false });
+  };
+
   return (
     <Box
       sx={{
@@ -248,6 +262,7 @@ export default function Inventory_Movement_Detail() {
                   backgroundColor: (theme) => theme.palette.primary.main,
                   color: (theme) => theme.palette.textColor.col1,
                 }}
+                onClick={InventoryMovementAddHandleOpen}
               >
                 <UserIcon style={{ marginRight: "10px" }} />
                 <Typography sx={{ fontSize: "14px" }}>Add New</Typography>
@@ -389,6 +404,10 @@ export default function Inventory_Movement_Detail() {
         >
           <Typography>@ 2022 made by UIP Dev Interns</Typography>
         </Box>
+        <CustomNewInventoryDetails
+          open={inventorydetail_modal.isAddbtn}
+          onClose={InventoryMovementAddHandleClose}
+        />
       </Box>
     </Box>
   );

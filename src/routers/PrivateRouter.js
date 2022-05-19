@@ -18,7 +18,7 @@ function PrivateRouter({ Component, ...rest }) {
         data: JSON.stringify(session_key),
       })
         .then((response) => {
-          console.log(response.data);
+/*           console.log(response.data); */
           response.data.map((index) => {
             const obj = {
               user_id: index.user_id,

@@ -31,7 +31,7 @@ export default function CustomHeaderBar() {
         data: JSON.stringify(session_key),
       })
         .then((response) => {
-          console.log(response.data);
+   /*        console.log(response.data); */
           Setpayload({ ...payload, data: response.data });
         })
         .catch((response) => {

@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-
 import {
   Modal,
   Box,
@@ -7,52 +6,15 @@ import {
   Typography,
   TextField,
   Button,
-  Select,
-  MenuItem,
 } from "@mui/material";
 
 import { classes } from "../../design/uiDesign";
-import { createUserList } from "../../api/userlistApi";
 
-export default function CustomAddNewUsers({ open, onClose }) {
-  const [payload, setPayload] = useState({
-    user_list_name: "",
-    user_list_email: "",
-    user_list_contact: "",
-  });
+export default function CustomNewInventoryDetails({ open, onClose }) {
 
-  const [usertype, SetUserType] = useState("");
-  const AddNewHandleChange = (prop) => (e) => {
-    setPayload({ ...payload, [prop]: e.target.value });
-  };
-
-  const SelectHandleChange = (e) => {
-    SetUserType(e.target.value);
-  };
-  const AddNewUser = () => {
-    const user_id = JSON.parse(localStorage.getItem("user"));
-    const obj = {
-      user_list_name: payload.user_list_name,
-      user_list_email: payload.user_list_email,
-      user_list_contact: payload.user_list_contact,
-      user_list_type: usertype,
-      user_id: user_id.user_id,
-    };
-
-    createUserList(obj);
-    isClose();
-    window.location.reload();
-  };
   const isClose = () => {
     onClose();
-    setPayload({
-      ...payload,
-      user_list_name: "",
-      user_list_email: "",
-      user_list_contact: "",
-    });
-    SetUserType("");
-  };
+  }
   return (
     <Modal
       open={open}
@@ -67,7 +29,6 @@ export default function CustomAddNewUsers({ open, onClose }) {
     >
       <Paper
         sx={{
-          height: "400px",
           width: "1000px",
           outline: "none",
           overflow: "hidden",
@@ -82,12 +43,7 @@ export default function CustomAddNewUsers({ open, onClose }) {
             backgroundColor: (theme) => theme.palette.secondary.bg3,
           }}
         >
-          <Typography
-            variant="h5"
-            sx={{ color: (theme) => theme.palette.textColor.col3 }}
-          >
-            Add New Users
-          </Typography>
+          <Typography>Inventory Movement Details</Typography>
         </Box>
         <Box
           sx={{
@@ -99,83 +55,128 @@ export default function CustomAddNewUsers({ open, onClose }) {
         >
           <Typography
             sx={{
-              marginRight: "120px",
+              marginRight: "90px",
               color: (theme) => theme.palette.textColor.col3,
               fontSize: "14px",
             }}
           >
-            Name
+            Client name
           </Typography>
-          <TextField
-            sx={classes.edit_input}
-            value={payload.user_list_name}
-            onChange={AddNewHandleChange("user_list_name")}
-          />
+          <TextField sx={classes.report_input} />
         </Box>
         <Box
           sx={{
             display: "flex",
             alignItems: "center",
             padding: "10px 20px",
+            marginTop: "5px",
           }}
         >
           <Typography
             sx={{
-              marginRight: "120px",
+              marginRight: "135px",
               color: (theme) => theme.palette.textColor.col3,
               fontSize: "14px",
             }}
           >
-            Email
+            Date
           </Typography>
-          <TextField
-            sx={classes.edit_input}
-            value={payload.user_list_email}
-            onChange={AddNewHandleChange("user_list_email")}
-          />
+          <TextField sx={classes.report_input} />
         </Box>
         <Box
-          sx={{ display: "flex", alignItems: "center", padding: "10px 20px" }}
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            padding: "10px 20px",
+            marginTop: "5px",
+          }}
         >
           <Typography
             sx={{
-              marginRight: "84px",
+              marginRight: "130px",
               color: (theme) => theme.palette.textColor.col3,
               fontSize: "14px",
             }}
           >
-            Contact No.
+            Stock
           </Typography>
-          <TextField
-            type="number"
-            sx={classes.edit_input}
-            value={payload.user_list_contact}
-            onChange={AddNewHandleChange("user_list_contact")}
-          />
+          <TextField sx={classes.report_input} />
         </Box>
         <Box
-          sx={{ display: "flex", alignItems: "center", padding: "10px 20px" }}
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            padding: "10px 20px",
+            marginTop: "5px",
+          }}
         >
           <Typography
             sx={{
-              marginRight: "95px",
+              marginRight: "80px",
               color: (theme) => theme.palette.textColor.col3,
               fontSize: "14px",
             }}
           >
-            User Type
+            Stock Locator
           </Typography>
-          <Select
-            value={usertype}
-            label="User Type"
-            onChange={SelectHandleChange}
-            sx={{ width: "80%", border: "1px solid blue"}}
-            size="small"
+          <TextField sx={classes.report_input} />
+        </Box>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            padding: "10px 20px",
+            marginTop: "5px",
+          }}
+        >
+          <Typography
+            sx={{
+              marginRight: "110px",
+              color: (theme) => theme.palette.textColor.col3,
+              fontSize: "14px",
+            }}
           >
-            <MenuItem value={"Intern"}>INTERN</MenuItem>
-            <MenuItem value={"MCC Core Team"}>MCC CORE TEAM</MenuItem>
-            <MenuItem value={"MCC HR Team"}>MCC HR TEAM</MenuItem>
-          </Select>
+            Materials
+          </Typography>
+          <TextField sx={classes.report_input} />
+        </Box>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            padding: "10px 20px",
+            marginTop: "5px",
+          }}
+        >
+          <Typography
+            sx={{
+              marginRight: "100px",
+              color: (theme) => theme.palette.textColor.col3,
+              fontSize: "14px",
+            }}
+          >
+            Quantity in
+          </Typography>
+          <TextField sx={classes.report_input} />
+        </Box>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            padding: "10px 20px",
+            marginTop: "5px",
+          }}
+        >
+          <Typography
+            sx={{
+              marginRight: "90px",
+              color: (theme) => theme.palette.textColor.col3,
+              fontSize: "14px",
+            }}
+          >
+            Quantity out
+          </Typography>
+          <TextField sx={classes.report_input} />
         </Box>
         <Box
           sx={{
@@ -194,7 +195,6 @@ export default function CustomAddNewUsers({ open, onClose }) {
               color: (theme) => theme.palette.textColor.col1,
               marginRight: "40px",
             }}
-            onClick={AddNewUser}
           >
             <Typography>Save</Typography>
           </Button>

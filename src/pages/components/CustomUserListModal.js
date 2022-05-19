@@ -122,7 +122,7 @@ export const CustomUserListModal = ({ open, onClose, user_list_info }) => {
             Contact No
           </Typography>
           <Typography sx={{ fontSize: "14px" }}>
-            {user_list_info.user_list_phone}
+            {user_list_info.user_list_contact}
           </Typography>
         </Box>
         <Box
@@ -143,7 +143,7 @@ export const CustomUserListModal = ({ open, onClose, user_list_info }) => {
             User Type
           </Typography>
           <Typography sx={{ fontSize: "14px" }}>
-            {user_list_info.user_list_user_type}
+            {user_list_info.user_list_type}
           </Typography>
         </Box>
         <CustomUserListEditModal
@@ -160,10 +160,10 @@ const CustomUserListEditModal = ({ open, onClose, user_list_info }) => {
   const [payload, setPayload] = useState({
     user_list_name: user_list_info.user_list_name,
     user_list_email: user_list_info.user_list_email,
-    user_list_phone: user_list_info.user_list_phone,
+    user_list_contact: user_list_info.user_list_contact,
   });
 
-  const [usertype, SetUserType] = useState(user_list_info.user_list_user_type);
+  const [usertype, SetUserType] = useState(user_list_info.user_list_type);
 
   const SelectHandleChange = (e) => {
     SetUserType(e.target.value);
@@ -176,8 +176,8 @@ const CustomUserListEditModal = ({ open, onClose, user_list_info }) => {
     const obj = {
       user_list_name: payload.user_list_name,
       user_list_email: payload.user_list_email,
-      user_list_phone: payload.user_list_phone,
-      user_list_user_type: usertype,
+      user_list_contact: payload.user_list_contact,
+      user_list_type: usertype,
       user_list_id: user_list_info.user_list_id,
     };
 
@@ -284,8 +284,8 @@ const CustomUserListEditModal = ({ open, onClose, user_list_info }) => {
           </Typography>
           <TextField
             sx={classes.user_list_edit_input}
-            value={payload.user_list_phone}
-            onChange={UserListHandleChange("user_list_phone")}
+            value={payload.user_list_contact}
+            onChange={UserListHandleChange("user_list_contact")}
           />
         </Box>
         <Box

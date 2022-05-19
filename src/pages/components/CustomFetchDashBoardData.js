@@ -54,10 +54,17 @@ export const FetchPendingProjectData = () => {
   });
 
   useEffect(() => {
+    const user_id = JSON.parse(localStorage.getItem("user"));
+
+    const obj = {
+      user_id: user_id.user_id,
+    };
+
     const fetchPedingProjects = async () => {
       await axios({
-        method: "GET",
+        method: "POST",
         url: API.project.pendingProject,
+        data: JSON.stringify(obj),
       })
         .then((response) => {
           console.log(response.data);
@@ -99,10 +106,17 @@ export const FetchActiveProjectData = () => {
     activeProject: [{}],
   });
   useEffect(() => {
+    const user_id = JSON.parse(localStorage.getItem("user"));
+
+    const obj = {
+      user_id: user_id.user_id,
+    };
+
     const fetchActiveProjects = async () => {
       await axios({
-        method: "GET",
+        method: "POST",
         url: API.project.activeProject,
+        data: JSON.stringify(obj),
       })
         .then((response) => {
           console.log(response.data);
@@ -143,10 +157,17 @@ export const FetchCanceledProjectData = () => {
     canceledProject: [{}],
   });
   useEffect(() => {
+    const user_id = JSON.parse(localStorage.getItem("user"));
+
+    const obj = {
+      user_id: user_id.user_id,
+    };
+
     const fetchCanceledProjects = async () => {
       await axios({
-        method: "GET",
+        method: "POST",
         url: API.project.canceledProject,
+        data: JSON.stringify(obj),
       })
         .then((response) => {
           console.log(response.data);

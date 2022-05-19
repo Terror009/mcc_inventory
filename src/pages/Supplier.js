@@ -7,15 +7,13 @@ import {
   TextField,
   Avatar,
   Checkbox,
-  Stack,
-  Pagination,
 } from "@mui/material";
-
 
 import CustomSideBar from "./components/CustomSideBar";
 import CustomHeaderBar from "./components/CustomHeaderBar";
 import CustomSupManufactModal from "./components/CustomSupManufactModal";
 import CustomAddNewSupplier from "./components/CustomAddNewSupplier";
+import { PaginationPage } from "./components/CustomPagination";
 
 import { ReactComponent as UserIcon } from "../assets/svg/user1.svg";
 import { ReactComponent as DeleteIcon } from "../assets/svg/trash.svg";
@@ -50,7 +48,6 @@ export default function Supplier() {
     isOpen: false,
     isAddbtn: false,
   });
-
   const [supplier_info, Setsupplier_info] = useState({
     data: {},
   });
@@ -79,6 +76,16 @@ export default function Supplier() {
 
     fetchData();
   }, []);
+
+  const [currentpage, SetCurrentpage] = useState(1);
+  const [perpage, SetPerpage] = useState(5);
+
+  const indexOfLastPost = currentpage * perpage;
+  const indexOfFirstPost = indexOfLastPost - perpage;
+  const currentPosts = payload.data.slice(indexOfFirstPost, indexOfLastPost);
+
+  const paginate = (pageNumber) => SetCurrentpage(pageNumber);
+
   const SideBarHandle = () => {
     Setsidebar({ ...sidebar, isOpen: true });
   };
@@ -514,158 +521,164 @@ export default function Supplier() {
                 </Typography>
               </Paper>
             ) : (
-              payload.data.map((index, i) => (
-                <Paper
-                  key={i}
-                  id="paper"
-                  sx={{
-                    display: "flex",
-                    height: "80px",
-                    width: "100%",
-                    marginTop: "20px",
-                    borderRadius: "20px",
-                    overflow: "hidden",
-                    transition: "all 0.3s ease",
-                    "&:hover": {
-                      backgroundColor: (theme) => theme.palette.secondary.bg2,
-                    },
-                  }}
-                  onClick={(e) => SupplierFunc(index, e)}
-                >
-                  <Box
+              <Box
+                sx={{ height: "85vh", width: "100%" }}
+              >
+                {currentPosts.map((index, i) => (
+                  <Paper
+                    key={i}
+                    id="paper"
                     sx={{
                       display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      backgroundColor: (theme) => theme.palette.secondary.main,
-                      height: "100%",
-                      width: "7%",
-                      pointerEvents: "none",
+                      height: "80px",
+                      width: "100%",
+                      marginTop: "20px",
+                      borderRadius: "20px",
+                      overflow: "hidden",
+                      transition: "all 0.3s ease",
+                      "&:hover": {
+                        backgroundColor: (theme) => theme.palette.secondary.bg2,
+                      },
                     }}
+                    onClick={(e) => SupplierFunc(index, e)}
                   >
-                    <Avatar
-                      src={index.supplier_name}
-                      alt={index.supplier_name}
+                    <Box
                       sx={{
-                        height: "60px",
-                        width: "60px",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
                         backgroundColor: (theme) =>
                           theme.palette.secondary.main,
-                        fontSize: "40px",
-                      }}
-                    />
-                  </Box>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      height: "100%",
-                      width: "20%",
-                      pointerEvents: "none",
-                    }}
-                  >
-                    <Typography
-                      sx={{
-                        color: (theme) => theme.palette.textColor.col1,
-                        fontSize: "14px",
+                        height: "100%",
+                        width: "7%",
+                        pointerEvents: "none",
                       }}
                     >
-                      {index.supplier_name}
-                    </Typography>
-                    <Typography
+                      <Avatar
+                        src={index.supplier_name}
+                        alt={index.supplier_name}
+                        sx={{
+                          height: "60px",
+                          width: "60px",
+                          backgroundColor: (theme) =>
+                            theme.palette.secondary.main,
+                          fontSize: "40px",
+                        }}
+                      />
+                    </Box>
+                    <Box
                       sx={{
-                        color: (theme) => theme.palette.textColor.col4,
-                        fontSize: "12px",
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        height: "100%",
+                        width: "20%",
+                        pointerEvents: "none",
                       }}
                     >
-                      Supplier ID: {index.supplier_id}
-                    </Typography>
-                  </Box>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      height: "100%",
-                      width: "22%",
-                      pointerEvents: "none",
-                    }}
-                  >
-                    <Typography
+                      <Typography
+                        sx={{
+                          color: (theme) => theme.palette.textColor.col1,
+                          fontSize: "14px",
+                        }}
+                      >
+                        {index.supplier_name}
+                      </Typography>
+                      <Typography
+                        sx={{
+                          color: (theme) => theme.palette.textColor.col4,
+                          fontSize: "12px",
+                        }}
+                      >
+                        Supplier ID: {index.supplier_id}
+                      </Typography>
+                    </Box>
+                    <Box
                       sx={{
-                        color: (theme) => theme.palette.textColor.col4,
-                        fontSize: "12px",
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        height: "100%",
+                        width: "22%",
+                        pointerEvents: "none",
                       }}
                     >
-                      {index.supplier_email}
-                    </Typography>
-                  </Box>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      height: "100%",
-                      width: "22%",
-                      pointerEvents: "none",
-                    }}
-                  >
-                    <Typography
+                      <Typography
+                        sx={{
+                          color: (theme) => theme.palette.textColor.col4,
+                          fontSize: "12px",
+                        }}
+                      >
+                        {index.supplier_email}
+                      </Typography>
+                    </Box>
+                    <Box
                       sx={{
-                        color: (theme) => theme.palette.textColor.col4,
-                        fontSize: "12px",
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        height: "100%",
+                        width: "22%",
+                        pointerEvents: "none",
                       }}
                     >
-                      {index.supplier_contact}
-                    </Typography>
-                  </Box>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      height: "100%",
-                      width: "22%",
-                      pointerEvents: "none",
-                    }}
-                  >
-                    <Typography
+                      <Typography
+                        sx={{
+                          color: (theme) => theme.palette.textColor.col4,
+                          fontSize: "12px",
+                        }}
+                      >
+                        {index.supplier_contact}
+                      </Typography>
+                    </Box>
+                    <Box
                       sx={{
-                        color: (theme) => theme.palette.textColor.col4,
-                        fontSize: "12px",
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        height: "100%",
+                        width: "22%",
+                        pointerEvents: "none",
                       }}
                     >
-                      {index.supplier_address}
-                    </Typography>
-                  </Box>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      height: "100%",
-                      width: "7%",
-                    }}
-                  >
-                    <Checkbox
-                      id={index.supplier_id}
-                      onClick={isChecked}
-                      checked={index?.ischecked || false}
-                      color="secondary"
-                    />
-                  </Box>
-                </Paper>
-              ))
+                      <Typography
+                        sx={{
+                          color: (theme) => theme.palette.textColor.col4,
+                          fontSize: "12px",
+                        }}
+                      >
+                        {index.supplier_address}
+                      </Typography>
+                    </Box>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        height: "100%",
+                        width: "7%",
+                      }}
+                    >
+                      <Checkbox
+                        id={index.supplier_id}
+                        onClick={isChecked}
+                        checked={index?.ischecked || false}
+                        color="secondary"
+                      />
+                    </Box>
+                  </Paper>
+                ))}
+              </Box>
             )}
-
-            <Stack spacing={2} sx={{ marginTop: "60px" }}>
-              <Pagination count={3} shape="rounded" color="primary" />
-            </Stack>
+            <PaginationPage
+              postPerPage={perpage}
+              totalPost={payload.data.length}
+              paginate={paginate}
+            />
           </Box>
         </Box>
         <Box

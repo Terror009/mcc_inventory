@@ -64,7 +64,7 @@ export default function Setting() {
         data: JSON.stringify(session_key),
       })
         .then((response) => {
-          console.log(response.data);
+/*           console.log(response.data); */
           response.data.map((index) => {
             SetUser({
               ...user,

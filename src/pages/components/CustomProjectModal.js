@@ -209,6 +209,7 @@ const ProjectEditModal = ({ open, onClose, project_info }) => {
       budget: payload.budget,
       client_name: payload.client_name,
       status: status,
+      project_time: new Date().toLocaleTimeString(),
       project_id: project_info.project_id,
     };
     updateProject(obj);

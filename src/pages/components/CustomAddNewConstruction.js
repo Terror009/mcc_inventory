@@ -27,7 +27,7 @@ export default function CustomAddNewConstruction({ open, onClose }) {
     onClose();
     setPayload({
       ...payload,
-      construction_client_name: "",
+      construction_site_name: "",
       construction_client_name: "",
     });
   };

@@ -531,7 +531,7 @@ export default function User() {
                     }}
                   >
                     <Typography sx={{ fontSize: "15px", marginLeft: "50px" }}>
-                      {index.user_list_phone}
+                      {index.user_list_contact}
                     </Typography>
                   </Box>
                   <Box
@@ -563,7 +563,7 @@ export default function User() {
                           color: (theme) => theme.palette.textColor.col1,
                         }}
                       >
-                        {index.user_list_user_type}
+                        {index.user_list_type}
                       </Typography>
                     </Box>
                   </Box>
