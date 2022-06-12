@@ -254,7 +254,7 @@ export const classes = {
     },
   },
   material_edit_input: {
-    width: "77%",
+    width: "80%",
     "& input[type=number]": {
       " MozAppearance": "textfield",
     },

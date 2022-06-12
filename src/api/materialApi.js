@@ -28,6 +28,7 @@ export const deleteMaterial = (dataObj) => {
 };
 
 export const updateMaterial = (dataObj) => {
+  console.log(dataObj)
   axios({
     method: "POST",
     url: API.material.updateMaterial,

@@ -18,7 +18,6 @@ export default function CustomAddNewSupplier({ open, onClose, AddUpdate }) {
     supplier_email: "",
     supplier_contact: "",
     supplier_address: "",
-    user_id: "",
   });
   const AddNewHandleChange = (prop) => (e) => {
     setPayload({ ...payload, [prop]: e.target.value });
@@ -34,14 +33,13 @@ export default function CustomAddNewSupplier({ open, onClose, AddUpdate }) {
     });
   };
   const AddNewSupplier = () => {
-    const user_id = JSON.parse(localStorage.getItem("user"));
+    const admin_id = JSON.parse(localStorage.getItem("user"));
 
     const obj = {
       supplier_name: payload.supplier_name,
       supplier_email: payload.supplier_email,
       supplier_contact: "0" + payload.supplier_contact,
       supplier_address: payload.supplier_address,
-      user_id: user_id.user_id,
     };
 
     addsupplier(obj);

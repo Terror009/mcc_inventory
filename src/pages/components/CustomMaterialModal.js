@@ -7,14 +7,19 @@ import {
   IconButton,
   TextField,
   Button,
+  Select,
+  MenuItem,
 } from "@mui/material";
 
 import { ReactComponent as ArrowDownIcon } from "../../assets/svg/black_arrow_down.svg";
 import { ReactComponent as UploadIcon } from "../../assets/svg/upload.svg";
 import { classes } from "../../design/uiDesign";
+
 import { ReactComponent as EditIcon } from "../../assets/svg/edit.svg";
+import { MaterialsUploadFile } from "./CustomUploadFile";
 
-
+import { updateMaterial, deleteMaterial } from "../../api/materialApi";
+import { createMaterialNotifApi } from "../../api/materialnotifApi";
 
 export default function CustomMaterialModal({ open, onClose, material_info }) {
   const [payload, Setpayload] = useState({
@@ -42,7 +47,6 @@ export default function CustomMaterialModal({ open, onClose, material_info }) {
     >
       <Paper
         sx={{
-          height: "500px",
           width: "1000px",
           outline: "none",
           overflow: "hidden",
@@ -57,7 +61,7 @@ export default function CustomMaterialModal({ open, onClose, material_info }) {
             backgroundColor: (theme) => theme.palette.secondary.bg3,
           }}
         >
-          <Typography>{material_info.name} Information</Typography>
+          <Typography>{material_info.material_name} Information</Typography>
           <Box Component="span" sx={{ flexGrow: "1" }} />
           <IconButton onClick={ModalHandleOpen}>
             <EditIcon />
@@ -76,7 +80,7 @@ export default function CustomMaterialModal({ open, onClose, material_info }) {
             Name
           </Typography>
           <Typography sx={{ fontSize: "12px" }}>
-            {material_info.name}
+            {material_info.material_name}
           </Typography>
         </Box>
         <Box
@@ -92,7 +96,7 @@ export default function CustomMaterialModal({ open, onClose, material_info }) {
             Storage Location
           </Typography>
           <Typography sx={{ fontSize: "12px" }}>
-            {material_info.location}
+            {material_info.storage_location}
           </Typography>
         </Box>
         <Box
@@ -189,7 +193,7 @@ export default function CustomMaterialModal({ open, onClose, material_info }) {
             Item Condition
           </Typography>
           <Typography sx={{ fontSize: "12px" }}>
-            {material_info.status}
+            {material_info.item_condition}
           </Typography>
         </Box>
         <Box
@@ -205,7 +209,9 @@ export default function CustomMaterialModal({ open, onClose, material_info }) {
           >
             Parts Requirements
           </Typography>
-          <Typography sx={{ fontSize: "12px" }}>N/A</Typography>
+          <Typography sx={{ fontSize: "12px" }}>
+            {material_info.part_req}
+          </Typography>
         </Box>
         <CustomMaterialEditModal
           open={payload.isOpen}
@@ -217,24 +223,125 @@ export default function CustomMaterialModal({ open, onClose, material_info }) {
   );
 }
 
-function CustomMaterialEditModal({
-  open,
-  onClose,
-  material_info,
-}) {
+function CustomMaterialEditModal({ open, onClose, material_info }) {
+  const [file, Setfile] = useState({
+    name: "",
+    type: "",
+    size: "",
+  });
   const [material_edit, Setmaterial_edit] = useState({
-    name: material_info.name,
+    name: material_info.material_name,
     quantity: material_info.quantity,
-    location: material_info.location,
+    location: material_info.storage_location,
     inventory_code: material_info.inventory_code,
     product_code: material_info.product_code,
     part_no: material_info.part_no,
-    item_condition: material_info.status,
+    item_condition: material_info.item_condition,
     manufacturer: material_info.manufacturer,
+    part_req: material_info.part_req,
   });
 
+  const [quantity, SetQuantity] = useState({
+    num: "",
+  });
+  const [operator, SetOperator] = useState({
+    isSum: "+",
+  });
   const MaterialHandleChange = (prop) => (e) => {
     Setmaterial_edit({ ...material_edit, [prop]: e.target.value });
+  };
+  const PartialHandleChange = (prop) => (e) => {
+    SetQuantity({ ...quantity, [prop]: e.target.value });
+  };
+  const OperatorHandleChange = (prop) => (e) => {
+    SetOperator({ ...operator, [prop]: e.target.value });
+  };
+  const handleAddBanner = (e) => {
+    const loadFiles = e.target.files[0];
+    console.log(e.target.name);
+    Setmaterial_edit({ ...material_edit, part_req: loadFiles });
+
+    // will be a any file.
+  };
+
+  const UpdateMaterial = () => {
+    if (material_edit.item_condition === "Not Available") {
+      const obj = {
+        material_id: material_info.material_id,
+      };
+      deleteMaterial(obj);
+    } else {
+      let sum = "";
+      if (operator.isSum === "+") {
+        sum = parseInt(material_edit.quantity) + parseInt(quantity.num);
+      } else {
+        if (parseInt(material_edit.quantity) < parseInt(quantity.num)) {
+          alert("The Fixed quantity is less than partial quantity");
+        } else {
+          sum = parseInt(material_edit.quantity) - parseInt(quantity.num);
+        }
+      }
+      const req = [
+        {
+          name: material_edit.part_req.name,
+          type: material_edit.part_req.type,
+          size: material_edit.part_req.size,
+        },
+      ];
+      req.forEach((index) => {
+        file.name = index.name;
+        file.size = index.size;
+        file.type = index.type;
+      });
+      const obj = {
+        material_name: material_edit.name,
+        quantity: sum,
+        storage_location: material_edit.location,
+        part_no: material_edit.part_no,
+        item_condition: material_edit.item_condition,
+        manufacturer: material_edit.manufacturer,
+        part_req:
+          material_edit.part_req !== material_info.part_req
+            ? file.name
+            : material_info.part_req,
+        material_stock_date: new Date().toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        }),
+        material_id: material_info.material_id,
+      };
+
+      const obj1 = {
+        material_name: material_edit.name,
+        quantity: sum !== "" ? sum : material_edit.quantity,
+        storage_location: material_edit.location,
+        inventory_code: material_edit.inventory_code,
+        product_code: material_edit.product_code,
+        part_no: material_edit.part_no,
+        item_condition: material_edit.item_condition,
+        manufacturer: material_edit.manufacturer,
+        part_req:
+          material_edit.part_req !== material_info.part_req
+            ? file.name
+            : material_info.part_req,
+        type: material_info.type,
+        stock_date: new Date().toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        }),
+        action: "update material",
+        material_id: material_info.material_id,
+      };
+      createMaterialNotifApi(obj1);
+      updateMaterial(obj);
+      isClose();
+      window.location.reload();
+    }
+  };
+  const isClose = () => {
+    onClose();
   };
   return (
     <Modal
@@ -250,7 +357,6 @@ function CustomMaterialEditModal({
     >
       <Paper
         sx={{
-          height: "600px",
           width: "1000px",
           outline: "none",
           overflow: "hidden",
@@ -282,7 +388,7 @@ function CustomMaterialEditModal({
           </Typography>
           <TextField
             value={material_edit.name}
-            onChange={MaterialHandleChange("name")}
+            onChange={MaterialHandleChange("material_name")}
             size="small"
             sx={classes.material_edit_input}
           />
@@ -301,7 +407,7 @@ function CustomMaterialEditModal({
           </Typography>
           <TextField
             value={material_edit.location}
-            onChange={MaterialHandleChange("location")}
+            onChange={MaterialHandleChange("storage_location")}
             size="small"
             sx={classes.material_edit_input}
           />
@@ -320,47 +426,35 @@ function CustomMaterialEditModal({
           </Typography>
           <TextField
             value={material_edit.quantity}
-            onChange={MaterialHandleChange("qunatity")}
+            onChange={MaterialHandleChange("quantity")}
             size="small"
-            sx={classes.material_edit_input}
+            sx={[classes.material_edit_input, { width: "30%" }]}
           />
-        </Box>
-        <Box
-          sx={{ display: "flex", alignItems: "center", padding: "10px 40px" }}
-        >
-          <Typography
+          <Select
+            value={operator.isSum}
+            onChange={OperatorHandleChange("isSum")}
             sx={{
-              fontSize: "12px",
-              color: (theme) => theme.palette.textColor.col4,
-              marginRight: "100px",
+              height: "40px",
+              width: "100px",
+              "& .MuiOutlinedInput-notchedOutline": {
+                borderColor: "transparent",
+                "&:hover fieldset": {
+                  borderColor: "transparent",
+                },
+                "&.Mui-focused notchedOutlined": {
+                  borderColor: "transparent",
+                },
+              },
             }}
           >
-            Inventory Code
-          </Typography>
+            <MenuItem value="+">+</MenuItem>
+            <MenuItem value="-">-</MenuItem>
+          </Select>
           <TextField
-            value={material_edit.inventory_code}
-            onChange={MaterialHandleChange("inventory_code")}
+            value={quantity.num}
+            onChange={PartialHandleChange("num")}
             size="small"
-            sx={classes.material_edit_input}
-          />
-        </Box>
-        <Box
-          sx={{ display: "flex", alignItems: "center", padding: "10px 40px" }}
-        >
-          <Typography
-            sx={{
-              fontSize: "12px",
-              color: (theme) => theme.palette.textColor.col4,
-              marginRight: "108px",
-            }}
-          >
-            Product Code
-          </Typography>
-          <TextField
-            value={material_edit.product_code}
-            onChange={MaterialHandleChange("product_code")}
-            size="small"
-            sx={classes.material_edit_input}
+            sx={[classes.material_edit_input, { width: "30%" }]}
           />
         </Box>
         <Box
@@ -413,15 +507,26 @@ function CustomMaterialEditModal({
           >
             Item Condition
           </Typography>
-          <TextField
-            value={material_edit.item_condition}
-            onChange={MaterialHandleChange("item_codition")}
-            size="small"
-            sx={classes.material_edit_input}
-            InputProps={{
-              endAdornment: <ArrowDownIcon />,
+          <Select
+            sx={{
+              height: "35px",
+              width: "80%",
+              borderStyle: "solid",
+              borderWidth: "1px",
+              borderColor: (theme) => theme.palette.textColor.col3,
+              borderRadius: "30px",
+              backgroundColor: "transparent",
+              transition: "all 0.4s ease",
+              "&:hover": {
+                borderColor: (theme) => theme.palette.textColor.col1,
+              },
             }}
-          />
+            value={material_edit.item_condition}
+            onChange={MaterialHandleChange("item_condition")}
+          >
+            <MenuItem value={"Available"}>AVAILABLE</MenuItem>
+            <MenuItem value={"Not Available"}>NOT AVAILABLE</MenuItem>
+          </Select>
         </Box>
         <Box
           sx={{ display: "flex", alignItems: "center", padding: "10px 40px" }}
@@ -435,17 +540,38 @@ function CustomMaterialEditModal({
           >
             Parts Requirements
           </Typography>
-          <Button
+          <Box
+            component="label"
+            htmlFor="upload_files"
             sx={{
-              border: "1px solid blue",
-              color: (theme) => theme.palette.textColor.col1,
-              textTransform: "capitalize",
-              borderRadius: "10px"
+              borderStyle: "solid",
+              borderWidth: "1px",
+              borderColor: (theme) => theme.palette.secondary.main,
+              borderRadius: "30px ",
+              padding: "0px 20px",
             }}
           >
-            <UploadIcon style={{ marginRight: "5px"}}/>
-            <Typography sx={{ fontSize: "12px" }}>Upload</Typography>
-          </Button>
+            <Button
+              sx={{
+                width: "100%",
+              }}
+            >
+              <MaterialsUploadFile
+                onChange={(e) => handleAddBanner(e)}
+                value={material_edit.part_req}
+              >
+                <UploadIcon style={{ marginRight: "10px" }} />
+                <Typography
+                  sx={{
+                    color: (theme) => theme.palette.textColor.col1,
+                    fontSize: "14px",
+                  }}
+                >
+                  {material_info.part_req}
+                </Typography>
+              </MaterialsUploadFile>
+            </Button>
+          </Box>
         </Box>
         <Box
           sx={{
@@ -464,6 +590,7 @@ function CustomMaterialEditModal({
               color: (theme) => theme.palette.textColor.col1,
               marginRight: "40px",
             }}
+            onClick={UpdateMaterial}
           >
             <Typography>Save</Typography>
           </Button>
@@ -475,6 +602,7 @@ function CustomMaterialEditModal({
               borderRadius: "10px",
               color: (theme) => theme.palette.textColor.col6,
             }}
+            onClick={isClose}
           >
             <Typography>Cancel</Typography>
           </Button>

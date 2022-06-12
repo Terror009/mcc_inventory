@@ -73,34 +73,6 @@ export default function ProjectOveDueReport() {
             <Box
               sx={{
                 position: "relative",
-                marginRight: "50px",
-              }}
-            >
-              <Button
-                sx={{
-                  textTransform: "capitalize",
-                }}
-              >
-                <ImportIcon
-                  style={{
-                    height: "20px",
-                    width: "20px",
-                    marginRight: "10px",
-                  }}
-                />
-                <Typography
-                  sx={{
-                    fontWeight: "bolder",
-                    fontSize: "14px",
-                  }}
-                >
-                  import
-                </Typography>
-              </Button>
-            </Box>
-            <Box
-              sx={{
-                position: "relative",
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",

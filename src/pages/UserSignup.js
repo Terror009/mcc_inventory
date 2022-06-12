@@ -21,7 +21,7 @@ import { ReactComponent as GoogleIcon } from "../assets/svg/google.svg";
 
 import { classes } from "../design/uiDesign";
 
-import { signup } from "../api/userApi";
+import { signup } from "../api/adminApi";
 
 export default function UserSignup() {
   const [payload, Setpayload] = useState({

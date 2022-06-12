@@ -10,15 +10,18 @@ import {
   Select,
   MenuItem,
 } from "@mui/material";
+import NumberFormat from "react-number-format";
 
 import { classes } from "../../design/uiDesign";
 import { createUserList } from "../../api/userlistApi";
-
+import { createUserListHistory } from "../../api/userlisthistoryApi";
 export default function CustomAddNewUsers({ open, onClose }) {
   const [payload, setPayload] = useState({
     user_list_name: "",
     user_list_email: "",
     user_list_contact: "",
+    start_date: "",
+    end_date: "",
   });
 
   const [usertype, SetUserType] = useState("");
@@ -30,16 +33,39 @@ export default function CustomAddNewUsers({ open, onClose }) {
     SetUserType(e.target.value);
   };
   const AddNewUser = () => {
-    const user_id = JSON.parse(localStorage.getItem("user"));
+    const admin_id = JSON.parse(localStorage.getItem("user"));
     const obj = {
       user_list_name: payload.user_list_name,
       user_list_email: payload.user_list_email,
       user_list_contact: payload.user_list_contact,
       user_list_type: usertype,
-      user_id: user_id.user_id,
+      user_date_created: new Date().toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }),
+      user_time_created: new Date().toLocaleTimeString(),
+      start_date: payload.start_date,
+      end_date: payload.end_date,
     };
 
+    const obj1 = {
+      user_list_name: payload.user_list_name,
+      user_list_email: payload.user_list_email,
+      user_list_contact: payload.user_list_contact,
+      user_list_type: usertype,
+      user_date_created: new Date().toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }),
+      user_time_created: new Date().toLocaleTimeString(),
+      start_date: payload.start_date,
+      end_date: payload.end_date,
+      action: "create user",
+    };
     createUserList(obj);
+    createUserListHistory(obj1);
     isClose();
     window.location.reload();
   };
@@ -50,6 +76,8 @@ export default function CustomAddNewUsers({ open, onClose }) {
       user_list_name: "",
       user_list_email: "",
       user_list_contact: "",
+      start_date: "",
+      end_date: "",
     });
     SetUserType("");
   };
@@ -67,7 +95,6 @@ export default function CustomAddNewUsers({ open, onClose }) {
     >
       <Paper
         sx={{
-          height: "400px",
           width: "1000px",
           outline: "none",
           overflow: "hidden",
@@ -147,7 +174,7 @@ export default function CustomAddNewUsers({ open, onClose }) {
             Contact No.
           </Typography>
           <TextField
-            type="number"
+            type="tel"
             sx={classes.edit_input}
             value={payload.user_list_contact}
             onChange={AddNewHandleChange("user_list_contact")}
@@ -158,24 +185,38 @@ export default function CustomAddNewUsers({ open, onClose }) {
         >
           <Typography
             sx={{
-              marginRight: "95px",
+              marginRight: "94px",
               color: (theme) => theme.palette.textColor.col3,
               fontSize: "14px",
             }}
           >
-            User Type
+            Start Date
           </Typography>
-          <Select
-            value={usertype}
-            label="User Type"
-            onChange={SelectHandleChange}
-            sx={{ width: "80%", border: "1px solid blue"}}
-            size="small"
+          <TextField
+            type="date"
+            sx={classes.edit_input}
+            value={payload.start_date}
+            onChange={AddNewHandleChange("start_date")}
+          />
+        </Box>
+        <Box
+          sx={{ display: "flex", alignItems: "center", padding: "10px 20px" }}
+        >
+          <Typography
+            sx={{
+              marginRight: "96px",
+              color: (theme) => theme.palette.textColor.col3,
+              fontSize: "14px",
+            }}
           >
-            <MenuItem value={"Intern"}>INTERN</MenuItem>
-            <MenuItem value={"MCC Core Team"}>MCC CORE TEAM</MenuItem>
-            <MenuItem value={"MCC HR Team"}>MCC HR TEAM</MenuItem>
-          </Select>
+            End Date
+          </Typography>
+          <TextField
+            type="date"
+            sx={classes.edit_input}
+            value={payload.end_date}
+            onChange={AddNewHandleChange("end_date")}
+          />
         </Box>
         <Box
           sx={{

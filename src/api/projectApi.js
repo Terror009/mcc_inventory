@@ -2,6 +2,7 @@ import { API } from "./api";
 import axios from "axios";
 
 export const createProject = (dataObj) => {
+  console.log(dataObj);
   axios({
     method: "POST",
     url: API.project.createProject,

@@ -19,7 +19,7 @@ import { ReactComponent as HashtagIcon } from "../assets/svg/logo1.svg";
 
 import { classes } from "../design/uiDesign";
 
-import { signin } from "../api/userApi";
+import { signin } from "../api/adminApi";
 
 export default function UserSignin() {
   const [payload, Setpayload] = useState({
@@ -55,6 +55,7 @@ export default function UserSignin() {
             right: "-30%",
             height: "70vh",
             width: "60vw",
+         
           }}
         />
         <Paper sx={classes.signin_form}>

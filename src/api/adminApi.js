@@ -19,7 +19,7 @@ export const signup = (dataObj) => {
 export const signin = (dataObj) => {
   axios({
     method: "POST",
-    url: API.user.validateUser,
+    url: API.admin.validateAdmin,
     data: JSON.stringify(dataObj),
   })
     .then((response) => {
@@ -38,7 +38,7 @@ export const signin = (dataObj) => {
 export const updateUserData = (dataObj) => {
   axios({
     method: "POST",
-    url: API.user.updateUser,
+    url: API.admin.updateAdmin,
     data: JSON.stringify(dataObj),
   })
     .then((response) => {
@@ -52,7 +52,7 @@ export const updateUserData = (dataObj) => {
 export const updateUserPasswordData = (dataObj) => {
   axios({
     method: "POST",
-    url: API.user.updateUserPassword,
+    url: API.admin.updateAdminPassword,
     data: JSON.stringify(dataObj),
   })
     .then((response) => {

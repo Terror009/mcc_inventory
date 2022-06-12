@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import {
   Box,
@@ -6,18 +6,24 @@ import {
   Typography,
   Button,
   TextField,
-  IconButton,
-  Avatar,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
   Checkbox,
+  Select,
+  MenuItem,
+  Stack,
+  Pagination,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableFooter,
+  TableRow,
+  TablePagination,
 } from "@mui/material";
 
 import CustomSideBar from "./components/CustomSideBar";
 import CustomHeaderBar from "./components/CustomHeaderBar";
-import CustomImportButton from "./components/CustomImportButton";
-import CustomExportButton from "./components/CustomExportButton";
+import CustomDeleteConformation from "./components/CustomDeleteConformation";
 
 import { ReactComponent as ArrowDownIcon } from "../assets/svg/arrow_down.svg";
 import { ReactComponent as SearchIcon } from "../assets/svg/search1.svg";
@@ -26,17 +32,18 @@ import { ReactComponent as DeleteIcon } from "../assets/svg/trash.svg";
 import { ReactComponent as UpdateIcon } from "../assets/svg/update.svg";
 import { ReactComponent as StarIcon } from "../assets/svg/star.svg";
 import { ReactComponent as SolidStarIcon } from "../assets/svg/solid_star.svg";
+import { ReactComponent as ImportIcon } from "../assets/svg/import.svg";
+import { ReactComponent as ExportIcon } from "../assets/svg/export.svg";
 
-import { material_data } from "../utils/materials_sample_data";
 import CustomMaterialDropDown from "./components/CustomMaterialDropDown";
 import CustomMaterialModal from "./components/CustomMaterialModal";
 import CustomAddNewMaterial from "./components/CustomAddNewMaterial";
 
+import { API } from "../api/api";
+import axios from "axios";
+import * as XLSX from "xlsx";
+
 export default function Material() {
-  const [dropdownbtn, Setdropdownbtn] = useState({
-    isImport: true,
-    isExport: true,
-  });
   const [sidebar, Setsidebar] = useState({
     isOpen: false,
   });
@@ -44,15 +51,110 @@ export default function Material() {
     isOpen: false,
     isAddbtn: false,
   });
-  const [payload, Setpayload] = useState({
-    data: {},
+  const [dialog, SetDialog] = useState({
+    isOpen: false,
+  });
+  const [message, SetMessage] = useState({
+    isDialog: "",
   });
 
-  const ImportHandle = () => {
-    Setdropdownbtn({ ...dropdownbtn, isImport: !dropdownbtn.isImport });
+  const ConfirmationHandleChangeOpen = () => {
+    if (deleteAllData.length !== 0 || deleteData.length !== 0) {
+      SetDialog({ ...dialog, isOpen: true });
+      SetMessage({ ...message, isDialog: "Do you want to delete data??" });
+    }
   };
-  const ExportHandle = () => {
-    Setdropdownbtn({ ...dropdownbtn, isExport: !dropdownbtn.isExport });
+
+  const ConfirmationHandleChangeClose = () => {
+    SetDialog({ ...dialog, isOpen: false });
+  };
+
+  const [material_info, Setmaterial_info] = useState({
+    data: {},
+  });
+  const [payload, Setpayload] = useState({
+    data: [{}],
+  });
+
+  const [notif, SetNotif] = useState({
+    data: [{}],
+  });
+
+  const [material_history, SetMaterial_history] = useState([]);
+
+  const [deleteData, SetDeleteData] = useState([]);
+
+  const [deleteAllData, SetDeleteAllData] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      await axios({
+        method: "GET",
+        url: API.material.fetchMaterial,
+      })
+        .then((response) => {
+          console.log(response.data);
+          Setpayload({ ...payload, data: response.data });
+        })
+        .catch(({ response }) => {
+          console.log(response.data);
+        });
+    };
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    const fetchMaterialData = async () => {
+      await axios({
+        method: "GET",
+        url: API.material_notif.fetchMaterialNotif,
+      })
+        .then((response) => {
+          console.log(response.data);
+          SetNotif({ ...notif, data: response.data });
+        })
+        .catch(({ response }) => {
+          console.log(response.data);
+        });
+    };
+    fetchMaterialData();
+  }, []);
+
+  const [page, SetPage] = useState(1);
+  const [pages, SetPages] = useState(0);
+  const [rowperpage, SetRowperPage] = useState(5);
+  const [postperpage, SetPostperPage] = useState(5);
+
+  const indexofLastPage = page * postperpage;
+  const indexofFirstPage = indexofLastPage - postperpage;
+
+  const handleChangePage = (e, newPage) => {
+    SetPage(newPage);
+  };
+
+  const handleChangePage1 = (e, newPage) => {
+    SetPages(newPage);
+  };
+  const handleChangeRowsPerPage = (e) => {
+    SetPostperPage(parseInt(+e.target.value));
+    SetPage(1);
+  };
+
+  const handleChangeRowsPerPage1 = (e) => {
+    SetRowperPage(+e.target.value);
+    SetPages(0);
+  };
+  const [sort, SetSort] = useState({
+    isSort: "",
+  });
+  const [search, SetSearch] = useState({
+    isSearch: "",
+  });
+  const SortHandelChange = (prop) => (e) => {
+    SetSort({ ...sort, [prop]: e.target.value });
+  };
+  const SearchHandleChange = (prop) => (e) => {
+    SetSearch({ ...search, [prop]: e.target.value });
   };
 
   const SideBarHandle = () => {
@@ -70,9 +172,11 @@ export default function Material() {
     Setmaterial_modal({ ...material_modal, isAddbtn: false });
   };
 
-  const MaterialFunc = (data) => {
-    MaterialModalHandleOpen();
-    MaterialData(data);
+  const MaterialFunc = (data, e) => {
+    if (e.target.id === "paper") {
+      MaterialModalHandleOpen();
+      MaterialData(data);
+    }
   };
   const MaterialModalHandleOpen = () => {
     Setmaterial_modal({ ...material_modal, isOpen: true });
@@ -81,8 +185,150 @@ export default function Material() {
     Setmaterial_modal({ ...material_modal, isOpen: false });
   };
   const MaterialData = (data) => {
-    Setpayload({ ...payload, data: data });
+    Setmaterial_info({ ...material_info, data: data });
   };
+
+  const isChecked = (e) => {
+    const { id, checked } = e.target;
+    if (id === "checkAll") {
+      let tempUser = payload.data.map((index) => {
+        return { ...index, ischecked: checked };
+      });
+      Setpayload({ ...payload, data: tempUser });
+      let data_arr = [];
+      let data_arr1 = [];
+
+      tempUser.forEach((index) => {
+        const obj = {
+          material_id: index.material_id,
+          material_name: index.material_name,
+          quantity: index.quantity,
+          storage_location: index.storage_location,
+          inventory_code: index.inventory_code,
+          part_no: index.part_no,
+          item_condition: index.item_condition,
+          type: index.type,
+        };
+        const obj1 = {
+          material_id: index.material_id,
+          material_name: index.material_name,
+          manufacturer: index.manufacturer,
+          quantity: index.quantity,
+          storage_location: index.storage_location,
+          inventory_code: index.inventory_code,
+          part_no: index.part_no,
+          part_req: index.part_req,
+          item_condition: index.item_condition,
+          type: index.type,
+          stock_date: new Date().toLocaleDateString(),
+          action: "delete material",
+        };
+        data_arr.push(obj);
+        data_arr1.push(obj1);
+      });
+      if (!checked) {
+        SetMaterial_history(
+          material_history.filter((index) => index === data_arr1)
+        );
+        SetDeleteAllData(deleteAllData.filter((index) => index === data_arr));
+        SetDeleteData(
+          deleteData.filter((index) => index.material_id === data_arr)
+        );
+      } else {
+        SetDeleteAllData(data_arr);
+        SetMaterial_history(data_arr1);
+        SetDeleteData(
+          deleteData.filter((index) => index.material_id === data_arr)
+        );
+      }
+    } else {
+      let tempUser = payload.data.map((index) =>
+        index.material_id === id ? { ...index, ischecked: checked } : index
+      );
+      Setpayload({ ...payload, data: tempUser });
+      let dat_arr = [];
+      let data_arr1 = [];
+
+      tempUser.forEach((index) => {
+        const obj = {
+          material_id: index.material_id,
+          material_name: index.material_name,
+          quantity: index.quantity,
+          storage_location: index.storage_location,
+          inventory_code: index.inventory_code,
+          part_no: index.part_no,
+          item_condition: index.item_condition,
+          type: index.type,
+          stock_date: index.stock_date,
+        };
+        const obj1 = {
+          material_id: index.material_id,
+          material_name: index.material_name,
+          manufacturer: index.manufacturer,
+          quantity: index.quantity,
+          storage_location: index.storage_location,
+          inventory_code: index.inventory_code,
+          part_no: index.part_no,
+          item_condition: index.item_condition,
+          type: index.type,
+          part_req: index.part_req,
+          stock_date: new Date().toLocaleDateString(),
+          action: "delete material",
+        };
+        dat_arr.push(obj);
+        data_arr1.push(obj1);
+      });
+      let removeItem = id;
+      if (!checked) {
+        SetMaterial_history(
+          material_history.filter((index) => index.material_id !== removeItem)
+        );
+        SetDeleteData(
+          deleteData.filter((index) => index.material_id !== removeItem)
+        );
+        SetDeleteAllData(
+          deleteAllData.filter((index) => index.material_id !== removeItem)
+        );
+      } else {
+        data_arr1.map((index) =>
+          index.material_id === id ? material_history.push(index) : index
+        );
+        SetDeleteData([...deleteData, { material_id: id }]);
+        SetDeleteAllData(
+          deleteAllData.filter((index) => index.material_id !== removeItem)
+        );
+      }
+    }
+  };
+
+  const DownloadMaterial = () => {
+    let data_arr = [];
+    payload.data.forEach((index) => {
+      const obj = {
+        material_id: index.material_id,
+        material_name: index.material_name,
+        manufacturer: index.manufacturer,
+        storage_location: index.storage_location,
+        quantity: index.quantity,
+        quantity_on_hand: index.quantity_on_hand,
+        part_no: index.part_no,
+        item_condition: index.item_condition,
+        type: index.type,
+        part_req: index.part_req,
+        inventory_code: index.inventory_code,
+        material_stock_date: index.material_stock_date,
+      };
+      data_arr.push(obj);
+    });
+    if (data_arr.length !== 0) {
+      var wb = XLSX.utils.book_new();
+      var ws = XLSX.utils.json_to_sheet(data_arr);
+
+      XLSX.utils.book_append_sheet(wb, ws, "MySheet1");
+      XLSX.writeFile(wb, "Material.xlsx");
+    }
+  };
+
   return (
     <Box
       sx={{
@@ -125,31 +371,6 @@ export default function Material() {
             <Box
               sx={{
                 position: "relative",
-                marginRight: "50px",
-              }}
-            >
-              <Button
-                sx={{
-                  textTransform: "capitalize",
-                }}
-                onClick={ImportHandle}
-              >
-                <Typography
-                  sx={{
-                    marginRight: "20px",
-                    fontWeight: "bolder",
-                    fontSize: "14px",
-                  }}
-                >
-                  import
-                </Typography>
-                <ArrowDownIcon />
-              </Button>
-              <CustomImportButton open={dropdownbtn.isImport} />
-            </Box>
-            <Box
-              sx={{
-                position: "relative",
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
@@ -160,8 +381,15 @@ export default function Material() {
                 sx={{
                   textTransform: "capitalize",
                 }}
-                onClick={ExportHandle}
+                onClick={DownloadMaterial}
               >
+                <ExportIcon
+                  style={{
+                    height: "20px",
+                    width: "20px",
+                    marginRight: "10px",
+                  }}
+                />
                 <Typography
                   sx={{
                     marginRight: "20px",
@@ -171,13 +399,11 @@ export default function Material() {
                 >
                   export
                 </Typography>
-                <ArrowDownIcon />
               </Button>
-              <CustomExportButton open={dropdownbtn.isExport} />
             </Box>
           </Box>
         </Box>
-        <Box sx={{ display: "flex", height: "200vh" }}>
+        <Box sx={{ display: "flex", height: "250vh" }}>
           <Box
             sx={{
               height: "100%",
@@ -206,14 +432,17 @@ export default function Material() {
               <Paper
                 sx={{
                   display: "flex",
-                  justifyContent: "center",
                   alignItems: "center",
                   height: "70px",
-                  width: "92%",
-                  padding: "0px 35px",
+                  width: "96%",
+                  padding: "0px 20px",
+                  borderRadius: "10px",
+                  marginTop: "20px",
                 }}
               >
                 <TextField
+                  value={search.isSearch}
+                  onChange={SearchHandleChange("isSearch")}
                   InputProps={{
                     startAdornment: (
                       <SearchIcon style={{ marginRight: "10px" }} />
@@ -237,34 +466,73 @@ export default function Material() {
                 <Box
                   sx={{
                     display: "flex",
+                    alignItems: "center",
                     justifyContent: "space-evenly",
-                    width: "30%",
+                    width: "40%",
                   }}
                 >
-                  <Typography
-                    sx={{
-                      color: (theme) => theme.palette.textColor.col4,
-                      fontSize: "14px",
-                    }}
-                  >
-                    Sort By:
-                  </Typography>
-                  <Typography
-                    sx={{
-                      color: (theme) => theme.palette.textColor.col4,
-                      fontSize: "14px",
-                    }}
-                  >
-                    Group By:
-                  </Typography>
-                  <Typography
-                    sx={{
-                      color: (theme) => theme.palette.textColor.col4,
-                      fontSize: "14px",
-                    }}
-                  >
-                    Result 1 - 15 of 15
-                  </Typography>
+                  <Box sx={{ display: "flex", alignItems: "center" }}>
+                    <Typography
+                      sx={{
+                        color: (theme) => theme.palette.textColor.col4,
+                        fontSize: "14px",
+                        marginRight: "10px",
+                      }}
+                    >
+                      Sort By:
+                    </Typography>
+                    <Select
+                      value={sort.isSort}
+                      onChange={SortHandelChange("isSort")}
+                      sx={{
+                        height: "30px",
+                        width: "100px",
+                        borderStyle: "solid",
+                        borderWidth: "1px",
+                        borderColor: (theme) => theme.palette.textColor.col3,
+                        backgroundColor: "transparent",
+                        transition: "all 0.4s ease",
+                        "&:hover": {
+                          borderColor: (theme) => theme.palette.textColor.col1,
+                        },
+                      }}
+                    >
+                      <MenuItem value=""></MenuItem>
+                      <MenuItem value="ASC">ASC</MenuItem>
+                      <MenuItem value="DESC">DESC</MenuItem>
+                    </Select>
+                  </Box>
+                  <Box sx={{ display: "flex", alignItems: "center" }}>
+                    <Typography
+                      sx={{
+                        color: (theme) => theme.palette.textColor.col4,
+                        fontSize: "14px",
+                        marginRight: "10px",
+                      }}
+                    >
+                      Page
+                    </Typography>
+                    <Select
+                      value={postperpage}
+                      onChange={handleChangeRowsPerPage}
+                      sx={{
+                        height: "30px",
+                        width: "70px",
+                        borderStyle: "solid",
+                        borderWidth: "1px",
+                        borderColor: (theme) => theme.palette.textColor.col3,
+                        backgroundColor: "transparent",
+                        transition: "all 0.4s ease",
+                        "&:hover": {
+                          borderColor: (theme) => theme.palette.textColor.col1,
+                        },
+                      }}
+                    >
+                      <MenuItem value="5">5</MenuItem>
+                      <MenuItem value="10">10</MenuItem>
+                      <MenuItem value="25">25</MenuItem>
+                    </Select>
+                  </Box>
                 </Box>
               </Paper>
               <Box
@@ -318,31 +586,24 @@ export default function Material() {
                         backgroundColor: (theme) => theme.palette.primary.main,
                         color: (theme) => theme.palette.textColor.col1,
                       }}
+                      onClick={ConfirmationHandleChangeOpen}
                     >
                       <DeleteIcon style={{ marginRight: "10px" }} />
                       <Typography sx={{ fontSize: "14px" }}>Delete</Typography>
                     </Button>
-                    <Button
-                      sx={{
-                        height: "30px",
-                        width: "90px",
-                        border: "1px solid #3A57E8",
-                        borderRadius: "10px",
-                        textTransform: "capitalize",
-                        backgroundColor: (theme) => theme.palette.primary.main,
-                        color: (theme) => theme.palette.textColor.col1,
-                      }}
-                    >
-                      <UpdateIcon style={{ marginRight: "10px" }} />
-                      <Typography sx={{ fontSize: "14px" }}>Update</Typography>
-                    </Button>
-                    <Checkbox />
+                    <Checkbox
+                      id="checkAll"
+                      onClick={isChecked}
+                      checked={
+                        !payload.data.some((index) => index?.ischecked !== true)
+                      }
+                      color="secondary"
+                    />
                   </Box>
                 </Box>
                 <Box
                   sx={{
                     display: "flex",
-                    justifyContent: "space-evenly",
                     width: "100%",
                     marginTop: "40px",
                   }}
@@ -351,6 +612,7 @@ export default function Material() {
                     sx={{
                       color: (theme) => theme.palette.textColor.col4,
                       fontSize: "14px",
+                      margin: "0px 100px 0px 80px",
                     }}
                   >
                     Name
@@ -359,6 +621,7 @@ export default function Material() {
                     sx={{
                       color: (theme) => theme.palette.textColor.col4,
                       fontSize: "14px",
+                      margin: "0px 80px 0px 0px",
                     }}
                   >
                     STORAGE LOCATION
@@ -367,6 +630,7 @@ export default function Material() {
                     sx={{
                       color: (theme) => theme.palette.textColor.col4,
                       fontSize: "14px",
+                      margin: "0px 80px 0px 0px",
                     }}
                   >
                     QUANTITY
@@ -375,6 +639,7 @@ export default function Material() {
                     sx={{
                       color: (theme) => theme.palette.textColor.col4,
                       fontSize: "14px",
+                      margin: "0px 70px 0px 0px",
                     }}
                   >
                     TYPE
@@ -388,134 +653,239 @@ export default function Material() {
                     STATUS
                   </Typography>
                 </Box>
-                {material_data.map((index, i) => (
+                {payload.data.length === 0 ? (
                   <Paper
-                    key={i}
                     sx={{
                       display: "flex",
+                      justifyContent: "center",
                       alignItems: "center",
-                      height: "70px",
-                      width: "96%",
-                      marginTop: "20px",
+                      height: "200px",
+                      width: "100%",
                       borderRadius: "10px",
-                      padding: "0px 20px",
-                      overflow: "hidden",
-                      transition: "all 0.3s ease",
-                      "&:hover": {
-                        backgroundColor: (theme) => theme.palette.secondary.bg2,
+                      backgroundColor: (theme) => theme.palette.primary.main,
+                      marginTop: "20px",
+                    }}
+                  >
+                    <Typography
+                      variant="h4"
+                      sx={{
+                        color: (theme) => theme.palette.textColor.col4,
+                        opacity: "0.5",
+                      }}
+                    >
+                      No Data
+                    </Typography>
+                  </Paper>
+                ) : (
+                  <Box
+                    sx={{
+                      width: "100%",
+                      overflow: "auto",
+                      "&::-webkit-scrollbar": {
+                        display: "none",
                       },
                     }}
-                    onClick={() => MaterialFunc(index)}
                   >
-                    <Box
-                      sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        justifyContent: "center",
-                        alignItems: "flex-start",
-                        height: "70px",
-                        width: "17%",
-                        backgroundColor: "",
-                      }}
-                    >
-                      <Typography sx={{ fontSize: "13px" }}>
-                        {index.name}
-                      </Typography>
-                      <Typography sx={{ fontSize: "13px" }}>
-                        Inventory code: {index.inventory_code}
-                      </Typography>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        height: "70px",
-                        width: "30%",
-                        backgroundColor: "",
-                        marginRight: "50px",
-                      }}
-                    >
-                      <Typography sx={{ fontSize: "13px" }}>
-                        {index.location}
-                      </Typography>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        height: "70px",
-                        width: "5%",
-                        backgroundColor: "",
-                        marginRight: "85px",
-                      }}
-                    >
-                      <Typography sx={{ fontSize: "13px" }}>
-                        {index.quantity}
-                      </Typography>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        height: "70px",
-                        width: "10%",
-                        backgroundColor: "",
-                        marginRight: "30px",
-                      }}
-                    >
-                      <Typography sx={{ fontSize: "13px" }}>
-                        {index.type}
-                      </Typography>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        height: "70px",
-                        width: "15%",
-                        backgroundColor: "",
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          border:
-                            index.status === "AVAILABLE"
-                              ? "1px solid #3A57E8"
-                              : "1px solid #D0D3DB",
-                          borderRadius: "30px",
-                          padding: "3px 10px",
-                        }}
-                      >
-                        <Typography
+                    {payload.data
+                      .filter((index) =>
+                        search.isSearch !== ""
+                          ? index.material_name.includes(search.isSearch) ||
+                            index.inventory_code.includes(search.isSearch) ||
+                            index.storage_location.includes(search.isSearch) ||
+                            index.quantity.includes(search.isSearch) ||
+                            index.type.includes(search.isSearch) ||
+                            index.item_condition.includes(search.isSearch) ||
+                            index.material_id.includes(search.isSearch)
+                          : index
+                      )
+                      .sort(() =>
+                        sort.isSort === "DESC"
+                          ? 1
+                          : sort.isSort === "ASC"
+                          ? -1
+                          : 1
+                      )
+                      .slice(indexofFirstPage, indexofLastPage)
+                      .map((index, i) => (
+                        <Paper
+                          key={i}
+                          id="paper"
                           sx={{
-                            fontSize: "12px",
-                            color:
-                              index.status === "AVAILABLE"
-                                ? (theme) => theme.palette.textColor.col1
-                                : (theme) => theme.palette.textColor.col4,
+                            display: "flex",
+                            alignItems: "center",
+                            height: "70px",
+                            width: "100%",
+                            marginTop: "20px",
+                            borderRadius: "10px",
+                            overflow: "hidden",
+                            transition: "all 0.3s ease",
+                            "&:hover": {
+                              backgroundColor: (theme) =>
+                                theme.palette.secondary.bg2,
+                            },
                           }}
+                          onClick={(e) => MaterialFunc(index, e)}
                         >
-                          {index.status}
-                        </Typography>
-                      </Box>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "flex-start",
-                        alignItems: "center",
-                        height: "100%",
-                        width: "2%",
-                      }}
-                    >
-                      <Checkbox />
-                    </Box>
-                  </Paper>
-                ))}
+                          <Box
+                            sx={{
+                              display: "flex",
+                              flexDirection: "column",
+                              justifyContent: "center",
+                              alignItems: "center",
+                              height: "70px",
+                              width: "22%",
+                              backgroundColor: "",
+                              pointerEvents: "none",
+                            }}
+                          >
+                            <Typography sx={{ fontSize: "13px" }}>
+                              {index.material_name}
+                            </Typography>
+                            <Box sx={{ display: "flex" }}>
+                              <Typography
+                                sx={{ fontSize: "12px", marginRight: "4px" }}
+                              >
+                                Inventory code:
+                              </Typography>
+                              <Typography sx={{ fontSize: "12px" }}>
+                                {index.inventory_code}
+                              </Typography>
+                            </Box>
+                          </Box>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              justifyContent: "center",
+                              alignItems: "center",
+                              height: "70px",
+                              width: "18%",
+                              backgroundColor: "",
+                              marginRight: "50px",
+                              pointerEvents: "none",
+                            }}
+                          >
+                            <Typography sx={{ fontSize: "13px" }}>
+                              {index.storage_location}
+                            </Typography>
+                          </Box>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              justifyContent: "center",
+                              alignItems: "center",
+                              height: "70px",
+                              width: "13%",
+                              backgroundColor: "",
+                              marginRight: "85px",
+                              pointerEvents: "none",
+                            }}
+                          >
+                            <Typography sx={{ fontSize: "13px" }}>
+                              {index.quantity}
+                            </Typography>
+                          </Box>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              justifyContent: "center",
+                              alignItems: "center",
+                              height: "70px",
+                              width: "0%",
+                              backgroundColor: "",
+                              marginRight: "30px",
+                              pointerEvents: "none",
+                            }}
+                          >
+                            <Typography sx={{ fontSize: "13px" }}>
+                              {index.type}
+                            </Typography>
+                          </Box>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              justifyContent: "center",
+                              alignItems: "center",
+                              height: "70px",
+                              width: "19%",
+                              backgroundColor: "",
+                              pointerEvents: "none",
+                            }}
+                          >
+                            <Box
+                              sx={{
+                                border:
+                                  index.item_condition === "Available"
+                                    ? "1px solid #3A57E8"
+                                    : "1px solid #D0D3DB",
+                                borderRadius: "30px",
+                                padding: "3px 10px",
+                                pointerEvents: "none",
+                              }}
+                            >
+                              <Typography
+                                sx={{
+                                  fontSize: "12px",
+                                  color:
+                                    index.item_condition === "Available"
+                                      ? (theme) => theme.palette.textColor.col1
+                                      : (theme) => theme.palette.textColor.col4,
+                                }}
+                              >
+                                {index.item_condition}
+                              </Typography>
+                            </Box>
+                          </Box>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              justifyContent: "flex-start",
+                              alignItems: "center",
+                              height: "100%",
+                              width: "2%",
+                            }}
+                          >
+                            <Checkbox
+                              id={index.material_id}
+                              onClick={isChecked}
+                              checked={index?.ischecked || false}
+                              color="secondary"
+                            />
+                          </Box>
+                        </Paper>
+                      ))}
+                  </Box>
+                )}
+                <Stack spacing={2} sx={{ marginTop: "20px" }}>
+                  <Pagination
+                    count={
+                      search.isSearch === ""
+                        ? Math.ceil(payload.data.length / postperpage)
+                        : Math.ceil(
+                            payload.data.filter(
+                              (index) =>
+                                index.material_name.includes(search.isSearch) ||
+                                index.inventory_code.includes(
+                                  search.isSearch
+                                ) ||
+                                index.storage_location.includes(
+                                  search.isSearch
+                                ) ||
+                                index.quantity.includes(search.isSearch) ||
+                                index.type.includes(search.isSearch) ||
+                                index.item_condition.includes(
+                                  search.isSearch
+                                ) ||
+                                index.material_id.includes(search.isSearch)
+                            ).length / postperpage
+                          )
+                    }
+                    page={page}
+                    siblingCount={2}
+                    boundaryCount={2}
+                    variant="outlined"
+                    onChange={handleChangePage}
+                  />
+                </Stack>
               </Box>
             </Box>
             <Box
@@ -545,7 +915,7 @@ export default function Material() {
                   color: (theme) => theme.palette.textColor.col3,
                 }}
               >
-                As of 12/04/2022
+                As of {new Date().toLocaleDateString()}
               </Typography>
             </Box>
             <Box
@@ -572,89 +942,106 @@ export default function Material() {
                 >
                   Materials
                 </Typography>
-                {material_data.map((index, i) => (
+                {payload.data.length === 0 ? (
                   <Paper
-                    key={i}
                     sx={{
                       display: "flex",
+                      justifyContent: "center",
                       alignItems: "center",
-                      height: "60px",
+                      height: "465px",
                       width: "93%",
                       borderRadius: "20px",
                       marginTop: "10px",
                       padding: "0px 10px",
                     }}
                   >
-                    <Checkbox
-                      icon={
-                        <StarIcon style={{ height: "20px", width: "20px" }} />
-                      }
-                      checkedIcon={
-                        <SolidStarIcon
-                          style={{ height: "20px", width: "20px" }}
-                        />
-                      }
-                    />
                     <Typography
-                      sx={{ fontSize: "13px", fontWeight: "lighter" }}
+                      variant="h4"
+                      sx={{
+                        color: (theme) => theme.palette.textColor.col4,
+                        opacity: "0.5",
+                      }}
                     >
-                      {index.name}
+                      No Data
                     </Typography>
-                    <Box compoent="span" sx={{ flexGrow: "1" }} />
-                    <Button
-                      sx={{
-                        height: "20px",
-                        width: "70px",
-                        borderRadius: "30px",
-                        border: "1px solid #3A57E8",
-                        marginRight: "10px",
-                        color: (theme) => theme.palette.textColor.col1,
-                      }}
-                    >
-                      <Typography sx={{ fontSize: "12px" }}>Notes</Typography>
-                    </Button>
-                    <Button
-                      sx={{
-                        height: "20px",
-                        width: "90px",
-                        borderRadius: "30px",
-                        border: "1px solid #3A57E8",
-                        marginRight: "10px",
-                        color: (theme) => theme.palette.textColor.col1,
-                      }}
-                    >
-                      <Typography sx={{ fontSize: "12px" }}>Remarks</Typography>
-                    </Button>
                   </Paper>
-                ))}
+                ) : (
+                  payload.data
+                    .slice(indexofFirstPage, indexofLastPage)
+                    .map((index, i) => (
+                      <Paper
+                        key={i}
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          height: "60px",
+                          width: "93%",
+                          borderRadius: "20px",
+                          marginTop: "10px",
+                          padding: "0px 10px",
+                        }}
+                      >
+                        <Checkbox
+                          icon={
+                            <StarIcon
+                              style={{
+                                height: "20px",
+                                width: "20px",
+                                color: "#3A57E8",
+                              }}
+                            />
+                          }
+                          checkedIcon={
+                            <SolidStarIcon
+                              style={{
+                                height: "20px",
+                                width: "20px",
+                                color: "#3A57E8",
+                              }}
+                            />
+                          }
+                        />
+                        <Typography
+                          sx={{ fontSize: "13px", fontWeight: "lighter" }}
+                        >
+                          {index.material_name}
+                        </Typography>
+                        <Box compoent="span" sx={{ flexGrow: "1" }} />
+                        <Button
+                          sx={{
+                            height: "20px",
+                            width: "70px",
+                            borderRadius: "30px",
+                            border: "1px solid #3A57E8",
+                            marginRight: "10px",
+                            color: (theme) => theme.palette.textColor.col1,
+                          }}
+                        >
+                          <Typography sx={{ fontSize: "12px" }}>
+                            Notes
+                          </Typography>
+                        </Button>
+                        <Button
+                          sx={{
+                            height: "20px",
+                            width: "90px",
+                            borderRadius: "30px",
+                            border: "1px solid #3A57E8",
+                            marginRight: "10px",
+                            color: (theme) => theme.palette.textColor.col1,
+                          }}
+                        >
+                          <Typography sx={{ fontSize: "12px" }}>
+                            Remarks
+                          </Typography>
+                        </Button>
+                      </Paper>
+                    ))
+                )}
               </Box>
               <Box
                 sx={{
-                  width: "28%",
-                  backgroundColor: "",
-                  padding: "10px 10px",
-                }}
-              >
-                <Typography
-                  sx={{
-                    fontSize: "14px",
-                    color: (theme) => theme.palette.textColor.col1,
-                  }}
-                >
-                  Maintenance Progress
-                </Typography>
-                <Paper
-                  sx={{
-                    height: "300px",
-                    width: "100%",
-                    borderRadius: "10px",
-                    marginTop: "10px",
-                  }}
-                ></Paper>
-              </Box>
-              <Box
-                sx={{
-                  width: "28%",
+                  width: "58%",
                   backgroundColor: "",
                   padding: "10px 10px",
                 }}
@@ -669,23 +1056,123 @@ export default function Material() {
                 </Typography>
                 <Paper
                   sx={{
-                    height: "300px",
+                    display: "flex",
+                    justifyContent: "center",
                     width: "100%",
                     borderRadius: "10px",
                     marginTop: "10px",
                   }}
-                ></Paper>
+                >
+                  <TableContainer component={Box}>
+                    <Table>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell sx={{ textAlign: "center" }}>
+                            Date
+                          </TableCell>
+                          <TableCell sx={{ textAlign: "center" }}>
+                            Quantity
+                          </TableCell>
+                          <TableCell sx={{ textAlign: "center" }}>
+                            Action
+                          </TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody
+                        sx={{
+                          width: "96%",
+                          overflow: "auto",
+                          "&::-webkit-scrollbar": {
+                            display: "none",
+                          },
+                        }}
+                      >
+                        {notif.data.length === 0 ? (
+                          <TableRow>
+                            <TableCell
+                              sx={{
+                                position: "relative",
+                                left: "50%",
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                height: "300px",
+                              }}
+                            >
+                              <Typography
+                                variant="h4"
+                                sx={{
+                                  color: (theme) =>
+                                    theme.palette.textColor.col4,
+                                }}
+                              >
+                                No Data
+                              </Typography>
+                            </TableCell>
+                          </TableRow>
+                        ) : (
+                          notif.data
+                            .slice(
+                              pages * rowperpage,
+                              pages * rowperpage + rowperpage
+                            )
+                            .map((index, i) => (
+                              <TableRow key={i}>
+                                <TableCell sx={{ textAlign: "center" }}>
+                                  {index.stock_date}
+                                </TableCell>
+                                <TableCell sx={{ textAlign: "center" }}>
+                                  {index.quantity}
+                                </TableCell>
+                                <TableCell sx={{ textAlign: "center" }}>
+                                  {index.action}
+                                </TableCell>
+                              </TableRow>
+                            ))
+                        )}
+                      </TableBody>
+                      <TableFooter>
+                        <TableRow>
+                          <TablePagination
+                            count={notif.data.length}
+                            page={pages}
+                            rowsPerPage={rowperpage}
+                            onPageChange={handleChangePage1}
+                            onRowsPerPageChange={handleChangeRowsPerPage1}
+                            SelectProps={{
+                              label: "row per page",
+                            }}
+                            rowsPerPageOptions={[
+                              5,
+                              10,
+                              25,
+                              { label: "All", value: -1 },
+                            ]}
+                          />
+                        </TableRow>
+                      </TableFooter>
+                    </Table>
+                  </TableContainer>
+                </Paper>
               </Box>
             </Box>
           </Box>
           <CustomMaterialModal
             open={material_modal.isOpen}
             onClose={MaterialModalHandleClose}
-            material_info={payload.data}
+            material_info={material_info.data}
           />
           <CustomAddNewMaterial
             open={material_modal.isAddbtn}
             onClose={MaterialAddHandleClose}
+          />
+          <CustomDeleteConformation
+            open={dialog.isOpen}
+            onClose={ConfirmationHandleChangeClose}
+            message={message.isDialog}
+            Alldata={deleteAllData}
+            data={deleteData}
+            history={material_history}
           />
         </Box>
         <Box

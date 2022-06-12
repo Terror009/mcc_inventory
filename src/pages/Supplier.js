@@ -7,13 +7,18 @@ import {
   TextField,
   Avatar,
   Checkbox,
+  Stack,
+  Pagination,
+  TablePagination,
+  Select,
+  MenuItem,
 } from "@mui/material";
 
 import CustomSideBar from "./components/CustomSideBar";
 import CustomHeaderBar from "./components/CustomHeaderBar";
 import CustomSupManufactModal from "./components/CustomSupManufactModal";
 import CustomAddNewSupplier from "./components/CustomAddNewSupplier";
-import { PaginationPage } from "./components/CustomPagination";
+import CustomDeleteConformation from "./components/CustomDeleteConformation";
 
 import { ReactComponent as UserIcon } from "../assets/svg/user1.svg";
 import { ReactComponent as DeleteIcon } from "../assets/svg/trash.svg";
@@ -29,13 +34,31 @@ import * as XLSX from "xlsx";
 import { deleteSupplier } from "../api/supplierApi";
 
 import { useLocation } from "react-router-dom";
-
 export default function Supplier() {
   let { pathname } = useLocation();
 
   const [payload, setPayload] = useState({
     data: [{}],
   });
+
+  const [dialog, SetDialog] = useState({
+    isOpen: false,
+  });
+
+  const [message, SetMessage] = useState({
+    message: "",
+  });
+
+  const ConfirmationHandleChangeOpen = () => {
+    if (deleteAllData.length !== 0 || deleteData.length !== 0) {
+      SetDialog({ ...dialog, isOpen: true });
+      SetMessage({ ...message, message: "Do you want to delete data??" });
+    }
+  };
+  const ConfirmationHandleChangeClose = () => {
+    SetDialog({ ...dialog, isOpen: false });
+  };
+
   const [deleteData, SetDeleteData] = useState([]);
 
   const [deleteAllData, SetDeleteAllData] = useState([]);
@@ -53,17 +76,10 @@ export default function Supplier() {
   });
 
   useEffect(() => {
-    const user_id = JSON.parse(localStorage.getItem("user"));
-
-    const obj = {
-      user_id: user_id.user_id,
-    };
-
     const fetchData = async () => {
       await axios({
-        method: "POST",
+        method: "GET",
         url: API.supplier.fetchSupplier,
-        data: JSON.stringify(obj),
       })
         .then((response) => {
           console.log(response.data);
@@ -77,14 +93,33 @@ export default function Supplier() {
     fetchData();
   }, []);
 
-  const [currentpage, SetCurrentpage] = useState(1);
-  const [perpage, SetPerpage] = useState(5);
+  const [page, SetPage] = useState(1);
+  const [postperpage, SetPostperPage] = useState(5);
 
-  const indexOfLastPost = currentpage * perpage;
-  const indexOfFirstPost = indexOfLastPost - perpage;
-  const currentPosts = payload.data.slice(indexOfFirstPost, indexOfLastPost);
+  const indexofLastPage = page * postperpage;
+  const indexofFirstPage = indexofLastPage - postperpage;
 
-  const paginate = (pageNumber) => SetCurrentpage(pageNumber);
+  const handleChangePage = (e, newPage) => {
+    SetPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (e) => {
+    SetPostperPage(parseInt(+e.target.value));
+    SetPage(1);
+  };
+
+  const [sort, SetSort] = useState({
+    isSort: "",
+  });
+  const [search, SetSearch] = useState({
+    isSearch: "",
+  });
+  const SortHandelChange = (prop) => (e) => {
+    SetSort({ ...sort, [prop]: e.target.value });
+  };
+  const SearchHandleChange = (prop) => (e) => {
+    SetSearch({ ...search, [prop]: e.target.value });
+  };
 
   const SideBarHandle = () => {
     Setsidebar({ ...sidebar, isOpen: true });
@@ -171,24 +206,6 @@ export default function Supplier() {
     }
   };
 
-  const DeleteData = () => {
-    deleteAllData.forEach((index) => {
-      const obj = {
-        supplier_id: index.supplier_id,
-      };
-      console.log(obj);
-      deleteSupplier(obj);
-    });
-    deleteData.forEach((index) => {
-      const obj = {
-        supplier_id: index.supplier_id,
-      };
-      console.log(obj);
-      deleteSupplier(obj);
-    });
-    window.location.reload();
-  };
-
   const DownloadSupplier = () => {
     let data_arr = [];
     payload.data.forEach((index) => {
@@ -201,11 +218,13 @@ export default function Supplier() {
       };
       data_arr.push(obj);
     });
-    var wb = XLSX.utils.book_new();
-    var ws = XLSX.utils.json_to_sheet(data_arr);
+    if (data_arr.length !== 0) {
+      var wb = XLSX.utils.book_new();
+      var ws = XLSX.utils.json_to_sheet(data_arr);
 
-    XLSX.utils.book_append_sheet(wb, ws, "MySheet1");
-    XLSX.writeFile(wb, "Supplier.xlsx");
+      XLSX.utils.book_append_sheet(wb, ws, "MySheet1");
+      XLSX.writeFile(wb, "Supplier.xlsx");
+    }
   };
 
   return (
@@ -253,30 +272,6 @@ export default function Supplier() {
             }}
           >
             <Box component="span" sx={{ flexGrow: "1" }} />
-            <Box
-              sx={{
-                position: "relative",
-                marginRight: "50px",
-              }}
-            >
-              <Button
-                sx={{
-                  textTransform: "capitalize",
-                }}
-              >
-                <ImportIcon
-                  style={{ height: "20px", width: "20px", marginRight: "10px" }}
-                />
-                <Typography
-                  sx={{
-                    fontWeight: "bolder",
-                    fontSize: "14px",
-                  }}
-                >
-                  import
-                </Typography>
-              </Button>
-            </Box>
             <Box
               sx={{
                 position: "relative",
@@ -331,6 +326,8 @@ export default function Supplier() {
             }}
           >
             <TextField
+              value={search.isSearch}
+              onChange={SearchHandleChange("isSearch")}
               InputProps={{
                 startAdornment: <SearchIcon style={{ marginRight: "10px" }} />,
               }}
@@ -352,35 +349,73 @@ export default function Supplier() {
             <Box
               sx={{
                 display: "flex",
+                alignItems: "center",
                 justifyContent: "space-evenly",
-                width: "30%",
-                marginRight: "50px",
+                width: "40%",
               }}
             >
-              <Typography
-                sx={{
-                  color: (theme) => theme.palette.textColor.col4,
-                  fontSize: "14px",
-                }}
-              >
-                Sort By:
-              </Typography>
-              <Typography
-                sx={{
-                  color: (theme) => theme.palette.textColor.col4,
-                  fontSize: "14px",
-                }}
-              >
-                Group By:
-              </Typography>
-              <Typography
-                sx={{
-                  color: (theme) => theme.palette.textColor.col4,
-                  fontSize: "14px",
-                }}
-              >
-                Result 1 - 15 of 15
-              </Typography>
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Typography
+                  sx={{
+                    color: (theme) => theme.palette.textColor.col4,
+                    fontSize: "14px",
+                    marginRight: "10px",
+                  }}
+                >
+                  Sort By:
+                </Typography>
+                <Select
+                  value={sort.isSort}
+                  onChange={SortHandelChange("isSort")}
+                  sx={{
+                    height: "30px",
+                    width: "100px",
+                    borderStyle: "solid",
+                    borderWidth: "1px",
+                    borderColor: (theme) => theme.palette.textColor.col3,
+                    backgroundColor: "transparent",
+                    transition: "all 0.4s ease",
+                    "&:hover": {
+                      borderColor: (theme) => theme.palette.textColor.col1,
+                    },
+                  }}
+                >
+                  <MenuItem value=""></MenuItem>
+                  <MenuItem value="ASC">ASC</MenuItem>
+                  <MenuItem value="DESC">DESC</MenuItem>
+                </Select>
+              </Box>
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Typography
+                  sx={{
+                    color: (theme) => theme.palette.textColor.col4,
+                    fontSize: "14px",
+                    marginRight: "10px",
+                  }}
+                >
+                  Page
+                </Typography>
+                <Select
+                  value={postperpage}
+                  onChange={handleChangeRowsPerPage}
+                  sx={{
+                    height: "30px",
+                    width: "70px",
+                    borderStyle: "solid",
+                    borderWidth: "1px",
+                    borderColor: (theme) => theme.palette.textColor.col3,
+                    backgroundColor: "transparent",
+                    transition: "all 0.4s ease",
+                    "&:hover": {
+                      borderColor: (theme) => theme.palette.textColor.col1,
+                    },
+                  }}
+                >
+                  <MenuItem value="5">5</MenuItem>
+                  <MenuItem value="10">10</MenuItem>
+                  <MenuItem value="25">25</MenuItem>
+                </Select>
+              </Box>
             </Box>
           </Paper>
           <Box
@@ -414,7 +449,7 @@ export default function Supplier() {
                 sx={{
                   display: "flex",
                   justifyContent: "space-evenly",
-                  width: "26%",
+                  width: "18%",
                 }}
               >
                 <Button
@@ -427,24 +462,10 @@ export default function Supplier() {
                     backgroundColor: (theme) => theme.palette.primary.main,
                     color: (theme) => theme.palette.textColor.col1,
                   }}
-                  onClick={DeleteData}
+                  onClick={ConfirmationHandleChangeOpen}
                 >
                   <DeleteIcon style={{ marginRight: "10px" }} />
                   <Typography sx={{ fontSize: "14px" }}>Delete</Typography>
-                </Button>
-                <Button
-                  sx={{
-                    height: "35px",
-                    width: "100px",
-                    border: "1px solid #3A57E8",
-                    borderRadius: "10px",
-                    textTransform: "capitalize",
-                    backgroundColor: (theme) => theme.palette.primary.main,
-                    color: (theme) => theme.palette.textColor.col1,
-                  }}
-                >
-                  <UpdateIcon style={{ marginRight: "10px" }} />
-                  <Typography sx={{ fontSize: "14px" }}>Update</Typography>
                 </Button>
                 <Checkbox
                   id="checkAll"
@@ -522,163 +543,203 @@ export default function Supplier() {
               </Paper>
             ) : (
               <Box
-                sx={{ height: "85vh", width: "100%" }}
+                sx={{
+                  height: "84vh",
+                  width: "100%",
+                  overflow: "auto",
+                  "&::-webkit-scrollbar": {
+                    display: "none",
+                  },
+                }}
               >
-                {currentPosts.map((index, i) => (
-                  <Paper
-                    key={i}
-                    id="paper"
-                    sx={{
-                      display: "flex",
-                      height: "80px",
-                      width: "100%",
-                      marginTop: "20px",
-                      borderRadius: "20px",
-                      overflow: "hidden",
-                      transition: "all 0.3s ease",
-                      "&:hover": {
-                        backgroundColor: (theme) => theme.palette.secondary.bg2,
-                      },
-                    }}
-                    onClick={(e) => SupplierFunc(index, e)}
-                  >
-                    <Box
+                {payload.data
+                  .filter((index) =>
+                    search.isSearch !== ""
+                      ? index.supplier_name.includes(search.isSearch) ||
+                        index.supplier_email.includes(search.isSearch) ||
+                        index.supplier_contact.includes(search.isSearch) ||
+                        index.supplier_address.includes(search.isSearch) ||
+                        index.supplier_id.includes(search.isSearch)
+                      : index
+                  )
+                  .sort(() =>
+                    sort.isSort === "DESC" ? 1 : sort.isSort === "ASC" ? -1 : 1
+                  )
+                  .slice(indexofFirstPage, indexofLastPage)
+                  .map((index, i) => (
+                    <Paper
+                      key={i}
+                      id="paper"
                       sx={{
                         display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        backgroundColor: (theme) =>
-                          theme.palette.secondary.main,
-                        height: "100%",
-                        width: "7%",
-                        pointerEvents: "none",
+                        height: "80px",
+                        width: "100%",
+                        marginTop: "20px",
+                        borderRadius: "20px",
+                        overflow: "hidden",
+                        transition: "all 0.3s ease",
+                        "&:hover": {
+                          backgroundColor: (theme) =>
+                            theme.palette.secondary.bg2,
+                        },
                       }}
+                      onClick={(e) => SupplierFunc(index, e)}
                     >
-                      <Avatar
-                        src={index.supplier_name}
-                        alt={index.supplier_name}
+                      <Box
                         sx={{
-                          height: "60px",
-                          width: "60px",
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
                           backgroundColor: (theme) =>
                             theme.palette.secondary.main,
-                          fontSize: "40px",
-                        }}
-                      />
-                    </Box>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        height: "100%",
-                        width: "20%",
-                        pointerEvents: "none",
-                      }}
-                    >
-                      <Typography
-                        sx={{
-                          color: (theme) => theme.palette.textColor.col1,
-                          fontSize: "14px",
+                          height: "100%",
+                          width: "7%",
+                          pointerEvents: "none",
                         }}
                       >
-                        {index.supplier_name}
-                      </Typography>
-                      <Typography
+                        <Avatar
+                          src={index.supplier_name}
+                          alt={index.supplier_name}
+                          sx={{
+                            height: "60px",
+                            width: "60px",
+                            backgroundColor: (theme) =>
+                              theme.palette.secondary.main,
+                            fontSize: "40px",
+                          }}
+                        />
+                      </Box>
+                      <Box
                         sx={{
-                          color: (theme) => theme.palette.textColor.col4,
-                          fontSize: "12px",
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          height: "100%",
+                          width: "20%",
+                          pointerEvents: "none",
                         }}
                       >
-                        Supplier ID: {index.supplier_id}
-                      </Typography>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        height: "100%",
-                        width: "22%",
-                        pointerEvents: "none",
-                      }}
-                    >
-                      <Typography
+                        <Typography
+                          sx={{
+                            color: (theme) => theme.palette.textColor.col1,
+                            fontSize: "14px",
+                          }}
+                        >
+                          {index.supplier_name}
+                        </Typography>
+                        <Typography
+                          sx={{
+                            color: (theme) => theme.palette.textColor.col4,
+                            fontSize: "12px",
+                          }}
+                        >
+                          Supplier ID: {index.supplier_id}
+                        </Typography>
+                      </Box>
+                      <Box
                         sx={{
-                          color: (theme) => theme.palette.textColor.col4,
-                          fontSize: "12px",
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          height: "100%",
+                          width: "22%",
+                          pointerEvents: "none",
                         }}
                       >
-                        {index.supplier_email}
-                      </Typography>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        height: "100%",
-                        width: "22%",
-                        pointerEvents: "none",
-                      }}
-                    >
-                      <Typography
+                        <Typography
+                          sx={{
+                            color: (theme) => theme.palette.textColor.col4,
+                            fontSize: "12px",
+                          }}
+                        >
+                          {index.supplier_email}
+                        </Typography>
+                      </Box>
+                      <Box
                         sx={{
-                          color: (theme) => theme.palette.textColor.col4,
-                          fontSize: "12px",
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          height: "100%",
+                          width: "22%",
+                          pointerEvents: "none",
                         }}
                       >
-                        {index.supplier_contact}
-                      </Typography>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        height: "100%",
-                        width: "22%",
-                        pointerEvents: "none",
-                      }}
-                    >
-                      <Typography
+                        <Typography
+                          sx={{
+                            color: (theme) => theme.palette.textColor.col4,
+                            fontSize: "12px",
+                          }}
+                        >
+                          {index.supplier_contact}
+                        </Typography>
+                      </Box>
+                      <Box
                         sx={{
-                          color: (theme) => theme.palette.textColor.col4,
-                          fontSize: "12px",
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          height: "100%",
+                          width: "22%",
+                          pointerEvents: "none",
                         }}
                       >
-                        {index.supplier_address}
-                      </Typography>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        height: "100%",
-                        width: "7%",
-                      }}
-                    >
-                      <Checkbox
-                        id={index.supplier_id}
-                        onClick={isChecked}
-                        checked={index?.ischecked || false}
-                        color="secondary"
-                      />
-                    </Box>
-                  </Paper>
-                ))}
+                        <Typography
+                          sx={{
+                            color: (theme) => theme.palette.textColor.col4,
+                            fontSize: "12px",
+                          }}
+                        >
+                          {index.supplier_address}
+                        </Typography>
+                      </Box>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          height: "100%",
+                          width: "7%",
+                        }}
+                      >
+                        <Checkbox
+                          id={index.supplier_id}
+                          onClick={isChecked}
+                          checked={index?.ischecked || false}
+                          color="secondary"
+                        />
+                      </Box>
+                    </Paper>
+                  ))}
               </Box>
             )}
-            <PaginationPage
-              postPerPage={perpage}
-              totalPost={payload.data.length}
-              paginate={paginate}
-            />
+            <Stack spacing={2} sx={{ marginTop: "20px" }}>
+              <Pagination
+                count={
+                  search.isSearch === ""
+                    ? Math.ceil(payload.data.length / postperpage)
+                    : Math.ceil(
+                        payload.data.filter(
+                          (index) =>
+                            index.supplier_name.includes(search.isSearch) ||
+                            index.supplier_email.includes(search.isSearch) ||
+                            index.supplier_contact.includes(search.isSearch) ||
+                            index.supplier_address.includes(search.isSearch) ||
+                            index.supplier_id.includes(search.isSearch)
+                        ).length / postperpage
+                      )
+                }
+                page={page}
+                siblingCount={2}
+                boundaryCount={2}
+                variant="outlined"
+                onChange={handleChangePage}
+              />
+            </Stack>
           </Box>
         </Box>
         <Box
@@ -701,6 +762,13 @@ export default function Supplier() {
         <CustomAddNewSupplier
           open={supplier_modal.isAddbtn}
           onClose={SupplierAddHandleClose}
+        />
+        <CustomDeleteConformation
+          open={dialog.isOpen}
+          onClose={ConfirmationHandleChangeClose}
+          message={message.message}
+          Alldata={deleteAllData}
+          data={deleteData}
         />
       </Box>
     </Box>

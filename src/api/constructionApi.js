@@ -2,6 +2,7 @@ import axios from "axios";
 import { API } from "./api";
 
 export const createConstruction = (dataObj) => {
+  console.log(dataObj);
   axios({
     method: "POST",
     url: API.construction_site.createConstruction,

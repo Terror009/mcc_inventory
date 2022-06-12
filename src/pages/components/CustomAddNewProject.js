@@ -11,8 +11,13 @@ import {
   MenuItem,
 } from "@mui/material";
 
+import NumberFormat from "react-number-format";
+import { DatePicker } from "@mui/lab";
 import { classes } from "../../design/uiDesign";
 import { createProject } from "../../api/projectApi";
+import { createConstruction } from "../../api/constructionApi";
+import CustomDatepicker from "./CustomDatepicker";
+import dayjs from "dayjs";
 
 export default function CustomAddNewProject({ open, onClose }) {
   const [payload, Setpayload] = useState({
@@ -20,6 +25,8 @@ export default function CustomAddNewProject({ open, onClose }) {
     site_location: "",
     budget: "",
     client_name: "",
+    start_date: "",
+    end_date: "",
   });
 
   const [status, SetStatus] = useState("Ongoing");
@@ -27,23 +34,83 @@ export default function CustomAddNewProject({ open, onClose }) {
   const AddNewHandleChange = (prop) => (e) => {
     Setpayload({ ...payload, [prop]: e.target.value });
   };
+
   const SelectHandleChange = (e) => {
     SetStatus(e.target.value);
   };
 
   const AddNewProject = () => {
-    const user_id = JSON.parse(localStorage.getItem("user"));
+    const date = new Date();
+    const setDate = date.getDate();
+    const day = date.getDay();
+    const month = [
+      "January",
+      "Febuary",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+    const admin_id = JSON.parse(localStorage.getItem("user"));
+
     const obj = {
       project_name: payload.project_name,
       site_location: payload.site_location,
       budget: payload.budget,
       client_name: payload.client_name,
-      status: status,
-      project_time: new Date().toLocaleTimeString(),
-      user_id: user_id.user_id,
+      status:
+        dayjs(payload.start_date).format("MM/DD/YYYY") >
+        new Date().toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        })
+          ? "Pending"
+          : "Ongoing",
+      project_date: new Date().toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }),
+      start_date: dayjs(payload.start_date).format("MM/DD/YYYY"),
+      end_date: dayjs(payload.end_date).format("MM/DD/YYYY"),
+      month: month[date.getMonth()],
+      week: Math.ceil((setDate + 6 - day) / 7) + "week",
     };
+
+    const obj1 = {
+      project_name: payload.project_name,
+      site_location: payload.site_location,
+      budget: payload.budget,
+      client_name: payload.client_name,
+      status:
+        dayjs(payload.start_date).format("MM/DD/YYYY") >
+        new Date().toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        })
+          ? "Pending"
+          : "Ongoing",
+      project_date: new Date().toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }),
+      start_date: dayjs(payload.start_date).format("MM/DD/YYYY"),
+      end_date: dayjs(payload.end_date).format("MM/DD/YYYY"),
+    };
+
     createProject(obj);
+    createConstruction(obj1);
     isClose();
+
     window.location.reload();
   };
 
@@ -55,7 +122,13 @@ export default function CustomAddNewProject({ open, onClose }) {
       site_location: "",
       budget: "",
       client_name: "",
+      start_date: "",
+      end_date: "",
     });
+    /*    SetDate({
+      start_date: "",
+      end_date: "",
+    }); */
     SetStatus("Ongoing");
   };
   return (
@@ -156,10 +229,13 @@ export default function CustomAddNewProject({ open, onClose }) {
           >
             Budget
           </Typography>
-          <TextField
+          <NumberFormat
+            customInput={TextField}
             sx={classes.project_edit_input}
+            type="text"
             value={payload.budget}
             onChange={AddNewHandleChange("budget")}
+            thousandSeparator={true}
           />
         </Box>
         <Box
@@ -190,53 +266,38 @@ export default function CustomAddNewProject({ open, onClose }) {
         >
           <Typography
             sx={{
-              marginRight: "112px",
+              marginRight: "90px",
               color: (theme) => theme.palette.textColor.col3,
               fontSize: "14px",
             }}
           >
-            Status
+            Start Date
           </Typography>
-          <Select
-            value={status}
-            label="Status"
-            onChange={SelectHandleChange}
+          <TextField
+            type="date"
+            value={payload.start_date}
+            onChange={AddNewHandleChange("start_date")}
+            sx={classes.project_edit_input}
+          />
+        </Box>
+        <Box
+          sx={{ display: "flex", alignItems: "center", padding: "20px 20px" }}
+        >
+          <Typography
             sx={{
-              height: "35px",
-              width: "80%",
-              borderStyle: "solid",
-              borderWidth: "1px",
-              borderColor: (theme) => theme.palette.secondary.main,
-              borderRadius: "30px",
+              marginRight: "95px",
+              color: (theme) => theme.palette.textColor.col3,
               fontSize: "14px",
-              textTransform: "uppercase",
             }}
           >
-            <MenuItem
-              value={"Ongoing"}
-              sx={{ fontSize: "14px", textTransform: "uppercase" }}
-            >
-              Ongoing
-            </MenuItem>
-            <MenuItem
-              value={"Canceled"}
-              sx={{ fontSize: "14px", textTransform: "uppercase" }}
-            >
-              Canceled
-            </MenuItem>
-            <MenuItem
-              value={"Complete"}
-              sx={{ fontSize: "14px", textTransform: "uppercase" }}
-            >
-              Complete
-            </MenuItem>
-            <MenuItem
-              value={"Pending"}
-              sx={{ fontSize: "14px", textTransform: "uppercase" }}
-            >
-              Pending
-            </MenuItem>
-          </Select>
+            End Date
+          </Typography>
+          <TextField
+            type="date"
+            value={payload.end_date}
+            onChange={AddNewHandleChange("end_date")}
+            sx={classes.project_edit_input}
+          />
         </Box>
         <Box
           sx={{

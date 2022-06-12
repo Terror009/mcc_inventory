@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import {
   Box,
@@ -15,46 +15,79 @@ import {
   TableCell,
   TableContainer,
   TableHead,
+  TableFooter,
   TableRow,
+  TablePagination,
 } from "@mui/material";
 import CustomSideBar from "./components/CustomSideBar";
 import CustomHeaderBar from "./components/CustomHeaderBar";
-import CustomImportButton from "./components/CustomImportButton";
-import CustomExportButton from "./components/CustomExportButton";
 
 import { ReactComponent as SearchIcon } from "../assets/svg/search1.svg";
 import { ReactComponent as ArrowDownIcon } from "../assets/svg/arrow_down.svg";
+import { ReactComponent as ImportIcon } from "../assets/svg/import.svg";
+import { ReactComponent as ExportIcon } from "../assets/svg/export.svg";
 
-import { audit_data } from "../utils/audit_data";
+import { API } from "../api/api";
+import axios from "axios";
 
 export default function Audit_Log() {
+  const [page, Setpage] = useState(0);
+  const [rowperpage, SetRowperPage] = useState(5);
+
   const [sidebar, Setsidebar] = useState({
     isOpen: false,
   });
-  const [dropdownbtn, Setdropdownbtn] = useState({
-    isImport: true,
-    isExport: true,
-  });
   const [users, SetUsers] = useState({
-    isUsers: "All Users",
+    isUsers: "all users",
+    isTypes: "all types",
+    isEntity: "all entity",
   });
-  const [types, SetTypes] = useState({
-    isTypes: "All Types",
+  const [payload, SetPayload] = useState({
+    data: [{}],
   });
-  const [entity, SetEntity] = useState({
-    isEntity: "All Types",
+  const [search, SetSearch] = useState({
+    isSearch: "",
   });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      await axios({
+        method: "GET",
+        url: API.user_list_history.fetchUserListHistory,
+      })
+        .then((response) => {
+          console.log(response.data);
+          SetPayload({ ...payload, data: response.data });
+        })
+        .catch(({ response }) => {
+          console.log(response.data);
+        });
+    };
+    fetchData();
+  }, []);
+
+  const [sort, SetSort] = useState({
+    isSort: "",
+  });
+
+  const SortHandelChange = (prop) => (e) => {
+    SetSort({ ...sort, [prop]: e.target.value });
+  };
+  const SearchHandleChange = (prop) => (e) => {
+    SetSearch({ ...search, [prop]: e.target.value });
+  };
+
+  const handleChangePage = (e, newPage) => {
+    Setpage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (e) => {
+    SetRowperPage(+e.target.value);
+    Setpage(0);
+  };
 
   const UsersHandleChange = (prop) => (e) => {
     SetUsers({ ...users, [prop]: e.target.value });
-  };
-
-  const TypesHandleChange = (prop) => (e) => {
-    SetTypes({ ...types, [prop]: e.target.value });
-  };
-
-  const EntityHandleChange = (prop) => (e) => {
-    SetEntity({ ...entity, [prop]: e.target.value });
   };
 
   const SideBarHandle = () => {
@@ -63,13 +96,6 @@ export default function Audit_Log() {
 
   const SideBarHandleClose = () => {
     Setsidebar({ ...sidebar, isOpen: false });
-  };
-
-  const ImportHandle = () => {
-    Setdropdownbtn({ ...dropdownbtn, isImport: !dropdownbtn.isImport });
-  };
-  const ExportHandle = () => {
-    Setdropdownbtn({ ...dropdownbtn, isExport: !dropdownbtn.isExport });
   };
   return (
     <Box
@@ -113,31 +139,6 @@ export default function Audit_Log() {
             <Box
               sx={{
                 position: "relative",
-                marginRight: "50px",
-              }}
-            >
-              <Button
-                sx={{
-                  textTransform: "capitalize",
-                }}
-                onClick={ImportHandle}
-              >
-                <Typography
-                  sx={{
-                    marginRight: "20px",
-                    fontWeight: "bolder",
-                    fontSize: "14px",
-                  }}
-                >
-                  import
-                </Typography>
-                <ArrowDownIcon />
-              </Button>
-              <CustomImportButton open={dropdownbtn.isImport} />
-            </Box>
-            <Box
-              sx={{
-                position: "relative",
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
@@ -148,8 +149,10 @@ export default function Audit_Log() {
                 sx={{
                   textTransform: "capitalize",
                 }}
-                onClick={ExportHandle}
               >
+                <ExportIcon
+                  style={{ height: "20px", width: "20px", marginRight: "10px" }}
+                />
                 <Typography
                   sx={{
                     marginRight: "20px",
@@ -159,9 +162,7 @@ export default function Audit_Log() {
                 >
                   export
                 </Typography>
-                <ArrowDownIcon />
               </Button>
-              <CustomExportButton open={dropdownbtn.isExport} />
             </Box>
           </Box>
         </Box>
@@ -180,9 +181,12 @@ export default function Audit_Log() {
               width: "97%",
               padding: "0px 20px",
               borderRadius: "10px",
+              marginTop: "20px",
             }}
           >
             <TextField
+              value={search.isSearch}
+              onChange={SearchHandleChange("isSearch")}
               InputProps={{
                 startAdornment: <SearchIcon style={{ marginRight: "10px" }} />,
               }}
@@ -204,35 +208,42 @@ export default function Audit_Log() {
             <Box
               sx={{
                 display: "flex",
+                alignItems: "center",
                 justifyContent: "space-evenly",
-                width: "30%",
-                marginRight: "50px",
+                width: "40%",
               }}
             >
-              <Typography
-                sx={{
-                  color: (theme) => theme.palette.textColor.col4,
-                  fontSize: "14px",
-                }}
-              >
-                Sort By:
-              </Typography>
-              <Typography
-                sx={{
-                  color: (theme) => theme.palette.textColor.col4,
-                  fontSize: "14px",
-                }}
-              >
-                Group By:
-              </Typography>
-              <Typography
-                sx={{
-                  color: (theme) => theme.palette.textColor.col4,
-                  fontSize: "14px",
-                }}
-              >
-                Result 1 - 15 of 15
-              </Typography>
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Typography
+                  sx={{
+                    color: (theme) => theme.palette.textColor.col4,
+                    fontSize: "14px",
+                    marginRight: "10px",
+                  }}
+                >
+                  Sort By:
+                </Typography>
+                <Select
+                  value={sort.isSort}
+                  onChange={SortHandelChange("isSort")}
+                  sx={{
+                    height: "30px",
+                    width: "100px",
+                    borderStyle: "solid",
+                    borderWidth: "1px",
+                    borderColor: (theme) => theme.palette.textColor.col3,
+                    backgroundColor: "transparent",
+                    transition: "all 0.4s ease",
+                    "&:hover": {
+                      borderColor: (theme) => theme.palette.textColor.col1,
+                    },
+                  }}
+                >
+                  <MenuItem value=""></MenuItem>
+                  <MenuItem value="ASC">ASC</MenuItem>
+                  <MenuItem value="DESC">DESC</MenuItem>
+                </Select>
+              </Box>
             </Box>
           </Paper>
           <Box
@@ -264,14 +275,17 @@ export default function Audit_Log() {
                   backgroundColor: (theme) => theme.palette.primary.main,
                 }}
               >
-                <MenuItem value={"All Users"} sx={{ fontSize: "12px" }}>
-                  All Users
+                <MenuItem value="all users" sx={{ fontSize: "12px" }}>
+                  all user
                 </MenuItem>
-                <MenuItem value={"Created Users"} sx={{ fontSize: "12px" }}>
+                <MenuItem value="create user" sx={{ fontSize: "12px" }}>
                   Created Users
                 </MenuItem>
-                <MenuItem value={"Deleted Users"} sx={{ fontSize: "12px" }}>
+                <MenuItem value="deleted user" sx={{ fontSize: "12px" }}>
                   Deleted Users
+                </MenuItem>
+                <MenuItem value="update user" sx={{ fontSize: "12px" }}>
+                  Update Users
                 </MenuItem>
               </Select>
             </Box>
@@ -285,8 +299,8 @@ export default function Audit_Log() {
                 Types
               </Typography>
               <Select
-                onChange={TypesHandleChange("isTypes")}
-                value={types.isTypes}
+                onChange={UsersHandleChange("isTypes")}
+                value={users.isTypes}
                 sx={{
                   height: "25px",
                   width: "100%",
@@ -295,14 +309,17 @@ export default function Audit_Log() {
                   backgroundColor: (theme) => theme.palette.primary.main,
                 }}
               >
-                <MenuItem value={"All Types"} sx={{ fontSize: "12px" }}>
-                  All Types
+                <MenuItem value="all types" sx={{ fontSize: "12px" }}>
+                  all types
                 </MenuItem>
-                <MenuItem value={"Created"} sx={{ fontSize: "12px" }}>
-                  Created
+                <MenuItem value="Intern" sx={{ fontSize: "12px" }}>
+                  Intern
                 </MenuItem>
-                <MenuItem value={"Deleted"} sx={{ fontSize: "12px" }}>
-                  Deleted
+                <MenuItem value="MCC Core Team" sx={{ fontSize: "12px" }}>
+                  MCC Core Team
+                </MenuItem>
+                <MenuItem value="MCC Hr Team" sx={{ fontSize: "12px" }}>
+                  MCC HR Team
                 </MenuItem>
               </Select>
             </Box>
@@ -316,8 +333,8 @@ export default function Audit_Log() {
                 Entity Type
               </Typography>
               <Select
-                onChange={EntityHandleChange("isEntity")}
-                value={entity.isEntity}
+                onChange={UsersHandleChange("isEntity")}
+                value={users.isEntity}
                 sx={{
                   height: "25px",
                   width: "100%",
@@ -326,13 +343,11 @@ export default function Audit_Log() {
                   backgroundColor: (theme) => theme.palette.primary.main,
                 }}
               >
-                <MenuItem value={"All Types"} sx={{ fontSize: "12px" }}>
-                  All Types
-                </MenuItem>
-                <MenuItem value={"Created"} sx={{ fontSize: "12px" }}>
+                <MenuItem value="all entity">All entity</MenuItem>
+                <MenuItem value="Created" sx={{ fontSize: "12px" }}>
                   Created
                 </MenuItem>
-                <MenuItem value={"Deleted"} sx={{ fontSize: "12px" }}>
+                <MenuItem value="Deleted" sx={{ fontSize: "12px" }}>
                   Deleted
                 </MenuItem>
               </Select>
@@ -391,31 +406,118 @@ export default function Audit_Log() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {audit_data.map((index, i) => (
-                  <TableRow key={i}>
-                    <TableCell>{index.date + " " + index.time}</TableCell>
-                    <TableCell>{index.type}</TableCell>
-                    <TableCell>{index.action}</TableCell>
-                    <TableCell>
-                      <Avatar
-                        src={index.user}
-                        alt={index.user}
-                        sx={{
-                          height: "35px",
-                          width: "35px",
-                          backgroundColor: "transparent",
-                          borderWidth: "2px",
-                          borderStyle: "solid",
-                          borderColor: (theme) => theme.palette.secondary.main,
-                          color: (theme) => theme.palette.textColor.col1,
-                          fontSize: "15px",
-                          fontWeight: "bold"
-                        }}
-                      />
+                {payload.data.length === 0 ? (
+                  <TableRow>
+                    <TableCell
+                      sx={{
+                        position: "relative",
+                        left: "70%",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        height: "300px",
+                      }}
+                    >
+                      <Typography
+                        variant="h4"
+                        sx={{ color: (theme) => theme.palette.textColor.col4 }}
+                      >
+                        No Data
+                      </Typography>
                     </TableCell>
                   </TableRow>
-                ))}
+                ) : (
+                  payload.data
+                    .filter((index) =>
+                      users.isUsers !== "all users" ||
+                      users.isTypes !== "all types" ||
+                      search.isSearch !== ""
+                        ? index.user_date_created.includes(search.isSearch) ||
+                          index.user_time_created.includes(search.isSearch) ||
+                          index.user_list_name.includes(search.isSearch) ||
+                          index.action.includes(search.isSearch) ||
+                          index.user_history_id.includes(search.isSearch) ||
+                          index.action === users.isUsers ||
+                          index.user_list_type === users.isTypes
+                        : index
+                    )
+                    .sort(() =>
+                      sort.isSort === "DESC"
+                        ? 1
+                        : sort.isSort === "ASC"
+                        ? -1
+                        : 1
+                    )
+                    .slice(page * rowperpage, page * rowperpage + rowperpage)
+                    .map((index, i) => (
+                      <TableRow key={i}>
+                        <TableCell>
+                          {index.user_date_created +
+                            " " +
+                            index.user_time_created}
+                        </TableCell>
+                        <TableCell>{index.user_list_type}</TableCell>
+                        <TableCell>{index.action}</TableCell>
+                        <TableCell>
+                          <Avatar
+                            src={index.user_list_name}
+                            alt={index.user_list_name}
+                            sx={{
+                              height: "35px",
+                              width: "35px",
+                              backgroundColor: "transparent",
+                              borderWidth: "2px",
+                              borderStyle: "solid",
+                              borderColor: (theme) =>
+                                theme.palette.secondary.main,
+                              color: (theme) => theme.palette.textColor.col1,
+                              fontSize: "15px",
+                              fontWeight: "bold",
+                            }}
+                          />
+                        </TableCell>
+                      </TableRow>
+                    ))
+                )}
               </TableBody>
+              <TableFooter>
+                <TableRow>
+                  <TablePagination
+                    rowsPerPageOptions={[
+                      5,
+                      10,
+                      25,
+                      { label: "All", value: -1 },
+                    ]}
+                    count={
+                      users.isUsers === "all users" ||
+                      users.isTypes === "all types" ||
+                      search.isSearch !== ""
+                        ? payload.data.length
+                        : payload.data.filter(
+                            (index) =>
+                              index.user_date_created.includes(
+                                search.isSearch
+                              ) ||
+                              index.user_time_created.includes(
+                                search.isSearch
+                              ) ||
+                              index.user_list_name.includes(search.isSearch) ||
+                              index.action.includes(search.isSearch) ||
+                              index.user_history_id.includes(search.isSearch) ||
+                              index.action === users.isUsers
+                          ).length
+                    }
+                    rowsPerPage={rowperpage}
+                    page={page}
+                    SelectProps={{
+                      label: "row per page",
+                    }}
+                    onPageChange={handleChangePage}
+                    onRowsPerPageChange={handleChangeRowsPerPage}
+                  />
+                </TableRow>
+              </TableFooter>
             </Table>
           </TableContainer>
         </Box>

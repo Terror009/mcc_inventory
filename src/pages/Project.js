@@ -7,11 +7,16 @@ import {
   Button,
   TextField,
   Checkbox,
+  Select,
+  MenuItem,
+  Stack,
+  Pagination,
 } from "@mui/material";
 
 import CustomSideBar from "./components/CustomSideBar";
 import CustomHeaderBar from "./components/CustomHeaderBar";
 import CustomAddNewProject from "./components/CustomAddNewProject";
+import CustomDeleteConformation from "./components/CustomDeleteConformation";
 import { CustomProjectInfo } from "./components/CustomProjectModal";
 
 import { ReactComponent as ImportIcon } from "../assets/svg/import.svg";
@@ -24,7 +29,6 @@ import { API } from "../api/api";
 import axios from "axios";
 import * as XLSX from "xlsx";
 
-import { deleteProject } from "../api/projectApi";
 
 export default function Project() {
   const [sidebar, Setsidebar] = useState({
@@ -41,21 +45,34 @@ export default function Project() {
   const [project_info, setProject_info] = useState({
     data: {},
   });
+  const [dialog, SetDialog] = useState({
+    isOpen: false,
+  });
+
+  const [message, SetMessage] = useState({
+    message: "",
+  });
+
   const [deleteData, SetDeleteData] = useState([]);
 
   const [deleteAllData, SetDeleteAllData] = useState([]);
 
-  useEffect(() => {
-    const user_id = JSON.parse(localStorage.getItem("user"));
+  const ConfirmHandleChangeOpen = () => {
+    if (deleteAllData.length !== 0 || deleteData.length !== 0) {
+      SetDialog({ ...dialog, isOpen: true });
+      SetMessage({ ...message, message: "Do you want to delete data??" });
+    }
+  };
 
-    const obj = {
-      user_id: user_id.user_id,
-    };
+  const ConfirmHandleChangeClose = () => {
+    SetDialog({ ...dialog, isOpen: false });
+  };
+
+  useEffect(() => {
     const fetchData = async () => {
       await axios({
-        method: "POST",
+        method: "GET",
         url: API.project.fetchProject,
-        data: JSON.stringify(obj),
       })
         .then((response) => {
           console.log(response.data);
@@ -67,6 +84,35 @@ export default function Project() {
     };
     fetchData();
   }, []);
+
+  const [page, SetPage] = useState(1);
+  const [postperpage, SetPostperPage] = useState(5);
+
+  const indexofLastPage = page * postperpage;
+  const indexofFirstPage = indexofLastPage - postperpage;
+
+  const handleChangePage = (e, newPage) => {
+    SetPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (e) => {
+    SetPostperPage(parseInt(+e.target.value));
+    SetPage(1);
+  };
+
+  const [sort, SetSort] = useState({
+    isSort: "",
+  });
+  const [search, SetSearch] = useState({
+    isSearch: "",
+  });
+  const SortHandelChange = (prop) => (e) => {
+    SetSort({ ...sort, [prop]: e.target.value });
+  };
+  const SearchHandleChange = (prop) => (e) => {
+    SetSearch({ ...search, [prop]: e.target.value });
+  };
+
   const SideBarHandle = () => {
     Setsidebar({ ...sidebar, isOpen: true });
   };
@@ -146,32 +192,15 @@ export default function Project() {
       ProjectData(data);
     }
   };
-
+  console.log(deleteData);
+  console.log(deleteAllData);
   const ProjectData = (data) => {
     setProject_info({ ...project_info, data: data });
   };
 
-  const DeleteData = () => {
-    deleteAllData.forEach((index) => {
-      const obj = {
-        project_id: index.project_id,
-      };
-      console.log(obj);
-      deleteProject(obj);
-    });
-    deleteData.forEach((index) => {
-      const obj = {
-        project_id: index.project_id,
-      };
-      console.log(obj);
-      deleteProject(obj);
-    });
-    window.location.reload();
-  };
-
   const DownloadProject = () => {
     if (payload.data.length === 0) {
-    return false;
+      return false;
     } else {
       let data_arr = [];
       payload.data.forEach((index) => {
@@ -227,30 +256,6 @@ export default function Project() {
             <Box
               sx={{
                 position: "relative",
-                marginRight: "50px",
-              }}
-            >
-              <Button
-                sx={{
-                  textTransform: "capitalize",
-                }}
-              >
-                <ImportIcon
-                  style={{ height: "20px", width: "20px", marginRight: "10px" }}
-                />
-                <Typography
-                  sx={{
-                    fontWeight: "bolder",
-                    fontSize: "14px",
-                  }}
-                >
-                  import
-                </Typography>
-              </Button>
-            </Box>
-            <Box
-              sx={{
-                position: "relative",
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
@@ -299,6 +304,8 @@ export default function Project() {
             }}
           >
             <TextField
+              value={search.isSearch}
+              onChange={SearchHandleChange("isSearch")}
               InputProps={{
                 startAdornment: <SearchIcon style={{ marginRight: "10px" }} />,
               }}
@@ -320,35 +327,73 @@ export default function Project() {
             <Box
               sx={{
                 display: "flex",
+                alignItems: "center",
                 justifyContent: "space-evenly",
-                width: "30%",
-                marginRight: "50px",
+                width: "40%",
               }}
             >
-              <Typography
-                sx={{
-                  color: (theme) => theme.palette.textColor.col4,
-                  fontSize: "14px",
-                }}
-              >
-                Sort By:
-              </Typography>
-              <Typography
-                sx={{
-                  color: (theme) => theme.palette.textColor.col4,
-                  fontSize: "14px",
-                }}
-              >
-                Group By:
-              </Typography>
-              <Typography
-                sx={{
-                  color: (theme) => theme.palette.textColor.col4,
-                  fontSize: "14px",
-                }}
-              >
-                Result 1 - 15 of 15
-              </Typography>
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Typography
+                  sx={{
+                    color: (theme) => theme.palette.textColor.col4,
+                    fontSize: "14px",
+                    marginRight: "10px",
+                  }}
+                >
+                  Sort By:
+                </Typography>
+                <Select
+                  value={sort.isSort}
+                  onChange={SortHandelChange("isSort")}
+                  sx={{
+                    height: "30px",
+                    width: "100px",
+                    borderStyle: "solid",
+                    borderWidth: "1px",
+                    borderColor: (theme) => theme.palette.textColor.col3,
+                    backgroundColor: "transparent",
+                    transition: "all 0.4s ease",
+                    "&:hover": {
+                      borderColor: (theme) => theme.palette.textColor.col1,
+                    },
+                  }}
+                >
+                  <MenuItem value=""></MenuItem>
+                  <MenuItem value="ASC">ASC</MenuItem>
+                  <MenuItem value="DESC">DESC</MenuItem>
+                </Select>
+              </Box>
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Typography
+                  sx={{
+                    color: (theme) => theme.palette.textColor.col4,
+                    fontSize: "14px",
+                    marginRight: "10px",
+                  }}
+                >
+                  Page
+                </Typography>
+                <Select
+                  value={postperpage}
+                  onChange={handleChangeRowsPerPage}
+                  sx={{
+                    height: "30px",
+                    width: "70px",
+                    borderStyle: "solid",
+                    borderWidth: "1px",
+                    borderColor: (theme) => theme.palette.textColor.col3,
+                    backgroundColor: "transparent",
+                    transition: "all 0.4s ease",
+                    "&:hover": {
+                      borderColor: (theme) => theme.palette.textColor.col1,
+                    },
+                  }}
+                >
+                  <MenuItem value="5">5</MenuItem>
+                  <MenuItem value="10">10</MenuItem>
+                  <MenuItem value="25">25</MenuItem>
+                </Select>
+              </Box>
             </Box>
           </Paper>
           <Box
@@ -395,7 +440,7 @@ export default function Project() {
                     backgroundColor: (theme) => theme.palette.primary.main,
                     color: (theme) => theme.palette.textColor.col1,
                   }}
-                  onClick={DeleteData}
+                  onClick={ConfirmHandleChangeOpen}
                 >
                   <DeleteIcon style={{ marginRight: "10px" }} />
                   <Typography sx={{ fontSize: "14px" }}>Delete</Typography>
@@ -492,149 +537,211 @@ export default function Project() {
                 </Typography>
               </Paper>
             ) : (
-              payload.data.map((index, i) => (
-                <Paper
-                  key={i}
-                  id="paper"
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    height: "80px",
-                    width: "100%",
-                    marginTop: "20px",
-                    borderRadius: "20px",
-                    overflow: "hidden",
-                    transition: "all 0.3s ease",
-                    "&:hover": {
-                      backgroundColor: (theme) => theme.palette.secondary.bg2,
-                    },
-                  }}
-                  onClick={(e) => ProjectFunc(index, e)}
-                >
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      height: "100%",
-                      width: "15%",
-                      pointerEvents: "none",
-                    }}
-                  >
-                    <Typography sx={{ fontSize: "15px", marginLeft: "50px" }}>
-                      {index.project_id}
-                    </Typography>
-                  </Box>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      height: "100%",
-                      width: "15%",
-                      pointerEvents: "none",
-                    }}
-                  >
-                    <Typography sx={{ fontSize: "15px", marginLeft: "50px" }}>
-                      {index.project_name}
-                    </Typography>
-                  </Box>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      height: "100%",
-                      width: "15%",
-                      pointerEvents: "none",
-                    }}
-                  >
-                    <Typography sx={{ fontSize: "15px", marginLeft: "50px" }}>
-                      {index.site_location}
-                    </Typography>
-                  </Box>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      height: "100%",
-                      width: "15%",
-                      pointerEvents: "none",
-                    }}
-                  >
-                    <Typography sx={{ fontSize: "15px", marginLeft: "50px" }}>
-                      {index.budget}
-                    </Typography>
-                  </Box>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      height: "100%",
-                      width: "15%",
-                      pointerEvents: "none",
-                    }}
-                  >
-                    <Typography sx={{ fontSize: "15px", marginLeft: "50px" }}>
-                      {index.client_name}
-                    </Typography>
-                  </Box>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      height: "100%",
-                      width: "15%",
-                      pointerEvents: "none",
-                    }}
-                  >
-                    <Box
+              <Box
+                sx={{
+                  height: "84vh",
+                  width: "100%",
+                  overflow: "auto",
+                  "&::-webkit-scrollbar": {
+                    display: "none",
+                  },
+                }}
+              >
+                {payload.data
+                  .filter((index) =>
+                    search.isSearch !== ""
+                      ? index.project_name.includes(search.isSearch) ||
+                        index.site_location.includes(search.isSearch) ||
+                        index.budget.includes(search.isSearch) ||
+                        index.client_name.includes(search.isSearch) ||
+                        index.status.includes(search.isSearch) ||
+                        index.project_id.includes(search.isSearch)
+                      : index
+                  )
+                  .sort(() =>
+                    sort.isSort === "DESC" ? 1 : sort.isSort === "ASC" ? -1 : 1
+                  )
+                  .slice(indexofFirstPage, indexofLastPage)
+                  .map((index, i) => (
+                    <Paper
+                      key={i}
+                      id="paper"
                       sx={{
                         display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        borderStyle: "solid",
-                        borderWidth: "1px",
-                        borderColor: (theme) => theme.palette.secondary.main,
-                        borderRadius: "15px",
-                        padding: "2px 10px",
+                        justifyContent: "space-between",
+                        height: "80px",
+                        width: "100%",
+                        marginTop: "20px",
+                        borderRadius: "20px",
+                        overflow: "hidden",
+                        transition: "all 0.3s ease",
+                        "&:hover": {
+                          backgroundColor: (theme) =>
+                            theme.palette.secondary.bg2,
+                        },
                       }}
+                      onClick={(e) => ProjectFunc(index, e)}
                     >
-                      <Typography
+                      <Box
                         sx={{
-                          fontSize: "13px",
-                          textTransform: "uppercase",
-                          color: (theme) => theme.palette.textColor.col1,
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          height: "100%",
+                          width: "15%",
+                          pointerEvents: "none",
                         }}
                       >
-                        {index.status}
-                      </Typography>
-                    </Box>
-                  </Box>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "flex-end",
-                      alignItems: "center",
-                      height: "100%",
-                      width: "4%",
-                      backgroundColor: "",
-                      paddingRight: "40px",
-                    }}
-                  >
-                    <Checkbox
-                      id={index.project_id}
-                      color="secondary"
-                      onClick={isChecked}
-                      checked={index?.ischecked || false}
-                    />
-                  </Box>
-                </Paper>
-              ))
+                        <Typography
+                          sx={{ fontSize: "15px", marginLeft: "50px" }}
+                        >
+                          {index.project_id}
+                        </Typography>
+                      </Box>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          height: "100%",
+                          width: "15%",
+                          pointerEvents: "none",
+                        }}
+                      >
+                        <Typography
+                          sx={{ fontSize: "15px", marginLeft: "50px" }}
+                        >
+                          {index.project_name}
+                        </Typography>
+                      </Box>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          height: "100%",
+                          width: "15%",
+                          pointerEvents: "none",
+                        }}
+                      >
+                        <Typography
+                          sx={{ fontSize: "15px", marginLeft: "50px" }}
+                        >
+                          {index.site_location}
+                        </Typography>
+                      </Box>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          height: "100%",
+                          width: "15%",
+                          pointerEvents: "none",
+                        }}
+                      >
+                        <Typography
+                          sx={{ fontSize: "15px", marginLeft: "50px" }}
+                        >
+                          {index.budget}
+                        </Typography>
+                      </Box>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          height: "100%",
+                          width: "15%",
+                          pointerEvents: "none",
+                        }}
+                      >
+                        <Typography
+                          sx={{ fontSize: "15px", marginLeft: "50px" }}
+                        >
+                          {index.client_name}
+                        </Typography>
+                      </Box>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          height: "100%",
+                          width: "15%",
+                          pointerEvents: "none",
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            borderStyle: "solid",
+                            borderWidth: "1px",
+                            borderColor: (theme) =>
+                              theme.palette.secondary.main,
+                            borderRadius: "15px",
+                            padding: "2px 10px",
+                          }}
+                        >
+                          <Typography
+                            sx={{
+                              fontSize: "13px",
+                              textTransform: "uppercase",
+                              color: (theme) => theme.palette.textColor.col1,
+                            }}
+                          >
+                            {index.status}
+                          </Typography>
+                        </Box>
+                      </Box>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "flex-end",
+                          alignItems: "center",
+                          height: "100%",
+                          width: "4%",
+                          backgroundColor: "",
+                          paddingRight: "40px",
+                        }}
+                      >
+                        <Checkbox
+                          id={index.project_id}
+                          color="secondary"
+                          onClick={isChecked}
+                          checked={index?.ischecked || false}
+                        />
+                      </Box>
+                    </Paper>
+                  ))}
+              </Box>
             )}
+            <Stack spacing={2} sx={{ marginTop: "20px" }}>
+              <Pagination
+                count={
+                  search.isSearch === ""
+                    ? Math.ceil(payload.data.length / postperpage)
+                    : Math.ceil(
+                        payload.data.filter(
+                          (index) =>
+                            index.project_name.includes(search.isSearch) ||
+                            index.site_location.includes(search.isSearch) ||
+                            index.budget.includes(search.isSearch) ||
+                            index.client_name.includes(search.isSearch) ||
+                            index.status.includes(search.isSearch) ||
+                            index.project_id.includes(search.isSearch)
+                        ).length / postperpage
+                      )
+                }
+                page={page}
+                siblingCount={2}
+                boundaryCount={2}
+                variant="outlined"
+                onChange={handleChangePage}
+              />
+            </Stack>
           </Box>
         </Box>
         <CustomAddNewProject
@@ -645,6 +752,13 @@ export default function Project() {
           open={project_modal.isOpen}
           onClose={ProjectHandleClose}
           project_info={project_info.data}
+        />
+        <CustomDeleteConformation
+          open={dialog.isOpen}
+          onClose={ConfirmHandleChangeClose}
+          Alldata={deleteAllData}
+          data={deleteData}
+          message={message.message}
         />
       </Box>
     </Box>

@@ -16,7 +16,6 @@ export default function CustomAddNewConstruction({ open, onClose }) {
   const [payload, setPayload] = useState({
     construction_site_name: "",
     construction_client_name: "",
-    user_id: "",
   });
 
   const AddNewHandleChange = (prop) => (e) => {
@@ -32,12 +31,12 @@ export default function CustomAddNewConstruction({ open, onClose }) {
     });
   };
   const AddNewConstruction = () => {
-    const user_id = JSON.parse(localStorage.getItem("user"));
+
+    const admin_id = JSON.parse(localStorage.getItem("user"));
 
     const obj = {
       construction_site_name: payload.construction_site_name,
       construction_client_name: payload.construction_client_name,
-      user_id: user_id.user_id,
     };
     createConstruction(obj);
     console.log(obj);

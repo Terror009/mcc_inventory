@@ -19,6 +19,7 @@ import ProjectOveDueReport from "../pages/Project_Over_Due_Report";
 import Project from "../pages/Project";
 import User from "../pages/User";
 import Setting from "../pages/Setting";
+import Notification from "../pages/Notification";
 import NoConnection from "../pages/NoConnection";
 
 import PrivateRouter from "./PrivateRouter";
@@ -87,7 +88,7 @@ export default function Routers({ ...rest }) {
             path="/reports/material_stock_level"
             element={<PrivateRouter Component={Material_Stock_level} />}
           />
-             <Route
+          <Route
             path="/reports/project_over_due_report"
             element={<PrivateRouter Component={ProjectOveDueReport} />}
           />
@@ -99,6 +100,10 @@ export default function Routers({ ...rest }) {
           <Route
             path="/setting"
             element={<PrivateRouter Component={Setting} />}
+          />
+          <Route
+            path="/setting/notifications"
+            element={<PrivateRouter Component={Notification} />}
           />
           <Route path="*" element={<PageNotFound />} />
         </Routes>

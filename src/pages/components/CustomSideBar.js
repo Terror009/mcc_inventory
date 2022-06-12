@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 import { Box, Typography, Divider, Link } from "@mui/material";
 
@@ -17,14 +17,25 @@ import { ReactComponent as ProjectIcon } from "../../assets/svg/project.svg";
 import { ReactComponent as UserIcon } from "../../assets/svg/users.svg";
 import { ReactComponent as SettingIcon } from "../../assets/svg/setting.svg";
 
+import CustomConformation from "./CustomConformation";
+
 export default function CustomSideBar({ open, onOpen, onClose }) {
   const { pathname } = useLocation();
+  const [dialog, SetDialog] = useState({
+    isOpen: false,
+  });
 
-  const logOut = () => {
-    localStorage.removeItem("user");
-    window.location.replace("/signin")
-  }
-  
+  const [message, SetMessage] = useState({
+    isMessage: "",
+  });
+
+  const DialogHandleChangeOpen = () => {
+    SetDialog({ ...dialog, isOpen: true });
+    SetMessage({ ...message, isMessage: "Do you want to log out?" });
+  };
+  const DialogHandleChangeClose = () => {
+    SetDialog({ ...dialog, isOpen: false });
+  };
   return (
     <Box
       sx={{
@@ -33,7 +44,7 @@ export default function CustomSideBar({ open, onOpen, onClose }) {
         flexDirection: "column",
         alignItems: "center",
         transition: "all 0.3s ease",
-        height: "98.7vh",
+        height: "100vh",
         width: open === true ? "250px" : "50px",
         backgroundColor: "white",
         padding: "4px",
@@ -41,7 +52,7 @@ export default function CustomSideBar({ open, onOpen, onClose }) {
         zIndex: 1,
       }}
       onMouseLeave={onClose}
-      onMouseEnter={onOpen}
+      onMouseEnter={dialog.isOpen ? onClose : onOpen}
     >
       <Box
         sx={{
@@ -500,7 +511,7 @@ export default function CustomSideBar({ open, onOpen, onClose }) {
           },
           marginTop: "10px",
         }}
-        onClick={logOut}
+        onClick={DialogHandleChangeOpen}
       >
         <LogOutIcon
           style={{
@@ -522,6 +533,11 @@ export default function CustomSideBar({ open, onOpen, onClose }) {
           Log out
         </Typography>
       </Box>
+      <CustomConformation
+        open={dialog.isOpen}
+        onClose={DialogHandleChangeClose}
+        message={message.isMessage}
+      />
     </Box>
   );
 }

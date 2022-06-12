@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Helmet } from "react-helmet";
+
 import {
   Box,
   Paper,
@@ -8,6 +8,8 @@ import {
   TextField,
   Checkbox,
   Avatar,
+  Select,
+  MenuItem,
   Stack,
   Pagination,
 } from "@mui/material";
@@ -23,6 +25,7 @@ import CustomSideBar from "./components/CustomSideBar";
 import CustomHeaderBar from "./components/CustomHeaderBar";
 import CustomSupManufactModal from "./components/CustomSupManufactModal";
 import CustomAddNewManufacturer from "./components/CustomAddNewManufacturer";
+import CustomDeleteConformation from "./components/CustomDeleteConformation";
 
 import { ReactComponent as UserIcon } from "../assets/svg/user1.svg";
 import { ReactComponent as DeleteIcon } from "../assets/svg/trash.svg";
@@ -49,22 +52,33 @@ export default function Manufacturer() {
     data: [{}],
   });
 
+  const [dialog, SetDialog] = useState({
+    isOpen: false,
+  });
+
+  const [message, SetMessage] = useState({
+    message: "",
+  });
+
   const [deleteData, SetDeleteData] = useState([]);
 
   const [deleteAllData, SetDeleteAllData] = useState([]);
+  const ConfirmationHandleChangeOpen = () => {
+    if (deleteAllData.length !== 0 || deleteData.length !== 0) {
+      SetDialog({ ...dialog, isOpen: true });
+      SetMessage({ ...message, message: "Do you want to delete data?? " });
+    }
+  };
 
+  const ConfirmationHandleChangeClose = () => {
+    SetDialog({ ...dialog, isOpen: false });
+  };
+  
   useEffect(() => {
     const fetchData = async () => {
-      const user_id = JSON.parse(localStorage.getItem("user"));
-
-      const obj = {
-        user_id: user_id.user_id,
-      };
-
       await axios({
-        method: "POST",
+        method: "GET",
         url: API.manufacturer.fetchManufacturer,
-        data: JSON.stringify(obj),
       })
         .then((response) => {
           console.log(response.data);
@@ -77,6 +91,39 @@ export default function Manufacturer() {
 
     fetchData();
   }, []);
+
+  let data_arr = [];
+  const [total, SetTotal] = useState("");
+  const [page, SetPage] = useState(1);
+  const [postperpage, SetPostperPage] = useState(5);
+
+  const indexofLastPage = page * postperpage;
+  const indexofFirstPage = indexofLastPage - postperpage;
+  const currentPosts = payload.data.slice(indexofFirstPage, indexofLastPage);
+
+  const handleChangePage = (e, newPage) => {
+    SetPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (e) => {
+    SetPostperPage(parseInt(+e.target.value));
+    SetPage(1);
+  };
+
+  const [sort, SetSort] = useState({
+    isSort: "",
+  });
+  const [search, SetSearch] = useState({
+    isSearch: "",
+  });
+
+  const SortHandelChange = (prop) => (e) => {
+    SetSort({ ...sort, [prop]: e.target.value });
+  };
+  const SearchHandleChange = (prop) => (e) => {
+    SetSearch({ ...search, [prop]: e.target.value });
+  };
+
   const SideBarHandle = () => {
     Setsidebar({ ...sidebar, isOpen: true });
   };
@@ -101,7 +148,6 @@ export default function Manufacturer() {
   const ManufacturerData = (data) => {
     SetManufacturer_info({ ...manufacturer_info, data: data });
   };
-  console.log(manufacturer_info.data);
   const ManufacturerAddHandleOpen = () => {
     SetManufacturer_modal({ ...manufacturer_modal, isAddbtn: true });
   };
@@ -157,25 +203,6 @@ export default function Manufacturer() {
       }
     }
   };
-
-  const DeleteData = () => {
-    deleteAllData.forEach((index) => {
-      const obj = {
-        manufacturer_id: index.manufacturer_id,
-      };
-      console.log(obj);
-      deletemanufacturer(obj);
-    });
-    deleteData.forEach((index) => {
-      const obj = {
-        manufacturer_id: index.manufacturer_id,
-      };
-      console.log(obj);
-      deletemanufacturer(obj);
-    });
-    window.location.reload();
-  };
-
   const DownloadManufacturer = () => {
     let data_arr = [];
     payload.data.forEach((index) => {
@@ -188,11 +215,13 @@ export default function Manufacturer() {
       };
       data_arr.push(obj);
     });
-    var wb = XLSX.utils.book_new();
-    var ws = XLSX.utils.json_to_sheet(data_arr);
+    if (!data_arr) {
+      var wb = XLSX.utils.book_new();
+      var ws = XLSX.utils.json_to_sheet(data_arr);
 
-    XLSX.utils.book_append_sheet(wb, ws, "MySheet1");
-    XLSX.writeFile(wb, "Manufacturer.xlsx");
+      XLSX.utils.book_append_sheet(wb, ws, "MySheet1");
+      XLSX.writeFile(wb, "Manufacturer.xlsx");
+    }
   };
   return (
     <Box
@@ -242,30 +271,6 @@ export default function Manufacturer() {
             <Box
               sx={{
                 position: "relative",
-                marginRight: "50px",
-              }}
-            >
-              <Button
-                sx={{
-                  textTransform: "capitalize",
-                }}
-              >
-                <ImportIcon
-                  style={{ height: "20px", width: "20px", marginRight: "10px" }}
-                />
-                <Typography
-                  sx={{
-                    fontWeight: "bolder",
-                    fontSize: "14px",
-                  }}
-                >
-                  import
-                </Typography>
-              </Button>
-            </Box>
-            <Box
-              sx={{
-                position: "relative",
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
@@ -311,6 +316,8 @@ export default function Manufacturer() {
             }}
           >
             <TextField
+              value={search.isSearch}
+              onChange={SearchHandleChange("isSearch")}
               InputProps={{
                 startAdornment: <SearchIcon style={{ marginRight: "10px" }} />,
               }}
@@ -332,35 +339,73 @@ export default function Manufacturer() {
             <Box
               sx={{
                 display: "flex",
+                alignItems: "center",
                 justifyContent: "space-evenly",
-                width: "30%",
-                marginRight: "50px",
+                width: "40%",
               }}
             >
-              <Typography
-                sx={{
-                  color: (theme) => theme.palette.textColor.col4,
-                  fontSize: "14px",
-                }}
-              >
-                Sort By:
-              </Typography>
-              <Typography
-                sx={{
-                  color: (theme) => theme.palette.textColor.col4,
-                  fontSize: "14px",
-                }}
-              >
-                Group By:
-              </Typography>
-              <Typography
-                sx={{
-                  color: (theme) => theme.palette.textColor.col4,
-                  fontSize: "14px",
-                }}
-              >
-                Result 1 - 15 of 15
-              </Typography>
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Typography
+                  sx={{
+                    color: (theme) => theme.palette.textColor.col4,
+                    fontSize: "14px",
+                    marginRight: "10px",
+                  }}
+                >
+                  Sort By:
+                </Typography>
+                <Select
+                  value={sort.isSort}
+                  onChange={SortHandelChange("isSort")}
+                  sx={{
+                    height: "30px",
+                    width: "100px",
+                    borderStyle: "solid",
+                    borderWidth: "1px",
+                    borderColor: (theme) => theme.palette.textColor.col3,
+                    backgroundColor: "transparent",
+                    transition: "all 0.4s ease",
+                    "&:hover": {
+                      borderColor: (theme) => theme.palette.textColor.col1,
+                    },
+                  }}
+                >
+                  <MenuItem value=""></MenuItem>
+                  <MenuItem value="ASC">ASC</MenuItem>
+                  <MenuItem value="DESC">DESC</MenuItem>
+                </Select>
+              </Box>
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Typography
+                  sx={{
+                    color: (theme) => theme.palette.textColor.col4,
+                    fontSize: "14px",
+                    marginRight: "10px",
+                  }}
+                >
+                  Page
+                </Typography>
+                <Select
+                  value={postperpage}
+                  onChange={handleChangeRowsPerPage}
+                  sx={{
+                    height: "30px",
+                    width: "70px",
+                    borderStyle: "solid",
+                    borderWidth: "1px",
+                    borderColor: (theme) => theme.palette.textColor.col3,
+                    backgroundColor: "transparent",
+                    transition: "all 0.4s ease",
+                    "&:hover": {
+                      borderColor: (theme) => theme.palette.textColor.col1,
+                    },
+                  }}
+                >
+                  <MenuItem value="5">5</MenuItem>
+                  <MenuItem value="10">10</MenuItem>
+                  <MenuItem value="25">25</MenuItem>
+                </Select>
+              </Box>
             </Box>
           </Paper>
           <Box
@@ -394,7 +439,7 @@ export default function Manufacturer() {
                 sx={{
                   display: "flex",
                   justifyContent: "space-evenly",
-                  width: "26%",
+                  width: "18%",
                 }}
               >
                 <Button
@@ -407,24 +452,10 @@ export default function Manufacturer() {
                     backgroundColor: (theme) => theme.palette.primary.main,
                     color: (theme) => theme.palette.textColor.col1,
                   }}
-                  onClick={DeleteData}
+                  onClick={ConfirmationHandleChangeOpen}
                 >
                   <DeleteIcon style={{ marginRight: "10px" }} />
                   <Typography sx={{ fontSize: "14px" }}>Delete</Typography>
-                </Button>
-                <Button
-                  sx={{
-                    height: "35px",
-                    width: "100px",
-                    border: "1px solid #3A57E8",
-                    borderRadius: "10px",
-                    textTransform: "capitalize",
-                    backgroundColor: (theme) => theme.palette.primary.main,
-                    color: (theme) => theme.palette.textColor.col1,
-                  }}
-                >
-                  <UpdateIcon style={{ marginRight: "10px" }} />
-                  <Typography sx={{ fontSize: "14px" }}>Update</Typography>
                 </Button>
                 <Checkbox
                   id="checkAll"
@@ -501,156 +532,209 @@ export default function Manufacturer() {
                 </Typography>
               </Paper>
             ) : (
-              payload.data.map((index, i) => (
-                <Paper
-                  key={i}
-                  id="paper"
-                  sx={{
-                    display: "flex",
-                    height: "80px",
-                    width: "100%",
-                    marginTop: "20px",
-                    borderRadius: "20px",
-                    overflow: "hidden",
-                    transition: "all 0.3s ease",
-                    "&:hover": {
-                      backgroundColor: (theme) => theme.palette.secondary.bg2,
-                    },
-                  }}
-                  onClick={(e) => ManufacturerFunc(index, e)}
-                >
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      backgroundColor: (theme) => theme.palette.secondary.main,
-                      height: "100%",
-                      width: "7%",
-                      pointerEvents: "none",
-                    }}
-                  >
-                    <Avatar
-                      src={index.manufacturer_name}
-                      alt={index.manufacturer_name}
+              <Box
+                sx={{
+                  height: "84vh",
+                  width: "100%",
+                  overflow: "auto",
+                  "&::-webkit-scrollbar": {
+                    display: "none",
+                  },
+                }}
+              >
+                {payload.data
+                  .filter((index) =>
+                    search.isSearch !== ""
+                      ? index.manufacturer_name.includes(search.isSearch) ||
+                        index.manufacturer_email.includes(search.isSearch) ||
+                        index.manufacturer_contact.includes(search.isSearch) ||
+                        index.manufacturer_address.includes(search.isSearch) ||
+                        index.manufacturer_id.includes(search.isSearch)
+                      : index
+                  )
+                  .sort(() =>
+                    sort.isSort === "DESC" ? 1 : sort.isSort === "ASC" ? -1 : 1
+                  )
+                  .slice(indexofFirstPage, indexofLastPage)
+                  .map((index, i) => (
+                    <Paper
+                      key={i}
+                      id="paper"
                       sx={{
-                        height: "60px",
-                        width: "60px",
-                        backgroundColor: (theme) =>
-                          theme.palette.secondary.main,
-                        fontSize: "40px",
+                        display: "flex",
+                        height: "80px",
+                        width: "100%",
+                        marginTop: "20px",
+                        borderRadius: "20px",
+                        overflow: "hidden",
+                        transition: "all 0.3s ease",
+                        "&:hover": {
+                          backgroundColor: (theme) =>
+                            theme.palette.secondary.bg2,
+                        },
                       }}
-                    />
-                  </Box>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      height: "100%",
-                      width: "20%",
-                      pointerEvents: "none",
-                    }}
-                  >
-                    <Typography
-                      sx={{
-                        color: (theme) => theme.palette.textColor.col1,
-                        fontSize: "14px",
-                      }}
+                      onClick={(e) => ManufacturerFunc(index, e)}
                     >
-                      {index.manufacturer_name}
-                    </Typography>
-                    <Typography
-                      sx={{
-                        color: (theme) => theme.palette.textColor.col4,
-                        fontSize: "12px",
-                      }}
-                    >
-                      Manufacturer ID: {index.manufacturer_id}
-                    </Typography>
-                  </Box>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      height: "100%",
-                      width: "22%",
-                      pointerEvents: "none",
-                    }}
-                  >
-                    <Typography
-                      sx={{
-                        color: (theme) => theme.palette.textColor.col4,
-                        fontSize: "12px",
-                      }}
-                    >
-                      {index.manufacturer_email}
-                    </Typography>
-                  </Box>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      height: "100%",
-                      width: "22%",
-                      pointerEvents: "none",
-                    }}
-                  >
-                    <Typography
-                      sx={{
-                        color: (theme) => theme.palette.textColor.col4,
-                        fontSize: "12px",
-                      }}
-                    >
-                      {index.manufacturer_contact}
-                    </Typography>
-                  </Box>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      height: "100%",
-                      width: "22%",
-                      pointerEvents: "none",
-                    }}
-                  >
-                    <Typography
-                      sx={{
-                        color: (theme) => theme.palette.textColor.col4,
-                        fontSize: "12px",
-                      }}
-                    >
-                      {index.manufacturer_address}
-                    </Typography>
-                  </Box>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      height: "100%",
-                      width: "7%",
-                    }}
-                  >
-                    <Checkbox
-                      id={index.manufacturer_id}
-                      onClick={isChecked}
-                      checked={index?.ischecked || false}
-                      color="secondary"
-                    />
-                  </Box>
-                </Paper>
-              ))
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          backgroundColor: (theme) =>
+                            theme.palette.secondary.main,
+                          height: "100%",
+                          width: "7%",
+                          pointerEvents: "none",
+                        }}
+                      >
+                        <Avatar
+                          src={index.manufacturer_name}
+                          alt={index.manufacturer_name}
+                          sx={{
+                            height: "60px",
+                            width: "60px",
+                            backgroundColor: (theme) =>
+                              theme.palette.secondary.main,
+                            fontSize: "40px",
+                          }}
+                        />
+                      </Box>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          height: "100%",
+                          width: "20%",
+                          pointerEvents: "none",
+                        }}
+                      >
+                        <Typography
+                          sx={{
+                            color: (theme) => theme.palette.textColor.col1,
+                            fontSize: "14px",
+                          }}
+                        >
+                          {index.manufacturer_name}
+                        </Typography>
+                        <Typography
+                          sx={{
+                            color: (theme) => theme.palette.textColor.col4,
+                            fontSize: "12px",
+                          }}
+                        >
+                          Manufacturer ID: {index.manufacturer_id}
+                        </Typography>
+                      </Box>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          height: "100%",
+                          width: "22%",
+                          pointerEvents: "none",
+                        }}
+                      >
+                        <Typography
+                          sx={{
+                            color: (theme) => theme.palette.textColor.col4,
+                            fontSize: "12px",
+                          }}
+                        >
+                          {index.manufacturer_email}
+                        </Typography>
+                      </Box>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          height: "100%",
+                          width: "22%",
+                          pointerEvents: "none",
+                        }}
+                      >
+                        <Typography
+                          sx={{
+                            color: (theme) => theme.palette.textColor.col4,
+                            fontSize: "12px",
+                          }}
+                        >
+                          {index.manufacturer_contact}
+                        </Typography>
+                      </Box>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          height: "100%",
+                          width: "22%",
+                          pointerEvents: "none",
+                        }}
+                      >
+                        <Typography
+                          sx={{
+                            color: (theme) => theme.palette.textColor.col4,
+                            fontSize: "12px",
+                          }}
+                        >
+                          {index.manufacturer_address}
+                        </Typography>
+                      </Box>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          height: "100%",
+                          width: "7%",
+                        }}
+                      >
+                        <Checkbox
+                          id={index.manufacturer_id}
+                          onClick={isChecked}
+                          checked={index?.ischecked || false}
+                          color="secondary"
+                        />
+                      </Box>
+                    </Paper>
+                  ))}
+              </Box>
             )}
-            <Stack spacing={2} sx={{ marginTop: "60px" }}>
-              <Pagination count={10} shape="rounded" color="primary" />
+            <Stack spacing={2} sx={{ marginTop: "20px" }}>
+              <Pagination
+                count={
+                  search.isSearch === ""
+                    ? Math.ceil(payload.data.length / postperpage)
+                    : Math.ceil(
+                        payload.data.filter(
+                          (index) =>
+                            index.manufacturer_name.includes(search.isSearch) ||
+                            index.manufacturer_email.includes(
+                              search.isSearch
+                            ) ||
+                            index.manufacturer_contact.includes(
+                              search.isSearch
+                            ) ||
+                            index.manufacturer_address.includes(
+                              search.isSearch
+                            ) ||
+                            index.manufacturer_id.includes(search.isSearch)
+                        ).length / postperpage
+                      )
+                }
+                page={page}
+                siblingCount={2}
+                boundaryCount={2}
+                variant="outlined"
+                onChange={handleChangePage}
+              />
             </Stack>
           </Box>
         </Box>
@@ -674,6 +758,13 @@ export default function Manufacturer() {
         <CustomAddNewManufacturer
           open={manufacturer_modal.isAddbtn}
           onClose={ManufacturerAddHandleClose}
+        />
+        <CustomDeleteConformation
+          open={dialog.isOpen}
+          onClose={ConfirmationHandleChangeClose}
+          Alldata={deleteAllData}
+          data={deleteData}
+          message={message.message}
         />
       </Box>
     </Box>

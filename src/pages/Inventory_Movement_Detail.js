@@ -12,7 +12,6 @@ import {
 import { Link as NLink } from "react-router-dom";
 import CustomSideBar from "./components/CustomSideBar";
 import CustomHeaderBar from "./components/CustomHeaderBar";
-import CustomNewInventoryDetails from "./components/CustomNewInventoryDetails";
 
 import { ReactComponent as BackIcon } from "../assets/svg/back.svg";
 import { ReactComponent as ImportIcon } from "../assets/svg/import.svg";
@@ -28,7 +27,6 @@ export default function Inventory_Movement_Detail() {
 
   const [inventorydetail_modal, Setinventorydetail_modal] = useState({
     isOpen: false,
-    isAddbtn: false,
   });
   const [payload, setPayload] = useState({
     data: [{}],
@@ -41,12 +39,6 @@ export default function Inventory_Movement_Detail() {
     Setsidebar({ ...sidebar, isOpen: false });
   };
 
-  const InventoryMovementAddHandleOpen = () => {
-    Setinventorydetail_modal({ ...inventorydetail_modal, isAddbtn: true });
-  };
-  const InventoryMovementAddHandleClose = () => {
-    Setinventorydetail_modal({ ...inventorydetail_modal, isAddbtn: false });
-  };
 
   return (
     <Box
@@ -83,34 +75,6 @@ export default function Inventory_Movement_Detail() {
             }}
           >
             <Box component="span" sx={{ flexGrow: "1" }} />
-            <Box
-              sx={{
-                position: "relative",
-                marginRight: "50px",
-              }}
-            >
-              <Button
-                sx={{
-                  textTransform: "capitalize",
-                }}
-              >
-                <ImportIcon
-                  style={{
-                    height: "20px",
-                    width: "20px",
-                    marginRight: "10px",
-                  }}
-                />
-                <Typography
-                  sx={{
-                    fontWeight: "bolder",
-                    fontSize: "14px",
-                  }}
-                >
-                  import
-                </Typography>
-              </Button>
-            </Box>
             <Box
               sx={{
                 position: "relative",
@@ -252,21 +216,6 @@ export default function Inventory_Movement_Detail() {
             }}
           >
             <Box sx={{ display: "flex", width: "100%" }}>
-              <Button
-                sx={{
-                  height: "35px",
-                  width: "150px",
-                  border: "1px solid #3A57E8",
-                  borderRadius: "10px",
-                  textTransform: "capitalize",
-                  backgroundColor: (theme) => theme.palette.primary.main,
-                  color: (theme) => theme.palette.textColor.col1,
-                }}
-                onClick={InventoryMovementAddHandleOpen}
-              >
-                <UserIcon style={{ marginRight: "10px" }} />
-                <Typography sx={{ fontSize: "14px" }}>Add New</Typography>
-              </Button>
               <Box component="span" sx={{ flexGrow: "1" }} />
               <Box
                 sx={{
@@ -404,10 +353,6 @@ export default function Inventory_Movement_Detail() {
         >
           <Typography>@ 2022 made by UIP Dev Interns</Typography>
         </Box>
-        <CustomNewInventoryDetails
-          open={inventorydetail_modal.isAddbtn}
-          onClose={InventoryMovementAddHandleClose}
-        />
       </Box>
     </Box>
   );

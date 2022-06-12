@@ -15,6 +15,7 @@ import {
 import { ReactComponent as EditIcon } from "../../assets/svg/edit.svg";
 import { classes } from "../../design/uiDesign";
 import { updateUserList } from "../../api/userlistApi";
+import { createUserListHistory } from "../../api/userlisthistoryApi";
 
 export const CustomUserListModal = ({ open, onClose, user_list_info }) => {
   const [user_list_edit_modal, setuser_list_edit_modal] = useState({
@@ -41,7 +42,6 @@ export const CustomUserListModal = ({ open, onClose, user_list_info }) => {
     >
       <Paper
         sx={{
-          height: "350px",
           width: "1000px",
           outline: "none",
           overflow: "hidden",
@@ -146,6 +146,48 @@ export const CustomUserListModal = ({ open, onClose, user_list_info }) => {
             {user_list_info.user_list_type}
           </Typography>
         </Box>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            padding: "20px 40px",
+            marginTop: "10px",
+          }}
+        >
+          <Typography
+            sx={{
+              marginRight: "58px",
+              color: (theme) => theme.palette.textColor.col3,
+              fontSize: "14px",
+            }}
+          >
+            Start Date
+          </Typography>
+          <Typography sx={{ fontSize: "14px" }}>
+            {user_list_info.start_date}
+          </Typography>
+        </Box>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            padding: "20px 40px",
+            marginTop: "10px",
+          }}
+        >
+          <Typography
+            sx={{
+              marginRight: "60px",
+              color: (theme) => theme.palette.textColor.col3,
+              fontSize: "14px",
+            }}
+          >
+            End Date
+          </Typography>
+          <Typography sx={{ fontSize: "14px" }}>
+            {user_list_info.end_date}
+          </Typography>
+        </Box>
         <CustomUserListEditModal
           open={user_list_edit_modal.isOpen}
           onClose={UserListModalHandleClose}
@@ -161,6 +203,8 @@ const CustomUserListEditModal = ({ open, onClose, user_list_info }) => {
     user_list_name: user_list_info.user_list_name,
     user_list_email: user_list_info.user_list_email,
     user_list_contact: user_list_info.user_list_contact,
+    start_date: user_list_info.start_date,
+    end_date: user_list_info.end_date,
   });
 
   const [usertype, SetUserType] = useState(user_list_info.user_list_type);
@@ -173,6 +217,7 @@ const CustomUserListEditModal = ({ open, onClose, user_list_info }) => {
     setPayload({ ...payload, [prop]: e.target.value });
   };
   const UpdateUserList = () => {
+    const admin_id = JSON.parse(localStorage.getItem("user"));
     const obj = {
       user_list_name: payload.user_list_name,
       user_list_email: payload.user_list_email,
@@ -180,8 +225,21 @@ const CustomUserListEditModal = ({ open, onClose, user_list_info }) => {
       user_list_type: usertype,
       user_list_id: user_list_info.user_list_id,
     };
+    const obj1 = {
+      user_list_name: payload.user_list_name,
+      user_list_email: payload.user_list_email,
+      user_list_contact: payload.user_list_contact,
+      user_list_type: usertype,
+      user_date_created: new Date().toLocaleDateString(),
+      user_time_created: new Date().toLocaleTimeString(),
+      start_date: payload.start_date,
+      end_date: payload.end_date,
+      action: "update user",
+      admin_id: admin_id.admin_id,
+    };
 
     updateUserList(obj);
+    createUserListHistory(obj1);
     isClose();
     window.location.reload();
   };
@@ -202,7 +260,6 @@ const CustomUserListEditModal = ({ open, onClose, user_list_info }) => {
     >
       <Paper
         sx={{
-          height: "400px",
           width: "1000px",
           outline: "none",
           overflow: "hidden",
@@ -283,6 +340,7 @@ const CustomUserListEditModal = ({ open, onClose, user_list_info }) => {
             Contact No.
           </Typography>
           <TextField
+            type="tel"
             sx={classes.user_list_edit_input}
             value={payload.user_list_contact}
             onChange={UserListHandleChange("user_list_contact")}
@@ -317,7 +375,6 @@ const CustomUserListEditModal = ({ open, onClose, user_list_info }) => {
               fontSize: "13px",
               textTransform: "uppercase",
             }}
-            
           >
             <MenuItem
               value={"Intern"}
@@ -338,6 +395,54 @@ const CustomUserListEditModal = ({ open, onClose, user_list_info }) => {
               Mcc Hr Team
             </MenuItem>
           </Select>
+        </Box>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            padding: "20px 40px",
+            marginTop: "10px",
+          }}
+        >
+          <Typography
+            sx={{
+              marginRight: "58px",
+              color: (theme) => theme.palette.textColor.col3,
+              fontSize: "14px",
+            }}
+          >
+            Start Date
+          </Typography>
+          <TextField
+            type="date"
+            sx={classes.user_list_edit_input}
+            value={payload.start_date}
+            onChange={UserListHandleChange("start_date")}
+          />
+        </Box>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            padding: "20px 40px",
+            marginTop: "10px",
+          }}
+        >
+          <Typography
+            sx={{
+              marginRight: "60px",
+              color: (theme) => theme.palette.textColor.col3,
+              fontSize: "14px",
+            }}
+          >
+            End Date
+          </Typography>
+          <TextField
+            type="date"
+            sx={classes.user_list_edit_input}
+            value={payload.end_date}
+            onChange={UserListHandleChange("end_date")}
+          />
         </Box>
         <Box
           sx={{

@@ -9,12 +9,17 @@ import {
   Avatar,
   LinearProgress,
   Button,
+  IconButton,
 } from "@mui/material";
 
 import CustomSideBar from "./components/CustomSideBar";
 import CustomHeaderBar from "./components/CustomHeaderBar";
 
-import { OngoingProjectChart } from "./components/CustomChartData";
+import {
+  OngoingProjectChart,
+  CompleteProjectChart,
+  MaterialChartData,
+} from "./components/CustomChartData";
 
 import backgroundImg from "../assets/img/background.png";
 
@@ -24,7 +29,6 @@ import { ReactComponent as ReturnIcon } from "../assets/svg/returned.svg";
 import { ReactComponent as DeliverIcon } from "../assets/svg/delivered.svg";
 import { ReactComponent as CancelIcon } from "../assets/svg/cancel.svg";
 
-import { DashBoard_Helmet } from "./components/CustomMetaTag";
 import {
   FetchUserData,
   FetchPendingProjectData,
@@ -32,7 +36,11 @@ import {
   FetchCanceledProjectData,
   FetchDeliveredMaterialData,
   FetchReturnedMaterialData,
+  FetchMaterialsData,
+  FetchOngoingProjectReportData,
+  FetchCompleteProjectReportData,
 } from "./components/CustomFetchDashBoardData";
+import CustomTimeLine from "./components/CustomTimeLine";
 export default function DashBoard() {
   const [sidebar, Setsidebar] = useState({
     isOpen: false,
@@ -45,7 +53,6 @@ export default function DashBoard() {
   const SideBarHandleClose = () => {
     Setsidebar({ ...sidebar, isOpen: false });
   };
-
   return (
     <Box
       sx={{
@@ -131,9 +138,7 @@ export default function DashBoard() {
                   padding: "20px 20px",
                 }}
               >
-                <Box
-                  sx={{ height: "100%", width: "20%", backgroundColor: "" }}
-                >
+                <Box sx={{ height: "100%", width: "20%", backgroundColor: "" }}>
                   <Typography
                     sx={{
                       fontSize: "14px",
@@ -142,6 +147,7 @@ export default function DashBoard() {
                   >
                     Ongoing Projects
                   </Typography>
+                  <FetchOngoingProjectReportData />
                 </Box>
                 <Box
                   sx={{
@@ -150,11 +156,12 @@ export default function DashBoard() {
                     backgroundColor: "",
                   }}
                 >
-       {/*            <OngoingProjectChart /> */}
+                  <OngoingProjectChart />
                 </Box>
               </Paper>
               <Paper
                 sx={{
+                  display: "flex",
                   height: "140px",
                   width: "95%",
                   marginTop: "10px",
@@ -162,14 +169,26 @@ export default function DashBoard() {
                   padding: "20px 20px",
                 }}
               >
-                <Typography
+                <Box sx={{ height: "100%", width: "20%", backgroundColor: "" }}>
+                  <Typography
+                    sx={{
+                      fontSize: "14px",
+                      color: (theme) => theme.palette.textColor.col4,
+                    }}
+                  >
+                    Complete Projects
+                  </Typography>
+                  <FetchCompleteProjectReportData />
+                </Box>
+                <Box
                   sx={{
-                    fontSize: "14px",
-                    color: (theme) => theme.palette.textColor.col4,
+                    height: "100%",
+                    width: "80%",
+                    backgroundColor: "",
                   }}
                 >
-                  Complete Projects
-                </Typography>
+                  <CompleteProjectChart />
+                </Box>
               </Paper>
             </Box>
             <Box
@@ -279,14 +298,32 @@ export default function DashBoard() {
                 </Paper>
               </Box>
             </Box>
-            <Paper
+            <Box
               sx={{
-                height: "460px",
+                display: "flex",
+                justifyContent: "space-between",
                 width: "100%",
                 marginTop: "40px",
                 borderRadius: "10px",
               }}
-            ></Paper>
+            >
+              <Paper
+                sx={{
+                  height: "460px",
+                  width: "410px",
+                  borderRadius: "10px",
+                }}
+              ></Paper>
+              <Paper
+                sx={{
+                  height: "460px",
+                  width: "410px",
+                  borderRadius: "10px",
+                }}
+              >
+                <MaterialChartData />
+              </Paper>
+            </Box>
           </Box>
           <Box
             sx={{
@@ -296,8 +333,27 @@ export default function DashBoard() {
             }}
           >
             <Paper
-              sx={{ height: "400px", width: "100%", marginTop: "34px" }}
-            ></Paper>
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "flex-start",
+                alignItems: "flex-start",
+                height: "400px",
+                width: "100%",
+                marginTop: "34px",
+              }}
+            >
+              <Typography
+                sx={{
+                  fontSize: "16px",
+                  fontWeight: "bold",
+                  padding: "20px 0px 10px 20px",
+                }}
+              >
+                Inventory: Quick Menu
+              </Typography>
+              <CustomTimeLine />
+            </Paper>
             <Box
               sx={{
                 width: "100%",
@@ -305,38 +361,7 @@ export default function DashBoard() {
               }}
             >
               <Typography>Materials</Typography>
-              <Paper
-                sx={{
-                  height: "100px",
-                  width: "100%",
-                  borderRadius: "0px 10px 10px 0px",
-                  marginTop: "10px",
-                }}
-              ></Paper>
-              <Paper
-                sx={{
-                  height: "100px",
-                  width: "100%",
-                  borderRadius: "0px 10px 10px 0px",
-                  marginTop: "10px",
-                }}
-              ></Paper>
-              <Paper
-                sx={{
-                  height: "100px",
-                  width: "100%",
-                  borderRadius: "0px 10px 10px 0px",
-                  marginTop: "10px",
-                }}
-              ></Paper>
-              <Paper
-                sx={{
-                  height: "100px",
-                  width: "100%",
-                  borderRadius: "0px 10px 10px 0px",
-                  marginTop: "10px",
-                }}
-              ></Paper>
+              <FetchMaterialsData />
             </Box>
           </Box>
         </Box>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import {
   Box,
@@ -12,6 +12,7 @@ import {
 import { Link as NLink } from "react-router-dom";
 import CustomSideBar from "./components/CustomSideBar";
 import CustomHeaderBar from "./components/CustomHeaderBar";
+import CustomMaterialLevelModal from "./components/CustomMaterialLevelModal";
 
 import { ReactComponent as BackIcon } from "../assets/svg/back.svg";
 import { ReactComponent as ImportIcon } from "../assets/svg/import.svg";
@@ -20,6 +21,9 @@ import { ReactComponent as SearchIcon } from "../assets/svg/search1.svg";
 import { ReactComponent as UserIcon } from "../assets/svg/user1.svg";
 import { ReactComponent as DeleteIcon } from "../assets/svg/trash.svg";
 
+import { deleteMaterialLevelApi } from "../api/materiallevelApi";
+import { API } from "../api/api";
+import axios from "axios";
 export default function Material_Stock_level() {
   const [payload, SetPayload] = useState({
     data: [{}],
@@ -28,12 +32,132 @@ export default function Material_Stock_level() {
     isOpen: false,
   });
 
+  const [material_modal, Setmaterial_modal] = useState({
+    isOpen: false,
+  });
+  const [material_info, Setmaterial_info] = useState({
+    data: {},
+  });
+
+  const [deleteData, SetDeleteData] = useState([]);
+
+  const [deleteAllData, SetDeleteAllData] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      await axios({
+        method: "GET",
+        url: API.material_stock_level.fetchMaterialLevel,
+      })
+        .then((response) => {
+          console.log(response.data);
+          SetPayload({ ...payload, data: response.data });
+        })
+        .catch(({ response }) => {
+          console.log(response.data);
+        });
+    };
+    fetchData();
+  }, []);
+
+  console.log(payload.data);
+
   const SideBarHandle = () => {
     Setsidebar({ ...sidebar, isOpen: true });
   };
 
   const SideBarHandleClose = () => {
     Setsidebar({ ...sidebar, isOpen: false });
+  };
+
+  const MaterialModalHandleOpen = () => {
+    Setmaterial_modal({ ...material_modal, isOpen: true });
+  };
+  const MaterialModalHandleClose = () => {
+    Setmaterial_modal({ ...material_modal, isOpen: false });
+  };
+
+  const MaterialData = (data) => {
+    Setmaterial_info({ ...material_info, data: data });
+  };
+
+  const MaterialFunc = (data, e) => {
+    if (e.target.id === "paper") {
+      MaterialModalHandleOpen();
+      MaterialData(data);
+    }
+  };
+
+  const isChecked = (e) => {
+    const { id, checked } = e.target;
+    if (id === "checkAll") {
+      let tempUser = payload.data.map((index) => {
+        return { ...index, ischecked: checked };
+      });
+      SetPayload({ ...payload, data: tempUser });
+      let data_arr = [];
+
+      tempUser.forEach((index) => {
+        const obj = {
+          material_level_id: index.material_level_id,
+        };
+        data_arr.push(obj);
+      });
+      if (!checked) {
+        SetDeleteAllData(deleteAllData.filter((index) => index === data_arr));
+        SetDeleteData(
+          deleteData.filter((index) => index.material_level_id === data_arr)
+        );
+      } else {
+        SetDeleteAllData(data_arr);
+        SetDeleteData(
+          deleteData.filter((index) => index.material_level_id === data_arr)
+        );
+      }
+    } else {
+      let tempUser = payload.data.map((index) =>
+        index.material_level_id === id
+          ? { ...index, ischecked: checked }
+          : index
+      );
+      SetPayload({ ...payload, data: tempUser });
+      let removeItem = id;
+      if (!checked) {
+        SetDeleteData(
+          deleteData.filter((index) => index.material_level_id !== removeItem)
+        );
+        SetDeleteAllData(
+          deleteAllData.filter(
+            (index) => index.material_level_id !== removeItem
+          )
+        );
+      } else {
+        SetDeleteData([...deleteData, { material_level_id: id }]);
+        SetDeleteAllData(
+          deleteAllData.filter(
+            (index) => index.material_level_id !== removeItem
+          )
+        );
+      }
+    }
+  };
+
+  const DeleteData = () => {
+    deleteAllData.forEach((index) => {
+      const obj = {
+        material_level_id: index.material_level_id,
+      };
+      console.log(obj);
+      deleteMaterialLevelApi(obj);
+    });
+    deleteData.forEach((index) => {
+      const obj = {
+        material_level_id: index.material_level_id,
+      };
+      console.log(obj);
+      deleteMaterialLevelApi(obj);
+    });
+    window.location.reload();
   };
   return (
     <Box
@@ -70,34 +194,6 @@ export default function Material_Stock_level() {
             }}
           >
             <Box component="span" sx={{ flexGrow: "1" }} />
-            <Box
-              sx={{
-                position: "relative",
-                marginRight: "50px",
-              }}
-            >
-              <Button
-                sx={{
-                  textTransform: "capitalize",
-                }}
-              >
-                <ImportIcon
-                  style={{
-                    height: "20px",
-                    width: "20px",
-                    marginRight: "10px",
-                  }}
-                />
-                <Typography
-                  sx={{
-                    fontWeight: "bolder",
-                    fontSize: "14px",
-                  }}
-                >
-                  import
-                </Typography>
-              </Button>
-            </Box>
             <Box
               sx={{
                 position: "relative",
@@ -238,20 +334,6 @@ export default function Material_Stock_level() {
             }}
           >
             <Box sx={{ display: "flex", width: "100%" }}>
-              <Button
-                sx={{
-                  height: "35px",
-                  width: "150px",
-                  border: "1px solid #3A57E8",
-                  borderRadius: "10px",
-                  textTransform: "capitalize",
-                  backgroundColor: (theme) => theme.palette.primary.main,
-                  color: (theme) => theme.palette.textColor.col1,
-                }}
-              >
-                <UserIcon style={{ marginRight: "10px" }} />
-                <Typography sx={{ fontSize: "14px" }}>Add New</Typography>
-              </Button>
               <Box component="span" sx={{ flexGrow: "1" }} />
               <Box
                 sx={{
@@ -270,11 +352,19 @@ export default function Material_Stock_level() {
                     backgroundColor: (theme) => theme.palette.primary.main,
                     color: (theme) => theme.palette.textColor.col1,
                   }}
+                  onClick={DeleteData}
                 >
                   <DeleteIcon style={{ marginRight: "10px" }} />
                   <Typography sx={{ fontSize: "14px" }}>Delete</Typography>
                 </Button>
-                <Checkbox id="checkAll" color="secondary" />
+                <Checkbox
+                  id="checkAll"
+                  onClick={isChecked}
+                  checked={
+                    !payload.data.some((index) => index?.ischecked !== true)
+                  }
+                  color="secondary"
+                />
               </Box>
             </Box>
           </Box>
@@ -292,23 +382,7 @@ export default function Material_Stock_level() {
                 fontSize: "14px",
               }}
             >
-              SKU
-            </Typography>
-            <Typography
-              sx={{
-                color: (theme) => theme.palette.textColor.col4,
-                fontSize: "14px",
-              }}
-            >
-              DATE
-            </Typography>
-            <Typography
-              sx={{
-                color: (theme) => theme.palette.textColor.col4,
-                fontSize: "14px",
-              }}
-            >
-              STOCK
+              Inventory Code
             </Typography>
             <Typography
               sx={{
@@ -343,7 +417,7 @@ export default function Material_Stock_level() {
               ON ORDER
             </Typography>
           </Box>
-          {payload.data.length !== 0 ? (
+          {payload.data.length === 0 ? (
             <Paper
               sx={{
                 display: "flex",
@@ -367,9 +441,131 @@ export default function Material_Stock_level() {
               </Typography>
             </Paper>
           ) : (
-            ""
+            payload.data.map((index, i) => (
+              <Paper
+                key={i}
+                id="paper"
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  height: "70px",
+                  width: "96%",
+                  marginTop: "20px",
+                  borderRadius: "10px",
+                  padding: "0px 20px",
+                  overflow: "hidden",
+                  transition: "all 0.3s ease",
+                  "&:hover": {
+                    backgroundColor: (theme) => theme.palette.secondary.bg2,
+                  },
+                }}
+                onClick={(e) => MaterialFunc(index, e)}
+              >
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "70px",
+                    width: "15%",
+                    backgroundColor: "",
+                    pointerEvents: "none",
+                  }}
+                >
+                  <Typography sx={{ fontSize: "13px" }}>
+                    {index.inventory_code}
+                  </Typography>
+                </Box>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "70px",
+                    width: "15%",
+                    backgroundColor: "",
+                    marginRight: "50px",
+                    pointerEvents: "none",
+                  }}
+                >
+                  <Typography sx={{ fontSize: "13px" }}>
+                    {index.location}
+                  </Typography>
+                </Box>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "70px",
+                    width: "15%",
+                    backgroundColor: "",
+                    marginRight: "50px",
+                    pointerEvents: "none",
+                  }}
+                >
+                  <Typography sx={{ fontSize: "13px" }}>
+                    {index.material}
+                  </Typography>
+                </Box>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "70px",
+                    width: "15%",
+                    backgroundColor: "",
+                    marginRight: "85px",
+                    pointerEvents: "none",
+                  }}
+                >
+                  <Typography sx={{ fontSize: "13px" }}>
+                    {index.quantity_on_hand}
+                  </Typography>
+                </Box>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "70px",
+                    width: "15%",
+                    backgroundColor: "",
+                    marginRight: "85px",
+                    pointerEvents: "none",
+                  }}
+                >
+                  <Typography sx={{ fontSize: "13px" }}>
+                    {index.on_order}
+                  </Typography>
+                </Box>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "flex-start",
+                    alignItems: "center",
+                    height: "100%",
+                    width: "5.5%",
+                  }}
+                >
+                  <Checkbox
+                    id={index.material_level_id}
+                    onClick={isChecked}
+                    checked={index?.ischecked || false}
+                    color="secondary"
+                  />
+                </Box>
+              </Paper>
+            ))
           )}
         </Box>
+        <CustomMaterialLevelModal
+          open={material_modal.isOpen}
+          onClose={MaterialModalHandleClose}
+          material_level_info={material_info.data}
+        />
         <Box
           sx={{
             position: "relative",

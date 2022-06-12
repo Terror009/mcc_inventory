@@ -211,7 +211,7 @@ export default function CustomMaterialDropDown() {
           </Box>
         </AccordionDetails>
       </Accordion>
-      <Accordion
+ {/*      <Accordion
         sx={{
           width: "97%",
           boxShadow: "none",
@@ -302,8 +302,8 @@ export default function CustomMaterialDropDown() {
             </Typography>
           </Box>
         </AccordionDetails>
-      </Accordion>
-      <Accordion
+      </Accordion> */}
+    {/*   <Accordion
         sx={{
           width: "97%",
           boxShadow: "none",
@@ -394,7 +394,7 @@ export default function CustomMaterialDropDown() {
             </Typography>
           </Box>
         </AccordionDetails>
-      </Accordion>
+      </Accordion> */}
     </Paper>
   );
 }
